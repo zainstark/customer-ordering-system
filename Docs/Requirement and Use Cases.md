@@ -1,47 +1,19 @@
-
-
-## Requirements
-FR1
-Customer can register/login
-FR2
-Customer can browse menu
-FR3
-Customer can add items to cart
-FR4
-Customer can place order
-FR5
-Customer can choose payment method
-FR6
-System processes payment
-FR7
-System sends order confirmation
-FR8
-Update order status
-FR9
-Customer tracks order
-
-NFR1
-Response time ≤ 2 seconds
-NFR2
-Payment success rate ≥ 99.5%
-NFR3
-Secure transactions using HTTPS
-
-
-## Traceability Map
-| FR \ UC             | UC1 Auth | UC2 Browse | UC3 Cart | UC4 Order | UC5 Payment | UC6 Confirm | UC7 Track |
-| ------------------- | -------- | ---------- | -------- | --------- | ----------- | ----------- | --------- |
-| FR1 Login           | 1.0      | 0          | 0        | 0         | 0           | 0           | 0         |
-| FR2 Browse          | 0        | 1.0        | 0.3      | 0         | 0           | 0           | 0         |
-| FR3 Add to cart     | 0        | 0.3        | 1.0      | 0.5       | 0           | 0           | 0         |
-| FR4 Place order     | 0        | 0          | 0.5      | 1.0       | 0.5         | 0           | 0         |
-| FR5 Choose payment  | 0        | 0          | 0        | 0.3       | 1.0         | 0           | 0         |
-| FR6 Process payment | 0        | 0          | 0        | 0.3       | 1.0         | 0.5         | 0         |
-| FR7 Confirmation    | 0        | 0          | 0        | 0         | 0.5         | 1.0         | 0         |
-| FR8 Update status   | 0        | 0          | 0        | 0         | 0           | 0.5         | 1.0       |
-| FR9 Track order     | 0        | 0          | 0        | 0         | 0           | 0           | 1.0       |
-
-
+# Requirements
+---
+| ID   | Requirement Type        | Description                              |
+|------|-------------------------|------------------------------------------|
+| FR1  | Functional Requirement  | Customer can register/login              |
+| FR2  | Functional Requirement  | Customer can browse menu                 |
+| FR3  | Functional Requirement  | Customer can add items to cart           |
+| FR4  | Functional Requirement  | Customer can place order                 |
+| FR5  | Functional Requirement  | Customer can choose payment method       |
+| FR6  | Functional Requirement  | System processes payment                 |
+| FR7  | Functional Requirement  | System sends order confirmation          |
+| FR8  | Functional Requirement  | Update order status                      |
+| FR9  | Functional Requirement  | Customer tracks order                    |
+| NFR1 | Non-Functional Requirement | Response time ≤ 2 seconds             |
+| NFR2 | Non-Functional Requirement | Payment success rate ≥ 99.5%          |
+| NFR3 | Non-Functional Requirement | Secure transactions using HTTPS       |
 
 ## UC1 – Authentication
 
@@ -126,3 +98,17 @@ Secure transactions using HTTPS
 | **Alternative Flows** | *Invalid order ID*: System shows error "Order not found".<br>*Status not yet updated*: System shows last known status and next expected update time. |
 
 ---
+
+
+## Traceability Map
+| FR \ UC             | UC1 Auth | UC2 Browse | UC3 Cart | UC4 Order | UC5 Payment | UC6 Confirm | UC7 Track |
+| ------------------- | -------- | ---------- | -------- | --------- | ----------- | ----------- | --------- |
+| FR1 Login           | 1.0      | 0          | 0        | 0         | 0           | 0           | 0         |
+| FR2 Browse          | 0        | 1.0        | 0.3      | 0         | 0           | 0           | 0         |
+| FR3 Add to cart     | 0        | 0.3        | 1.0      | 0.5       | 0           | 0           | 0         |
+| FR4 Place order     | 0        | 0          | 0.5      | 1.0       | 0.5         | 0           | 0         |
+| FR5 Choose payment  | 0        | 0          | 0        | 0.3       | 1.0         | 0           | 0         |
+| FR6 Process payment | 0        | 0          | 0        | 0.3       | 1.0         | 0.5         | 0         |
+| FR7 Confirmation    | 0        | 0          | 0        | 0         | 0.5         | 1.0         | 0         |
+| FR8 Update status   | 0        | 0          | 0        | 0         | 0           | 0.5         | 1.0       |
+| FR9 Track order     | 0        | 0          | 0        | 0         | 0           | 0           | 1.0       |
