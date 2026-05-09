@@ -1,8 +1,4 @@
-# UML Class Diagram
-
-This diagram models the customer-ordering-system as a domain-first design derived from the requirements and use cases in this repository.
-
-## Class Diagram
+# Class Diagram
 
 ```mermaid
 classDiagram
@@ -49,6 +45,7 @@ class MenuItem {
   +Decimal price
   +String category
   +Boolean available
+  +String imageUrl
 }
 
 class MenuService {
@@ -228,39 +225,121 @@ AuthenticationService ..> CustomerAccount : secure login
 PaymentService ..> PaymentMethod : selected method
 ```
 
-## Why These Components
 
-The model keeps the domain responsibilities separated so each functional requirement has a clear owner:
+# Why These Components Exist
 
-- FR1 and UC1 are handled by `CustomerAccount`, `Session`, and `AuthenticationService`.
-- FR2 and UC2 are handled by `MenuCatalog`, `MenuItem`, and `MenuService`.
-- FR3 and UC3 are handled by `Cart`, `CartItem`, and `CartService`.
-- FR4 and UC4 are handled by `Order`, `OrderItem`, and `OrderService`.
-- FR5 and UC5 are handled by `PaymentMethod`, `Payment`, `Transaction`, `PaymentService`, and `PaymentGatewayAdapter`.
-- FR6 is represented by the payment processing collaboration between `PaymentService` and `PaymentGatewayAdapter`.
-- FR7 and UC6 are handled by `NotificationMessage` and `NotificationService`.
-- FR8 is handled by `OrderStatusHistory`, `OrderStatus`, and `OrderTrackingService`.
-- FR9 and UC7 are handled by `OrderTrackingService` reading the order and its status history.
+This class diagram is designed to separate the system into smaller responsibilities so each part of the food ordering system has a clear purpose. Instead of putting all logic into one large class, the design divides the system into focused components that are easier to understand, maintain, and extend.
 
-## Traceability Summary
+---
 
-| FR / UC | Main Classes and Services |
-| --- | --- |
-| FR1 / UC1 | CustomerAccount, Session, AuthenticationService |
-| FR2 / UC2 | MenuCatalog, MenuItem, MenuService |
-| FR3 / UC3 | Cart, CartItem, CartService |
-| FR4 / UC4 | Order, OrderItem, OrderService |
-| FR5 / UC5 | PaymentMethod, Payment, Transaction, PaymentService, PaymentGatewayAdapter |
-| FR6 / UC5 | PaymentService, PaymentGatewayAdapter, Transaction |
-| FR7 / UC6 | NotificationMessage, NotificationService, Order |
-| FR8 / UC7 | OrderStatus, OrderStatusHistory, OrderTrackingService |
-| FR9 / UC7 | OrderTrackingService, OrderStatusHistory, Order |
+## Customer and Authentication Components
 
-## Design Notes
+`CustomerAccount`, `Session`, and `AuthenticationService` manage user identity and login behavior.
 
-- `CustomerAccount` owns authentication identity data, but session lifecycle is separate in `Session` so login and timeout behavior are explicit.
-- `Cart` and `Order` both contain line items, but `CartItem` and `OrderItem` are separate because cart pricing and finalized order pricing should not be conflated.
-- `PaymentGatewayAdapter` isolates the external gateway integration so retries, timeout handling, and gateway changes do not leak into the domain model.
-- `OrderStatusHistory` is included because UC7 requires status tracking and UC6/FR8 require status updates over time, not just a single current state.
-- NFR3 is reflected by secure authentication and payment coordination, while NFR1 and NFR2 are operational constraints rather than standalone classes.
-```
+- `CustomerAccount` stores customer information such as email, password hash, and phone number.
+- `Session` represents an active login session and handles expiration/logout behavior.
+- `AuthenticationService` performs operations such as registration, login, and session management.
+
+This separation keeps authentication logic organized and improves security.
+
+---
+
+## Menu Components
+
+`MenuCatalog`, `MenuItem`, and `MenuService` are responsible for browsing food items.
+
+- `MenuCatalog` represents the complete restaurant menu.
+- `MenuItem` represents a single product such as a burger or pizza.
+- `MenuService` handles searching, filtering, and retrieving menu data.
+
+Separating menu data from menu operations makes the system easier to update and scale.
+
+---
+
+## Cart Components
+
+`Cart`, `CartItem`, and `CartService` manage temporary shopping activity before checkout.
+
+- `Cart` represents the customer’s current shopping cart.
+- `CartItem` stores item quantity and pricing information.
+- `CartService` contains the business logic for adding, updating, and removing items.
+
+The cart is separated from orders because cart contents can change frequently before purchase confirmation.
+
+---
+
+## Order Components
+
+`Order`, `OrderItem`, `OrderStatus`, `OrderStatusHistory`, and `OrderService` handle finalized purchases.
+
+- `Order` represents a completed checkout request.
+- `OrderItem` stores a permanent snapshot of purchased items.
+- `OrderStatus` defines the current stage of the order.
+- `OrderStatusHistory` stores all previous status updates for tracking purposes.
+- `OrderService` validates carts and creates orders.
+
+This design supports order tracking and prevents historical purchase data from changing after checkout.
+
+---
+
+## Payment Components
+
+`Payment`, `Transaction`, `PaymentMethod`, `PaymentService`, and `PaymentGatewayAdapter` handle payment processing.
+
+- `PaymentMethod` defines available payment options such as card or cash on delivery.
+- `Payment` stores payment information and status.
+- `Transaction` stores the response returned from the payment provider.
+- `PaymentService` controls payment flow and retry logic.
+- `PaymentGatewayAdapter` communicates with external payment systems such as Stripe or PayPal.
+
+The adapter layer is important because it isolates external APIs from the rest of the system. If the payment provider changes later, the main system architecture remains stable.
+
+---
+
+## Notification Components
+
+`NotificationMessage` and `NotificationService` manage customer notifications.
+
+- `NotificationMessage` stores notification content.
+- `NotificationService` sends confirmations and retries failed deliveries.
+
+This keeps communication logic separate from ordering and payment logic.
+
+---
+
+## Tracking Components
+
+`OrderTrackingService` and `OrderStatusHistory` provide order tracking functionality.
+
+- Customers can view the current order state.
+- The system can display a timeline of status updates such as:
+  - Pending
+  - Preparing
+  - Out for Delivery
+  - Delivered
+
+This improves transparency and user experience.
+
+---
+
+# Design Notes
+
+## Separation Between Data and Logic
+
+The design separates:
+
+- data classes (`Order`, `Cart`, `Payment`)
+- service classes (`OrderService`, `CartService`, `PaymentService`)
+
+Entity classes mainly store information, while service classes perform business operations. This follows common backend architecture practices and keeps the system modular.
+
+---
+
+## Why `CartItem` and `OrderItem` Are Different
+
+Although they look similar, they serve different purposes:
+
+- `CartItem` is temporary and changes while the customer edits the cart.
+- `OrderItem` becomes permanent once the order is placed.
+
+This prevents old orders from changing if menu prices are updated later.

@@ -1,29 +1,19 @@
 # Requirements
-### FR1
-Customer can register/login
-### FR2
-Customer can browse menu
-### FR3
-Customer can add items to cart
-### FR4
-Customer can place order
-### FR5
-Customer can choose payment method
-### FR6
-System processes payment
-### FR7
-System sends order confirmation
-### FR8
-Update order status
-### FR9
-Customer tracks order
-
-### NFR1
-Response time ≤ 2 seconds
-### NFR2
-Payment success rate ≥ 99.5%
-### NFR3
-Secure transactions using HTTPS
+---
+| ID   | Requirement Type        | Description                              |
+|------|-------------------------|------------------------------------------|
+| FR1  | Functional Requirement  | Customer can register/login              |
+| FR2  | Functional Requirement  | Customer can browse menu                 |
+| FR3  | Functional Requirement  | Customer can add items to cart           |
+| FR4  | Functional Requirement  | Customer can place order                 |
+| FR5  | Functional Requirement  | Customer can choose payment method       |
+| FR6  | Functional Requirement  | System processes payment                 |
+| FR7  | Functional Requirement  | System sends order confirmation          |
+| FR8  | Functional Requirement  | Update order status                      |
+| FR9  | Functional Requirement  | Customer tracks order                    |
+| NFR1 | Non-Functional Requirement | Response time ≤ 2 seconds             |
+| NFR2 | Non-Functional Requirement | Payment success rate ≥ 99.5%          |
+| NFR3 | Non-Functional Requirement | Secure transactions using HTTPS       |
 
 
 ## Traceability Map
