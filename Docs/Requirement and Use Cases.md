@@ -15,22 +15,6 @@
 | NFR2 | Non-Functional Requirement | Payment success rate ≥ 99.5%          |
 | NFR3 | Non-Functional Requirement | Secure transactions using HTTPS       |
 
-
-## Traceability Map
-| FR \ UC             | UC1 Auth | UC2 Browse | UC3 Cart | UC4 Order | UC5 Payment | UC6 Confirm | UC7 Track |
-| ------------------- | -------- | ---------- | -------- | --------- | ----------- | ----------- | --------- |
-| FR1 Login           | 1.0      | 0          | 0        | 0         | 0           | 0           | 0         |
-| FR2 Browse          | 0        | 1.0        | 0.3      | 0         | 0           | 0           | 0         |
-| FR3 Add to cart     | 0        | 0.3        | 1.0      | 0.5       | 0           | 0           | 0         |
-| FR4 Place order     | 0        | 0          | 0.5      | 1.0       | 0.5         | 0           | 0         |
-| FR5 Choose payment  | 0        | 0          | 0        | 0.3       | 1.0         | 0           | 0         |
-| FR6 Process payment | 0        | 0          | 0        | 0.3       | 1.0         | 0.5         | 0         |
-| FR7 Confirmation    | 0        | 0          | 0        | 0         | 0.5         | 1.0         | 0         |
-| FR8 Update status   | 0        | 0          | 0        | 0         | 0           | 0.5         | 1.0       |
-| FR9 Track order     | 0        | 0          | 0        | 0         | 0           | 0           | 1.0       |
-
-
-
 ## UC1 – Authentication
 
 | Element                   | Description                                                                                                                                                                                                                                                        |
@@ -112,5 +96,21 @@
 | **Postconditions** | Customer sees real-time (or near-real-time) order status (e.g., Preparing, Ready, Out for Delivery, Delivered). |
 | **Main Success Scenario** | 1. Customer requests order status using order ID.<br>2. System retrieves current status and timestamp.<br>3. System displays status within ≤2 seconds (NFR1).<br>4. System optionally shows history of status changes (UC8 – Update order status, implicitly included). |
 | **Alternative Flows** | *Invalid order ID*: System shows error "Order not found".<br>*Status not yet updated*: System shows last known status and next expected update time. |
+
+---
+
+
+## Traceability Map
+| FR \ UC             | UC1 Auth | UC2 Browse | UC3 Cart | UC4 Order | UC5 Payment | UC6 Confirm | UC7 Track |
+| ------------------- | -------- | ---------- | -------- | --------- | ----------- | ----------- | --------- |
+| FR1 Login           | 1.0      | 0          | 0        | 0         | 0           | 0           | 0         |
+| FR2 Browse          | 0        | 1.0        | 0.3      | 0         | 0           | 0           | 0         |
+| FR3 Add to cart     | 0        | 0.3        | 1.0      | 0.5       | 0           | 0           | 0         |
+| FR4 Place order     | 0        | 0          | 0.5      | 1.0       | 0.5         | 0           | 0         |
+| FR5 Choose payment  | 0        | 0          | 0        | 0.3       | 1.0         | 0           | 0         |
+| FR6 Process payment | 0        | 0          | 0        | 0.3       | 1.0         | 0.5         | 0         |
+| FR7 Confirmation    | 0        | 0          | 0        | 0         | 0.5         | 1.0         | 0         |
+| FR8 Update status   | 0        | 0          | 0        | 0         | 0           | 0.5         | 1.0       |
+| FR9 Track order     | 0        | 0          | 0        | 0         | 0           | 0           | 1.0       |
 
 ---
