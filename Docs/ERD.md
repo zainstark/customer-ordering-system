@@ -485,24 +485,3 @@ Examples:
 Without indexes, large databases become slower over time.
 
 ---
-
-# Lookup Tables and Enum-Like Fields
-
-Some fields currently use string values, such as:
-- payment status
-- order status
-- payment method
-
-Example:
-
-```text
-PENDING
-PAID
-FAILED
-```
-
-In larger systems, these values may later become:
-- enum types
-- dedicated lookup tables
-
-This improves consistency and prevents invalid status values.
