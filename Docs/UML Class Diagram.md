@@ -1,7 +1,5 @@
 # Class Diagram
 
-![UML Classes Diagram](Classes_Diagram.svg)
-
 ```mermaid
 classDiagram
 direction LR

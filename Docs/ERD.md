@@ -2,8 +2,6 @@
 
 This ERD is derived from the UML class diagram and keeps only the persistent data model needed to support the requirements and use cases.
 
-![ERD](ERD.svg)
-
 ## ER Diagram
 
 ```mermaid
