@@ -112,5 +112,3 @@
 | FR7 Confirmation    | 0        | 0          | 0        | 0         | 0.5         | 1.0         | 0         |
 | FR8 Update status   | 0        | 0          | 0        | 0         | 0           | 0.5         | 1.0       |
 | FR9 Track order     | 0        | 0          | 0        | 0         | 0           | 0           | 1.0       |
-
----

@@ -343,5 +343,3 @@ Although they look similar, they serve different purposes:
 - `OrderItem` becomes permanent once the order is placed.
 
 This prevents old orders from changing if menu prices are updated later.
-
----

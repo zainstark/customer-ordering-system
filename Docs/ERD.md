@@ -483,5 +483,3 @@ Examples:
 - tracking order status changes
 
 Without indexes, large databases become slower over time.
-
----
