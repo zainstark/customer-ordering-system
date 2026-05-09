@@ -1,30 +1,28 @@
-
-
-## Requirements
-FR1
+# Requirements
+### FR1
 Customer can register/login
-FR2
+### FR2
 Customer can browse menu
-FR3
+### FR3
 Customer can add items to cart
-FR4
+### FR4
 Customer can place order
-FR5
+### FR5
 Customer can choose payment method
-FR6
+### FR6
 System processes payment
-FR7
+### FR7
 System sends order confirmation
-FR8
+### FR8
 Update order status
-FR9
+### FR9
 Customer tracks order
 
-NFR1
+### NFR1
 Response time ≤ 2 seconds
-NFR2
+### NFR2
 Payment success rate ≥ 99.5%
-NFR3
+### NFR3
 Secure transactions using HTTPS
 
 
