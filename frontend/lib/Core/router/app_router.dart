@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/Core/router/routes.dart';
+import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:frontend/features/cart/presentation/screens/cart_screen.dart';
+import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
+import 'package:frontend/features/menu/presentation/screens/menu_screen.dart';
+import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:frontend/features/orders/presentation/screens/orders_screen.dart';
+import 'package:frontend/features/shell/presentation/widgets/app_shell_scaffold.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
@@ -9,9 +17,36 @@ class AppRouter {
     initialLocation: RoutesPath.menu,
     redirect: _handleRedirect,
     routes: [
-      GoRoute(path: RoutesPath.menu, name: RoutesName.menu),
-      GoRoute(path: RoutesPath.cart, name: RoutesName.cart),
-      GoRoute(path: RoutesPath.orders, name: RoutesName.orders),
+      ShellRoute(
+        builder: (context, state, child) =>
+            AppShellScaffold(currentPath: state.uri.path, child: child),
+        routes: [
+          GoRoute(
+            path: RoutesPath.menu,
+            name: RoutesName.menu,
+            builder: (context, state) => BlocProvider(
+              create: (_) => MenuCubit(),
+              child: const MenuScreen(),
+            ),
+          ),
+          GoRoute(
+            path: RoutesPath.cart,
+            name: RoutesName.cart,
+            builder: (context, state) => BlocProvider(
+              create: (_) => CartCubit(),
+              child: const CartScreen(),
+            ),
+          ),
+          GoRoute(
+            path: RoutesPath.orders,
+            name: RoutesName.orders,
+            builder: (context, state) => BlocProvider(
+              create: (_) => OrdersCubit(),
+              child: const OrdersScreen(),
+            ),
+          ),
+        ],
+      ),
     ],
   );
 
