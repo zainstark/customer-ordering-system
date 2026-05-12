@@ -48,7 +48,7 @@ CREATE TABLE menu_items (
     catalog_id TEXT NOT NULL,
     name TEXT NOT NULL,
     description TEXT,
-    price_cents INTEGER NOT NULL,
+    price_penny INTEGER NOT NULL,
     category TEXT,
     available BOOLEAN NOT NULL DEFAULT 1,
     image_url TEXT,
