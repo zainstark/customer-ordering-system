@@ -32,17 +32,17 @@ class MenuHighlightBanner extends StatelessWidget {
               color: colorScheme.surfaceContainerLowest.withValues(alpha: .3),
               borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
             ),
-            child: Text('LIMITED OFFER', style: textTheme.labelSmall),
+            child: SelectableText('LIMITED OFFER', style: textTheme.labelSmall),
           ),
           const Spacer(),
-          Text(
+          SelectableText(
             '50% off your first order',
             style: textTheme.headlineLarge?.copyWith(
               color: colorScheme.onPrimaryContainer,
             ),
           ),
           const SizedBox(height: AppDimensions.spacingSm),
-          Text(
+          SelectableText(
             'Use code START50 at checkout',
             style: textTheme.bodyLarge?.copyWith(
               color: colorScheme.onPrimaryContainer.withValues(alpha: .8),

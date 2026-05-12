@@ -37,9 +37,9 @@ class OrderStatusCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(order.orderId, style: textTheme.headlineMedium),
+                    SelectableText(order.orderId, style: textTheme.headlineMedium),
                     const SizedBox(height: AppDimensions.spacingXs),
-                    Text(
+                    SelectableText(
                       'account_id: ${order.accountId} • placed_at: ${_formatDate(order.placedAt)}',
                       style: textTheme.bodyMedium,
                     ),
@@ -55,7 +55,7 @@ class OrderStatusCard extends StatelessWidget {
                   color: colorScheme.primaryContainer.withValues(alpha: .2),
                   borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
                 ),
-                child: Text(
+                child: SelectableText(
                   order.status,
                   style: textTheme.labelLarge?.copyWith(
                     color: colorScheme.primary,
@@ -77,14 +77,14 @@ class OrderStatusCard extends StatelessWidget {
           const SizedBox(height: AppDimensions.spacingLg),
           Row(
             children: [
-              Text(
+              SelectableText(
                 'total_amount: \$${order.totalAmount.toStringAsFixed(2)}',
                 style: textTheme.bodyLarge,
               ),
               const Spacer(),
-              OutlinedButton(onPressed: () {}, child: const Text('Support')),
+              OutlinedButton(onPressed: () {}, child: const SelectableText('Support')),
               const SizedBox(width: AppDimensions.spacingSm),
-              ElevatedButton(onPressed: () {}, child: const Text('Track')),
+              ElevatedButton(onPressed: () {}, child: const SelectableText('Track')),
             ],
           ),
         ],

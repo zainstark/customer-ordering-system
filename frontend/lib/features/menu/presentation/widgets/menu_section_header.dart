@@ -24,11 +24,11 @@ class MenuSectionHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: textTheme.headlineLarge),
-              if (subtitle != null) ...[
-                const SizedBox(height: AppDimensions.spacingSm),
-                Text(subtitle!, style: textTheme.bodyLarge),
-              ],
+               SelectableText(title, style: textTheme.headlineLarge),
+               if (subtitle != null) ...[
+                 const SizedBox(height: AppDimensions.spacingSm),
+                 SelectableText(subtitle!, style: textTheme.bodyLarge),
+               ],
             ],
           ),
         ),

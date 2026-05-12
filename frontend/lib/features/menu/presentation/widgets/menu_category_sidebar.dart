@@ -23,9 +23,9 @@ class MenuCategorySidebar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Categories', style: textTheme.headlineSmall),
+          SelectableText('Categories', style: textTheme.headlineSmall),
           const SizedBox(height: AppDimensions.spacingXs),
-          Text('Browse our kitchen', style: textTheme.bodyMedium),
+          SelectableText('Browse our kitchen', style: textTheme.bodyMedium),
           const SizedBox(height: AppDimensions.spacingXl),
           ...categories.map((category) {
             return Padding(
@@ -73,13 +73,8 @@ class _MenuCategoryTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              category.icon,
-              size: AppDimensions.iconMd,
-              color: isSelected ? colorScheme.onPrimary : colorScheme.primary,
-            ),
             const SizedBox(width: AppDimensions.spacingMd),
-            Text(
+            SelectableText(
               category.label,
               style: textTheme.labelLarge?.copyWith(
                 color: isSelected
@@ -88,7 +83,7 @@ class _MenuCategoryTile extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            Text(
+            SelectableText(
               '${category.menuItems.length}',
               style: textTheme.labelSmall?.copyWith(
                 color: isSelected

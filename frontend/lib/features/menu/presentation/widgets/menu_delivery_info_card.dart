@@ -34,14 +34,14 @@ class MenuDeliveryInfoCard extends StatelessWidget {
               color: colorScheme.onPrimaryContainer,
             ),
             const SizedBox(height: AppDimensions.spacingLg),
-            Text(
+            SelectableText(
               title,
               style: textTheme.headlineMedium?.copyWith(
                 color: colorScheme.onPrimaryContainer,
               ),
             ),
             const SizedBox(height: AppDimensions.spacingSm),
-            Text(
+            SelectableText(
               subtitle,
               style: textTheme.bodyLarge?.copyWith(
                 color: colorScheme.onPrimaryContainer,

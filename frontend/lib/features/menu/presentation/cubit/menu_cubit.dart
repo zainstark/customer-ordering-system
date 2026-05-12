@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/menu/data/models/menu_category_model.dart';
 import 'package:frontend/features/menu/data/models/menu_item_model.dart';
@@ -22,7 +21,6 @@ class MenuCubit extends Cubit<MenuState> {
     const MenuCategoryModel(
       id: 'burgers',
       label: 'Burgers',
-      icon: Icons.lunch_dining_outlined,
       menuItems: [
         MenuItemModel(
           id: 'd1',
@@ -32,14 +30,14 @@ class MenuCubit extends Cubit<MenuState> {
           price: 17.5,
           available: true,
           rating: 4.8,
-          icon: Icons.lunch_dining_outlined,
+          imageUrl:
+              'https://img.magnific.com/free-photo/top-view-table-full-food_23-2149209253.jpg?semt=ais_hybrid&w=740&q=80',
         ),
       ],
     ),
     const MenuCategoryModel(
       id: 'pizza',
       label: 'Pizza',
-      icon: Icons.local_pizza_outlined,
       menuItems: [
         MenuItemModel(
           id: 'd2',
@@ -49,14 +47,14 @@ class MenuCubit extends Cubit<MenuState> {
           price: 15.2,
           available: true,
           rating: 4.9,
-          icon: Icons.local_pizza_outlined,
+          imageUrl:
+              'https://img.magnific.com/free-photo/top-view-table-full-food_23-2149209253.jpg?semt=ais_hybrid&w=740&q=80',
         ),
       ],
     ),
     const MenuCategoryModel(
       id: 'sushi',
       label: 'Sushi',
-      icon: Icons.set_meal_outlined,
       menuItems: [
         MenuItemModel(
           id: 'd3',
@@ -66,14 +64,14 @@ class MenuCubit extends Cubit<MenuState> {
           price: 21.0,
           available: true,
           rating: 4.7,
-          icon: Icons.set_meal_outlined,
+          imageUrl:
+              'https://img.magnific.com/free-photo/top-view-table-full-food_23-2149209253.jpg?semt=ais_hybrid&w=740&q=80',
         ),
       ],
     ),
     const MenuCategoryModel(
       id: 'salads',
       label: 'Salads',
-      icon: Icons.eco_outlined,
       menuItems: [
         MenuItemModel(
           id: 'd4',
@@ -83,14 +81,14 @@ class MenuCubit extends Cubit<MenuState> {
           price: 12.9,
           available: true,
           rating: 4.6,
-          icon: Icons.ramen_dining_outlined,
+          imageUrl:
+              'https://img.magnific.com/free-photo/top-view-table-full-food_23-2149209253.jpg?semt=ais_hybrid&w=740&q=80',
         ),
       ],
     ),
     const MenuCategoryModel(
       id: 'desserts',
       label: 'Desserts',
-      icon: Icons.icecream_outlined,
       menuItems: [
         MenuItemModel(
           id: 'd5',
@@ -100,7 +98,8 @@ class MenuCubit extends Cubit<MenuState> {
           price: 9.5,
           available: false,
           rating: 4.7,
-          icon: Icons.cake_outlined,
+          imageUrl:
+              'https://img.magnific.com/free-photo/top-view-table-full-food_23-2149209253.jpg?semt=ais_hybrid&w=740&q=80',
         ),
       ],
     ),

@@ -24,9 +24,9 @@ class OrdersSectionHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: textTheme.headlineLarge),
+              SelectableText(title, style: textTheme.headlineLarge),
               const SizedBox(height: AppDimensions.spacingSm),
-              Text(subtitle, style: textTheme.bodyLarge),
+              SelectableText(subtitle, style: textTheme.bodyLarge),
             ],
           ),
         ),

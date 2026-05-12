@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class CartItemEntity {
   const CartItemEntity({
     required this.id,
@@ -9,7 +7,7 @@ class CartItemEntity {
     required this.subtitle,
     required this.unitPrice,
     required this.quantity,
-    required this.icon,
+    required this.imageUrl,
   });
 
   final String id;
@@ -19,5 +17,5 @@ class CartItemEntity {
   final String subtitle;
   final double unitPrice;
   final int quantity;
-  final IconData icon;
+  final String imageUrl;
 }

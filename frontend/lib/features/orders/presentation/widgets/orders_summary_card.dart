@@ -14,7 +14,7 @@ class OrdersSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Quick summary', style: textTheme.headlineMedium),
+          SelectableText('Quick summary', style: textTheme.headlineMedium),
           const SizedBox(height: AppDimensions.spacingXl),
           _SummaryLine(label: 'Orders this month', value: '12'),
           const SizedBox(height: AppDimensions.spacingMd),
@@ -37,7 +37,7 @@ class OrdersSummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimensions.spacingSm),
                 Expanded(
-                  child: Text(
+                  child: SelectableText(
                     'You have a reward! Get \$5 off your next order.',
                     style: textTheme.bodyLarge?.copyWith(
                       color: colorScheme.onPrimaryContainer,
@@ -63,7 +63,7 @@ class OrdersSummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimensions.spacingSm),
                 Expanded(
-                  child: Text(
+                  child: SelectableText(
                     'You have a reward! Get \$5 off your next order.',
                     style: textTheme.bodyLarge?.copyWith(
                       color: colorScheme.onPrimaryContainer,
@@ -92,9 +92,9 @@ class _SummaryLine extends StatelessWidget {
 
     return Row(
       children: [
-        Text(label, style: textTheme.bodyLarge),
+        SelectableText(label, style: textTheme.bodyLarge),
         const Spacer(),
-        Text(
+        SelectableText(
           value,
           style: textTheme.headlineMedium?.copyWith(color: colorScheme.primary),
         ),

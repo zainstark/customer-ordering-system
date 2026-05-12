@@ -57,7 +57,7 @@ class _ShellTopBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(
+          SelectableText(
             'Whatever',
             style: textTheme.headlineSmall?.copyWith(
               color: colorScheme.primary,
@@ -128,7 +128,7 @@ class _TopNavItem extends StatelessWidget {
           horizontal: AppDimensions.paddingMd,
           vertical: AppDimensions.paddingSm,
         ),
-        child: Text(
+        child: SelectableText(
           label,
           style: textTheme.labelLarge?.copyWith(
             color: selected

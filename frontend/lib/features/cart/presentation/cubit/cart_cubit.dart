@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/cart/data/models/cart_item_model.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
@@ -17,7 +16,8 @@ class CartCubit extends Cubit<CartState> {
               subtitle: 'Double patty, cheddar, secret sauce',
               unitPrice: 14.5,
               quantity: 1,
-              icon: Icons.lunch_dining_outlined,
+              imageUrl:
+                  'https://img.magnific.com/free-photo/top-view-table-full-food_23-2149209253.jpg?semt=ais_hybrid&w=740&q=80',
             ),
             CartItemModel(
               id: 'c2',
@@ -27,7 +27,8 @@ class CartCubit extends Cubit<CartState> {
               subtitle: 'Sourdough, basil, San Marzano tomato',
               unitPrice: 18.0,
               quantity: 2,
-              icon: Icons.local_pizza_outlined,
+              imageUrl:
+                  'https://img.magnific.com/free-photo/top-view-table-full-food_23-2149209253.jpg?semt=ais_hybrid&w=740&q=80',
             ),
           ],
         ),

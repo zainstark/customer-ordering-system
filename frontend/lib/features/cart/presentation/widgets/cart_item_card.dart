@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/cart/data/models/cart_item_model.dart';
 import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dart';
+import 'package:frontend/features/widgets/app_network_image.dart';
 
 class CartItemCard extends StatelessWidget {
   const CartItemCard({
@@ -23,17 +24,12 @@ class CartItemCard extends StatelessWidget {
     return AppSurfaceCard(
       child: Row(
         children: [
-          Container(
+          SizedBox(
             width: 88,
             height: 88,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh,
+            child: AppNetworkImage(
+              imageUrl: model.imageUrl,
               borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            ),
-            child: Icon(
-              model.icon,
-              size: AppDimensions.iconLg,
-              color: colorScheme.primary,
             ),
           ),
           const SizedBox(width: AppDimensions.spacingLg),
@@ -41,16 +37,16 @@ class CartItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(model.title, style: textTheme.headlineMedium),
+                SelectableText(model.title, style: textTheme.headlineMedium),
                 const SizedBox(height: AppDimensions.spacingXs),
-                Text(model.subtitle, style: textTheme.bodyMedium),
+                SelectableText(model.subtitle, style: textTheme.bodyMedium),
                 const SizedBox(height: AppDimensions.spacingMd),
-                Text(
+                SelectableText(
                   'cart_item_id: ${model.cartItemId} • menu_item_id: ${model.menuItemId}',
                   style: textTheme.labelSmall,
                 ),
                 const SizedBox(height: AppDimensions.spacingSm),
-                Text(
+                SelectableText(
                   '\$${model.lineTotal.toStringAsFixed(2)}',
                   style: textTheme.headlineMedium?.copyWith(
                     color: colorScheme.primary,
@@ -86,7 +82,7 @@ class CartItemCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: AppDimensions.spacingMd),
-                    Text('${model.quantity}', style: textTheme.labelLarge),
+                    SelectableText('${model.quantity}', style: textTheme.labelLarge),
                     const SizedBox(width: AppDimensions.spacingMd),
                     InkWell(
                       onTap: onIncrement,

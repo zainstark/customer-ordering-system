@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/menu/data/models/menu_item_model.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_surface_card.dart';
+import 'package:frontend/features/widgets/app_network_image.dart';
 
 class MenuFoodCard extends StatelessWidget {
   const MenuFoodCard({super.key, required this.item, required this.onTap});
@@ -22,19 +23,12 @@ class MenuFoodCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            SizedBox(
               height: 110,
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHigh,
+              child: AppNetworkImage(
+                imageUrl: item.imageUrl,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(AppDimensions.radiusLg),
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  item.icon,
-                  size: AppDimensions.iconXl,
-                  color: colorScheme.primary,
                 ),
               ),
             ),
@@ -46,29 +40,27 @@ class MenuFoodCard extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
+                        child: SelectableText(
                           item.title,
                           style: textTheme.headlineMedium,
                         ),
                       ),
                       const SizedBox(width: AppDimensions.spacingSm),
-                      Text(
+                      SelectableText(
                         item.available ? 'available' : 'unavailable',
                         style: textTheme.labelSmall,
                       ),
                     ],
                   ),
                   const SizedBox(height: AppDimensions.spacingSm),
-                  Text(
-                    item.description,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: textTheme.bodyMedium,
-                  ),
+                    SelectableText(
+                      item.description,
+                      style: textTheme.bodyMedium,
+                    ),
                   const SizedBox(height: AppDimensions.spacingSm),
                   Row(
                     children: [
-                      Text(
+                      SelectableText(
                         '\$${item.price.toStringAsFixed(2)}',
                         style: textTheme.labelLarge?.copyWith(
                           color: colorScheme.primary,

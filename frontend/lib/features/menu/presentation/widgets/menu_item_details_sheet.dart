@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/menu/data/models/menu_item_model.dart';
+import 'package:frontend/features/widgets/app_network_image.dart';
 
 class MenuItemDetailsSheet extends StatelessWidget {
   const MenuItemDetailsSheet({super.key, required this.item});
@@ -66,25 +67,12 @@ class _ImagePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return AspectRatio(
       aspectRatio: 1,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-          gradient: LinearGradient(
-            colors: [
-              colorScheme.primary.withValues(alpha: .95),
-              colorScheme.tertiaryContainer.withValues(alpha: .95),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: Icon(item.icon, size: 180, color: colorScheme.onPrimary),
-        ),
+      child: AppNetworkImage(
+        imageUrl: item.imageUrl,
+        fit: BoxFit.cover,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
       ),
     );
   }
@@ -116,7 +104,7 @@ class _DetailsPanelState extends State<_DetailsPanel> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text(
+                child: SelectableText(
                   widget.item.title,
                   style: textTheme.headlineLarge?.copyWith(
                     color: colorScheme.onSurface,
@@ -132,7 +120,7 @@ class _DetailsPanelState extends State<_DetailsPanel> {
                   color: colorScheme.primaryContainer.withValues(alpha: .15),
                   borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
                 ),
-                child: Text(
+                child: SelectableText(
                   '\$${widget.item.price.toStringAsFixed(2)}',
                   style: textTheme.headlineMedium?.copyWith(
                     color: colorScheme.primary,
@@ -152,7 +140,7 @@ class _DetailsPanelState extends State<_DetailsPanel> {
             ],
           ),
           const SizedBox(height: AppDimensions.spacingXl),
-          Text(
+          SelectableText(
             widget.item.description,
             style: textTheme.bodyLarge?.copyWith(
               color: colorScheme.onSurfaceVariant,
@@ -160,7 +148,7 @@ class _DetailsPanelState extends State<_DetailsPanel> {
             ),
           ),
           const SizedBox(height: AppDimensions.spacingXxl),
-          Text('Quantity', style: textTheme.headlineMedium),
+          SelectableText('Quantity', style: textTheme.headlineMedium),
           const SizedBox(height: AppDimensions.spacingMd),
           Row(
             children: [
@@ -169,7 +157,7 @@ class _DetailsPanelState extends State<_DetailsPanel> {
                 onTap: quantity > 1 ? () => setState(() => quantity--) : null,
               ),
               const SizedBox(width: AppDimensions.spacingMd),
-              Text('$quantity', style: textTheme.headlineMedium),
+              SelectableText('$quantity', style: textTheme.headlineMedium),
               const SizedBox(width: AppDimensions.spacingMd),
               _QuantityButton(
                 icon: Icons.add,
@@ -184,8 +172,8 @@ class _DetailsPanelState extends State<_DetailsPanel> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Total price', style: textTheme.labelLarge),
-                  Text(
+                  SelectableText('Total price', style: textTheme.labelLarge),
+                  SelectableText(
                     '\$${total.toStringAsFixed(2)}',
                     style: textTheme.headlineLarge?.copyWith(
                       color: colorScheme.primary,
@@ -227,7 +215,7 @@ class _Chip extends StatelessWidget {
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
       ),
-      child: Text(text, style: textTheme.labelLarge),
+      child: SelectableText(text, style: textTheme.labelLarge),
     );
   }
 }

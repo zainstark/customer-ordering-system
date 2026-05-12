@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:frontend/features/cart/domain/entities/card_item_entity.dart';
 
 class CartItemModel extends CartItemEntity {
@@ -12,7 +11,7 @@ class CartItemModel extends CartItemEntity {
     required super.subtitle,
     required super.unitPrice,
     required super.quantity,
-    required super.icon,
+    required super.imageUrl,
   });
 
   double get totalPrice => unitPrice * quantity;
@@ -29,7 +28,7 @@ class CartItemModel extends CartItemEntity {
       'subtitle': subtitle,
       'unitPrice': unitPrice,
       'quantity': quantity,
-      'icon': icon.codePoint,
+      'imageUrl': imageUrl,
     };
   }
 
@@ -42,8 +41,7 @@ class CartItemModel extends CartItemEntity {
       subtitle: map['subtitle'] as String,
       unitPrice: (map['unitPrice'] as num).toDouble(),
       quantity: map['quantity'] as int,
-      // ignore: non_const_argument_for_const_parameter
-      icon: IconData(map['icon'] as int, fontFamily: 'MaterialIcons'),
+      imageUrl: map['imageUrl'] as String,
     );
   }
 
@@ -60,7 +58,7 @@ class CartItemModel extends CartItemEntity {
     String? subtitle,
     double? unitPrice,
     int? quantity,
-    IconData? icon,
+    String? imageUrl,
   }) {
     return CartItemModel(
       id: id ?? this.id,
@@ -70,7 +68,7 @@ class CartItemModel extends CartItemEntity {
       subtitle: subtitle ?? this.subtitle,
       unitPrice: unitPrice ?? this.unitPrice,
       quantity: quantity ?? this.quantity,
-      icon: icon ?? this.icon,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }

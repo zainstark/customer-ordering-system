@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:frontend/features/menu/domain/entities/menu_item_entity.dart';
 
 class MenuItemModel extends MenuItemEntity {
@@ -10,7 +9,7 @@ class MenuItemModel extends MenuItemEntity {
     required super.price,
     required super.available,
     required super.rating,
-    required super.icon,
+    required super.imageUrl,
   });
 
   factory MenuItemModel.fromJson(Map<String, dynamic> json) {
@@ -22,8 +21,7 @@ class MenuItemModel extends MenuItemEntity {
       price: (json['price'] as num).toDouble(),
       available: json['available'],
       rating: (json['rating'] as num).toDouble(),
-      // ignore: non_const_argument_for_const_parameter
-      icon: IconData(json['icon'], fontFamily: 'MaterialIcons'),
+      imageUrl: json['imageUrl'] as String,
     );
   }
 
@@ -36,7 +34,7 @@ class MenuItemModel extends MenuItemEntity {
       'price': price,
       'available': available,
       'rating': rating,
-      'icon': icon.codePoint,
+      'imageUrl': imageUrl,
     };
   }
 }

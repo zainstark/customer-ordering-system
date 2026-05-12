@@ -28,11 +28,11 @@ class OrdersScreen extends StatelessWidget {
                   segments: const [
                     ButtonSegment(
                       value: OrdersTab.active,
-                      label: Text('Active'),
+                      label: SelectableText('Active'),
                     ),
                     ButtonSegment(
                       value: OrdersTab.past,
-                      label: Text('Past orders'),
+                      label: SelectableText('Past orders'),
                     ),
                   ],
                   selected: {state.selectedTab},
