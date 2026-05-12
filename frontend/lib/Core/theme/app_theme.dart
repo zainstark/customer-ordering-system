@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/Core/theme/app_colors.dart';
+import 'package:frontend/Core/utils/app_dimensions.dart';
 
 // =============================================================================
 // VIBRANT CRAVINGS — Flutter Theme
@@ -176,45 +177,6 @@ TextTheme get _darkTextTheme => _lightTextTheme.apply(
   decorationColor:  VibrantCravingsColors.darkOnSurface,
 );
 
-// -----------------------------------------------------------------------------
-// SHAPE — Rounded philosophy (0.5 rem = 8 px baseline)
-// -----------------------------------------------------------------------------
-
-abstract class VibrantCravingsRadius {
-  static const double sm      = 4;   // 0.25 rem
-  static const double base    = 8;   // 0.5  rem — buttons, small inputs
-  static const double md      = 12;  // 0.75 rem
-  static const double lg      = 16;  // 1    rem — cards, modals
-  static const double xl      = 24;  // 1.5  rem — hero / large containers
-  static const double full    = 999; // pill
-}
-
-// -----------------------------------------------------------------------------
-// SPACING
-// -----------------------------------------------------------------------------
-
-abstract class VibrantCravingsSpacing {
-  // Light (4px base grid)
-  static const double lightBase   = 4;
-  static const double lightXs     = 8;
-  static const double lightSm     = 16;
-  static const double lightMd     = 24;
-  static const double lightLg     = 32;
-  static const double lightXl     = 48;
-  static const double lightMargin = 20;
-  static const double lightGutter = 16;
-
-  // Dark (8px base grid)
-  static const double darkBase    = 8;
-  static const double darkXs      = 4;
-  static const double darkSm      = 8;
-  static const double darkMd      = 16;
-  static const double darkLg      = 24;
-  static const double darkXl      = 40;
-  static const double darkGutter  = 24;
-
-  static const double containerMax = 1280;
-}
 
 // -----------------------------------------------------------------------------
 // COMPONENT THEMES — shared helpers
@@ -226,7 +188,7 @@ ButtonStyle _elevatedButtonStyle(ColorScheme cs) => ElevatedButton.styleFrom(
   minimumSize:       const Size(0, 52),
   padding:           const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.full),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
   ),
   textStyle: const TextStyle(
     fontFamily: _fontFamily,
@@ -242,7 +204,7 @@ ButtonStyle _outlinedButtonStyle(ColorScheme cs) => OutlinedButton.styleFrom(
   minimumSize: const Size(0, 52),
   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.full),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
   ),
   textStyle: const TextStyle(
     fontFamily: _fontFamily,
@@ -265,23 +227,23 @@ InputDecorationTheme _inputDecorationTheme(ColorScheme cs) => InputDecorationThe
   fillColor: cs.surfaceContainerLow,
   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
   border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.base),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
     borderSide: BorderSide(color: cs.outline, width: 1),
   ),
   enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.base),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
     borderSide: BorderSide(color: cs.outlineVariant, width: 1),
   ),
   focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.base),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
     borderSide: BorderSide(color: cs.primary, width: 2),
   ),
   errorBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.base),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
     borderSide: BorderSide(color: cs.error, width: 1),
   ),
   focusedErrorBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.base),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
     borderSide: BorderSide(color: cs.error, width: 2),
   ),
   hintStyle: TextStyle(
@@ -296,7 +258,7 @@ CardThemeData _cardTheme(ColorScheme cs) => CardThemeData(
   color: cs.surfaceContainerLow,
   elevation: 0,
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.lg),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
   ),
   clipBehavior: Clip.antiAlias,
   margin: EdgeInsets.zero,
@@ -353,7 +315,7 @@ ChipThemeData _chipTheme(ColorScheme cs) => ChipThemeData(
   ),
   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.full),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
   ),
   side: BorderSide.none,
 );
@@ -363,7 +325,7 @@ BottomSheetThemeData _bottomSheetTheme(ColorScheme cs) => BottomSheetThemeData(
   surfaceTintColor: Colors.transparent,
   shape: const RoundedRectangleBorder(
     borderRadius: BorderRadius.vertical(
-      top: Radius.circular(VibrantCravingsRadius.xl),
+      top: Radius.circular(AppDimensions.radiusXl),
     ),
   ),
   elevation: 8,
@@ -374,7 +336,7 @@ DialogThemeData _dialogTheme(ColorScheme cs) => DialogThemeData(
   surfaceTintColor: Colors.transparent,
   elevation: 4,
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.xl),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
   ),
   titleTextStyle: TextStyle(
     fontFamily: _fontFamily,
@@ -406,7 +368,7 @@ SnackBarThemeData _snackBarTheme(ColorScheme cs) => SnackBarThemeData(
   ),
   actionTextColor: cs.inversePrimary,
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(VibrantCravingsRadius.base),
+    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
   ),
   behavior: SnackBarBehavior.floating,
 );
@@ -416,7 +378,7 @@ FloatingActionButtonThemeData _fabTheme(ColorScheme cs) =>
       backgroundColor: cs.primary,
       foregroundColor: cs.onPrimary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(VibrantCravingsRadius.xl),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
       ),
       elevation: 4,
     );
