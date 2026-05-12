@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/Core/network/dio_client.dart';
 import 'package:frontend/Core/router/app_router.dart';
@@ -7,7 +8,7 @@ import 'package:frontend/Core/theme/app_theme.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:frontend/main.dart';
 
 void main() {
   setUp(() async {
@@ -49,6 +50,34 @@ void main() {
   test('app router starts from menu route', () {
     final location = AppRouter.router.routeInformationProvider.value.uri.path;
     expect(location, RoutesPath.menu);
+  });
+
+  testWidgets('current UI renders the shell and feature navigation', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(1440, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Whatever'), findsOneWidget);
+    expect(find.text('Menu'), findsWidgets);
+    expect(find.text('Orders'), findsWidgets);
+    expect(find.text('Cart'), findsWidgets);
+    expect(find.text('Fastest delivery in town'), findsOneWidget);
+    expect(find.text('The Royal Wagyu'), findsOneWidget);
+
+    await tester.tap(find.text('Orders').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Orders history'), findsOneWidget);
+    expect(find.text('Active'), findsOneWidget);
+    expect(find.text('Past orders'), findsOneWidget);
+
+    await tester.tap(find.text('Cart').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Order summary'), findsOneWidget);
+    expect(find.text('Place order'), findsOneWidget);
   });
 
   test('menu cubit changes selected category and filters dishes', () {
