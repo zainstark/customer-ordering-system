@@ -87,6 +87,15 @@ class _MenuCategoryTile extends StatelessWidget {
                     : colorScheme.onSurface,
               ),
             ),
+            const Spacer(),
+            Text(
+              '${category.menuItems.length}',
+              style: textTheme.labelSmall?.copyWith(
+                color: isSelected
+                    ? colorScheme.onPrimary.withValues(alpha: .8)
+                    : colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
-import 'package:frontend/features/cart/presentation/widgets/cart_delivery_address_card.dart';
 import 'package:frontend/features/cart/presentation/widgets/cart_item_card.dart';
 import 'package:frontend/features/cart/presentation/widgets/cart_section_header.dart';
 
@@ -33,7 +32,6 @@ class CartMainSection extends StatelessWidget {
             ),
           );
         }),
-        const CartDeliveryAddressCard(),
       ],
     );
   }

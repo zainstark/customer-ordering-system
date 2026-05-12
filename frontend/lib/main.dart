@@ -5,6 +5,7 @@ import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/Core/router/app_router.dart';
 import 'package:frontend/Core/theme/app_theme.dart';
 import 'package:frontend/Core/utils/observer.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   setupDependencies();

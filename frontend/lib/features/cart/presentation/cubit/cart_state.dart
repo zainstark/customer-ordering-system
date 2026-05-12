@@ -12,6 +12,9 @@ class CartState {
   double get total => subtotal + deliveryFee + taxes;
 
   CartState copyWith({String? cartId, List<CartItemModel>? models}) {
-    return CartState(cartId: cartId ?? this.cartId, models: models ?? this.models);
+    return CartState(
+      cartId: cartId ?? this.cartId,
+      models: models ?? this.models,
+    );
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:frontend/features/menu/domain/entities/menu_item_entity.dart';
 

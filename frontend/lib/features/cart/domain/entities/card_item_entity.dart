@@ -19,4 +19,5 @@ class CartItemEntity {
   final String subtitle;
   final double unitPrice;
   final int quantity;
-  final IconData icon;}
+  final IconData icon;
+}

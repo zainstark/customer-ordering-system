@@ -1,0 +1,268 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/Core/utils/app_dimensions.dart';
+import 'package:frontend/features/menu/data/models/menu_item_model.dart';
+
+class MenuItemDetailsSheet extends StatelessWidget {
+  const MenuItemDetailsSheet({super.key, required this.item});
+
+  final MenuItemModel item;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Dialog(
+      insetPadding: const EdgeInsets.all(24),
+      backgroundColor: colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1200, minHeight: 720),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 900;
+            return Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(AppDimensions.paddingXl),
+                  child: isWide
+                      ? Row(
+                          children: [
+                            Expanded(flex: 5, child: _ImagePanel(item: item)),
+                            const SizedBox(width: AppDimensions.spacingXl),
+                            Expanded(flex: 4, child: _DetailsPanel(item: item)),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            _ImagePanel(item: item),
+                            const SizedBox(height: AppDimensions.spacingXl),
+                            _DetailsPanel(item: item),
+                          ],
+                        ),
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _ImagePanel extends StatelessWidget {
+  const _ImagePanel({required this.item});
+
+  final MenuItemModel item;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primary.withValues(alpha: .95),
+              colorScheme.tertiaryContainer.withValues(alpha: .95),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: Icon(item.icon, size: 180, color: colorScheme.onPrimary),
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailsPanel extends StatefulWidget {
+  const _DetailsPanel({required this.item});
+
+  final MenuItemModel item;
+
+  @override
+  State<_DetailsPanel> createState() => _DetailsPanelState();
+}
+
+class _DetailsPanelState extends State<_DetailsPanel> {
+  int quantity = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final total = widget.item.price * quantity;
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  widget.item.title,
+                  style: textTheme.headlineLarge?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimensions.paddingMd,
+                  vertical: AppDimensions.paddingSm,
+                ),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer.withValues(alpha: .15),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
+                ),
+                child: Text(
+                  '\$${widget.item.price.toStringAsFixed(2)}',
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: colorScheme.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.spacingMd),
+          Wrap(
+            spacing: AppDimensions.spacingSm,
+            runSpacing: AppDimensions.spacingSm,
+            children: [
+              _Chip(text: widget.item.available ? 'Available' : 'Unavailable'),
+              _Chip(text: widget.item.categoryId),
+              _Chip(text: 'Item ID: ${widget.item.id}'),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.spacingXl),
+          Text(
+            widget.item.description,
+            style: textTheme.bodyLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              height: 1.6,
+            ),
+          ),
+          const SizedBox(height: AppDimensions.spacingXxl),
+          Text('Quantity', style: textTheme.headlineMedium),
+          const SizedBox(height: AppDimensions.spacingMd),
+          Row(
+            children: [
+              _QuantityButton(
+                icon: Icons.remove,
+                onTap: quantity > 1 ? () => setState(() => quantity--) : null,
+              ),
+              const SizedBox(width: AppDimensions.spacingMd),
+              Text('$quantity', style: textTheme.headlineMedium),
+              const SizedBox(width: AppDimensions.spacingMd),
+              _QuantityButton(
+                icon: Icons.add,
+                onTap: () => setState(() => quantity++),
+                filled: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.spacingXxl),
+          Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Total price', style: textTheme.labelLarge),
+                  Text(
+                    '\$${total.toStringAsFixed(2)}',
+                    style: textTheme.headlineLarge?.copyWith(
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              SizedBox(
+                height: 56,
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.shopping_bag_outlined),
+                  label: const Text('Add to Cart'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.paddingMd,
+        vertical: AppDimensions.paddingSm,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
+      ),
+      child: Text(text, style: textTheme.labelLarge),
+    );
+  }
+}
+
+class _QuantityButton extends StatelessWidget {
+  const _QuantityButton({
+    required this.icon,
+    required this.onTap,
+    this.filled = false,
+  });
+
+  final IconData icon;
+  final VoidCallback? onTap;
+  final bool filled;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InkResponse(
+      onTap: onTap,
+      radius: 28,
+      child: Container(
+        width: 52,
+        height: 52,
+        decoration: BoxDecoration(
+          color: filled
+              ? colorScheme.primary
+              : colorScheme.surfaceContainerHigh,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: filled ? colorScheme.onPrimary : colorScheme.onSurface,
+        ),
+      ),
+    );
+  }
+}

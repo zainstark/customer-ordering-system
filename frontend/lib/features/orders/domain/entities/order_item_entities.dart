@@ -1,4 +1,3 @@
-
 class OrderItemEntity {
   const OrderItemEntity({
     required this.id,

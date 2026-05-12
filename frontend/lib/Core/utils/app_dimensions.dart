@@ -161,4 +161,3 @@ class AppDimensions {
   static const double bottomSheetHandleHeight = 4.0;
   static const double bottomSheetHandleWidth = 40.0;
 }
-

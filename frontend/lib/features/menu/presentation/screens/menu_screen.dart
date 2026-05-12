@@ -6,6 +6,7 @@ import 'package:frontend/features/menu/presentation/cubit/menu_state.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_category_sidebar.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_checkout_bar.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_delivery_info_card.dart';
+import 'package:frontend/features/menu/presentation/widgets/menu_item_details_sheet.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_food_card.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_highlight_banner.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_section_header.dart';
@@ -94,10 +95,6 @@ class MenuScreen extends StatelessWidget {
                     MenuSectionHeader(
                       title: _selectedCategoryLabel(state),
                       subtitle: 'Popular picks in this category',
-                      trailing: TextButton(
-                        onPressed: () {},
-                        child: const Text('View all'),
-                      ),
                     ),
                     const SizedBox(height: AppDimensions.spacingLg),
                     GridView.builder(
@@ -113,13 +110,14 @@ class MenuScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final dish = state.filteredDishes[index];
                         return MenuFoodCard(
-                          menuItemId: dish.id,
-                          title: dish.title,
-                          description: dish.description,
-                          price: dish.price,
-                          available: dish.available,
-                          rating: dish.rating,
-                          icon: dish.icon,
+                          item: dish,
+                          onTap: () {
+                            showDialog<void>(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (_) => MenuItemDetailsSheet(item: dish),
+                            );
+                          },
                         );
                       },
                     ),

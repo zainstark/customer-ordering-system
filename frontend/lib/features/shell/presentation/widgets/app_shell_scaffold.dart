@@ -58,7 +58,7 @@ class _ShellTopBar extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            'ZestyBite',
+            'Whatever',
             style: textTheme.headlineSmall?.copyWith(
               color: colorScheme.primary,
             ),

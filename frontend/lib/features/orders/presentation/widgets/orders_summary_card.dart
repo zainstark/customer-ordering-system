@@ -50,23 +50,28 @@ class OrdersSummaryCard extends StatelessWidget {
           const SizedBox(height: AppDimensions.spacingXl),
           Container(
             width: double.infinity,
-            height: 160,
+            padding: const EdgeInsets.all(AppDimensions.paddingMd),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh,
+              color: colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
             ),
-            child: Center(
-              child: Icon(
-                Icons.map_outlined,
-                color: colorScheme.primary,
-                size: 48,
-              ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.card_giftcard,
+                  color: colorScheme.onPrimaryContainer,
+                ),
+                const SizedBox(width: AppDimensions.spacingSm),
+                Expanded(
+                  child: Text(
+                    'You have a reward! Get \$5 off your next order.',
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: AppDimensions.spacingSm),
-          Text(
-            'Currently delivering to: 24th Ave, Central Park South',
-            style: textTheme.bodyMedium,
           ),
         ],
       ),
