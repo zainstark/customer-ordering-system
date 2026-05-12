@@ -25,6 +25,7 @@ class MenuFoodCard extends StatelessWidget {
           children: [
             SizedBox(
               height: 110,
+              width: double.infinity,
               child: AppNetworkImage(
                 imageUrl: item.imageUrl,
                 borderRadius: const BorderRadius.vertical(

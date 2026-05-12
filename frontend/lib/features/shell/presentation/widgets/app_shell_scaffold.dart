@@ -128,7 +128,7 @@ class _TopNavItem extends StatelessWidget {
           horizontal: AppDimensions.paddingMd,
           vertical: AppDimensions.paddingSm,
         ),
-        child: SelectableText(
+        child: Text(
           label,
           style: textTheme.labelLarge?.copyWith(
             color: selected

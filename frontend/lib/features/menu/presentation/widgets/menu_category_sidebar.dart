@@ -74,7 +74,7 @@ class _MenuCategoryTile extends StatelessWidget {
         child: Row(
           children: [
             const SizedBox(width: AppDimensions.spacingMd),
-            SelectableText(
+            Text(
               category.label,
               style: textTheme.labelLarge?.copyWith(
                 color: isSelected
@@ -83,7 +83,7 @@ class _MenuCategoryTile extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            SelectableText(
+            Text(
               '${category.menuItems.length}',
               style: textTheme.labelSmall?.copyWith(
                 color: isSelected

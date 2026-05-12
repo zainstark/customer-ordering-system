@@ -54,7 +54,7 @@ class MenuScreen extends StatelessWidget {
                                 right: AppDimensions.spacingSm,
                               ),
                               child: ChoiceChip(
-                                label: SelectableText(category.label),
+                                label: Text(category.label),
                                 selected: selected,
                                 onSelected: (_) => context
                                     .read<MenuCubit>()
