@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class AppDimensions {
@@ -6,9 +5,12 @@ class AppDimensions {
   AppDimensions._();
 
   // ==================== Screen Dimensions ====================
-  static double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
-  static double screenHeight(BuildContext context) => MediaQuery.of(context).size.height;
-  static double screenAspectRatio(BuildContext context) => screenWidth(context) / screenHeight(context);
+  static double screenWidth(BuildContext context) =>
+      MediaQuery.of(context).size.width;
+  static double screenHeight(BuildContext context) =>
+      MediaQuery.of(context).size.height;
+  static double screenAspectRatio(BuildContext context) =>
+      screenWidth(context) / screenHeight(context);
 
   // ==================== Spacing ====================
   static const double spacingXxs = 2.0;
@@ -22,7 +24,6 @@ class AppDimensions {
   static const double spacingXxxxl = 40.0;
   static const double spacingXxxxxl = 48.0;
 
-
   // ==================== Paddings ====================
   static const double paddingXs = 4.0;
   static const double paddingSm = 8.0;
@@ -35,7 +36,7 @@ class AppDimensions {
   // Standard screen padding
   static const double screenPaddingHorizontal = 16.0;
   static const double screenPaddingVertical = 20.0;
-  
+
   // Card padding
   static const double cardPadding = 16.0;
   static const double cardPaddingSmall = 12.0;
@@ -48,9 +49,8 @@ class AppDimensions {
   static const double radiusXl = 20.0;
   static const double radiusXxl = 24.0;
   static const double radiusXxxl = 32.0;
-  static const double radiusMax = 999.0; 
-  
-  
+  static const double radiusMax = 999.0;
+
   // Specific use cases
   static const double radiusButton = 12.0;
   static const double radiusCard = 16.0;
@@ -74,7 +74,7 @@ class AppDimensions {
   static const double iconLg = 32.0;
   static const double iconXl = 40.0;
   static const double iconXxl = 48.0;
-  
+
   // Specific icon sizes
   static const double iconAppBar = 24.0;
   static const double iconBottomNav = 24.0;
@@ -86,7 +86,7 @@ class AppDimensions {
   static const double buttonHeightLarge = 56.0;
   static const double buttonMinWidth = 120.0;
   static const double buttonMinWidthSmall = 80.0;
-  
+
   // Icon button
   static const double iconButtonSize = 40.0;
   static const double iconButtonSizeSmall = 32.0;
@@ -139,34 +139,26 @@ class AppDimensions {
   static const double drawerHeaderHeight = 200.0;
 
   // ==================== Specific Use Cases ====================
-  
+
   // Splash screen
   static const double splashLogoSize = 120.0;
   static const double splashTextSize = 24.0;
-  
+
   // Onboarding
   static const double onboardingImageHeight = 300.0;
   static const double onboardingDotSize = 10.0;
   static const double onboardingDotActiveSize = 12.0;
-  
+
   // Product card
   static const double productCardHeight = 280.0;
   static const double productCardImageHeight = 160.0;
-  
+
   // Search bar
   static const double searchBarHeight = 48.0;
-  
+
   // Bottom sheet
   static const double bottomSheetMaxHeight = 0.9; // 90% of screen
   static const double bottomSheetHandleHeight = 4.0;
   static const double bottomSheetHandleWidth = 40.0;
-}
-
-// -----------------------------------------------------------------------------
-// SHAPE — Rounded philosophy (0.5 rem = 8 px baseline)
-// -----------------------------------------------------------------------------
-
-abstract class VibrantCravingsRadius {
-
 }
 

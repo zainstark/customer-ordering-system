@@ -4,8 +4,9 @@ class DioClient {
   final Dio _dio;
 
   DioClient()
-      : _dio = Dio(BaseOptions(
-        // TODO: Set the base URL for your API here
+    : _dio = Dio(
+        BaseOptions(
+          // TODO: Set the base URL for your API here
           baseUrl: "",
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
@@ -13,7 +14,8 @@ class DioClient {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
-        )) {
+        ),
+      ) {
     _setupInterceptors();
   }
 
@@ -50,8 +52,12 @@ class DioClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    return _dio.post(path,
-        data: data, queryParameters: queryParameters, options: options);
+    return _dio.post(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
   }
 
   // PUT request
@@ -61,8 +67,12 @@ class DioClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    return _dio.put(path,
-        data: data, queryParameters: queryParameters, options: options);
+    return _dio.put(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
   }
 
   // DELETE request
@@ -72,7 +82,11 @@ class DioClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    return _dio.delete(path,
-        data: data, queryParameters: queryParameters, options: options);
+    return _dio.delete(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
   }
 }

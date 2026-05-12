@@ -5,7 +5,5 @@ final getIt = GetIt.instance;
 
 void setupDependencies() {
   // Register DioClient as a singleton
-  getIt.registerSingleton<DioClient>(
-    DioClient(),
-  );
+  getIt.registerSingleton<DioClient>(DioClient());
 }

@@ -8,67 +8,66 @@ import 'package:frontend/Core/utils/app_dimensions.dart';
 // Generated from Vibrant Cravings (light) & Vibrant Cravings Dark design tokens
 // =============================================================================
 
-
 // -----------------------------------------------------------------------------
 //  COLOUR SCHEMES
 // -----------------------------------------------------------------------------
 
 const ColorScheme _lightColorScheme = ColorScheme(
-  brightness:               Brightness.light,
-  primary:                  VibrantCravingsColors.lightPrimary,
-  onPrimary:                VibrantCravingsColors.lightOnPrimary,
-  primaryContainer:         VibrantCravingsColors.lightPrimaryContainer,
-  onPrimaryContainer:       VibrantCravingsColors.lightOnPrimaryContainer,
-  secondary:                VibrantCravingsColors.lightSecondary,
-  onSecondary:              VibrantCravingsColors.lightOnSecondary,
-  secondaryContainer:       VibrantCravingsColors.lightSecondaryContainer,
-  onSecondaryContainer:     VibrantCravingsColors.lightOnSecondaryContainer,
-  tertiary:                 VibrantCravingsColors.lightTertiary,
-  onTertiary:               VibrantCravingsColors.lightOnTertiary,
-  tertiaryContainer:        VibrantCravingsColors.lightTertiaryContainer,
-  onTertiaryContainer:      VibrantCravingsColors.lightOnTertiaryContainer,
-  error:                    VibrantCravingsColors.lightError,
-  onError:                  VibrantCravingsColors.lightOnError,
-  errorContainer:           VibrantCravingsColors.lightErrorContainer,
-  onErrorContainer:         VibrantCravingsColors.lightOnErrorContainer,
-  surface:                  VibrantCravingsColors.lightSurface,
-  onSurface:                VibrantCravingsColors.lightOnSurface,
-  onSurfaceVariant:         VibrantCravingsColors.lightOnSurfaceVariant,
-  outline:                  VibrantCravingsColors.lightOutline,
-  outlineVariant:           VibrantCravingsColors.lightOutlineVariant,
-  inverseSurface:           VibrantCravingsColors.lightInverseSurface,
-  onInverseSurface:         VibrantCravingsColors.lightInverseOnSurface,
-  inversePrimary:           VibrantCravingsColors.lightInversePrimary,
-  surfaceTint:              VibrantCravingsColors.lightSurfaceTint,
+  brightness: Brightness.light,
+  primary: VibrantCravingsColors.lightPrimary,
+  onPrimary: VibrantCravingsColors.lightOnPrimary,
+  primaryContainer: VibrantCravingsColors.lightPrimaryContainer,
+  onPrimaryContainer: VibrantCravingsColors.lightOnPrimaryContainer,
+  secondary: VibrantCravingsColors.lightSecondary,
+  onSecondary: VibrantCravingsColors.lightOnSecondary,
+  secondaryContainer: VibrantCravingsColors.lightSecondaryContainer,
+  onSecondaryContainer: VibrantCravingsColors.lightOnSecondaryContainer,
+  tertiary: VibrantCravingsColors.lightTertiary,
+  onTertiary: VibrantCravingsColors.lightOnTertiary,
+  tertiaryContainer: VibrantCravingsColors.lightTertiaryContainer,
+  onTertiaryContainer: VibrantCravingsColors.lightOnTertiaryContainer,
+  error: VibrantCravingsColors.lightError,
+  onError: VibrantCravingsColors.lightOnError,
+  errorContainer: VibrantCravingsColors.lightErrorContainer,
+  onErrorContainer: VibrantCravingsColors.lightOnErrorContainer,
+  surface: VibrantCravingsColors.lightSurface,
+  onSurface: VibrantCravingsColors.lightOnSurface,
+  onSurfaceVariant: VibrantCravingsColors.lightOnSurfaceVariant,
+  outline: VibrantCravingsColors.lightOutline,
+  outlineVariant: VibrantCravingsColors.lightOutlineVariant,
+  inverseSurface: VibrantCravingsColors.lightInverseSurface,
+  onInverseSurface: VibrantCravingsColors.lightInverseOnSurface,
+  inversePrimary: VibrantCravingsColors.lightInversePrimary,
+  surfaceTint: VibrantCravingsColors.lightSurfaceTint,
 );
 
 const ColorScheme _darkColorScheme = ColorScheme(
-  brightness:               Brightness.dark,
-  primary:                  VibrantCravingsColors.darkPrimary,
-  onPrimary:                VibrantCravingsColors.darkOnPrimary,
-  primaryContainer:         VibrantCravingsColors.darkPrimaryContainer,
-  onPrimaryContainer:       VibrantCravingsColors.darkOnPrimaryContainer,
-  secondary:                VibrantCravingsColors.darkSecondary,
-  onSecondary:              VibrantCravingsColors.darkOnSecondary,
-  secondaryContainer:       VibrantCravingsColors.darkSecondaryContainer,
-  onSecondaryContainer:     VibrantCravingsColors.darkOnSecondaryContainer,
-  tertiary:                 VibrantCravingsColors.darkTertiary,
-  onTertiary:               VibrantCravingsColors.darkOnTertiary,
-  tertiaryContainer:        VibrantCravingsColors.darkTertiaryContainer,
-  onTertiaryContainer:      VibrantCravingsColors.darkOnTertiaryContainer,
-  error:                    VibrantCravingsColors.darkError,
-  onError:                  VibrantCravingsColors.darkOnError,
-  errorContainer:           VibrantCravingsColors.darkErrorContainer,
-  onErrorContainer:         VibrantCravingsColors.darkOnErrorContainer,
-  surface:                  VibrantCravingsColors.darkSurface,
-  onSurface:                VibrantCravingsColors.darkOnSurface,
-  onSurfaceVariant:         VibrantCravingsColors.darkOnSurfaceVariant,
-  outline:                  VibrantCravingsColors.darkOutline,
-  outlineVariant:           VibrantCravingsColors.darkOutlineVariant,
-  inverseSurface:           VibrantCravingsColors.darkInverseSurface,
-  onInverseSurface:         VibrantCravingsColors.darkInverseOnSurface,
-  inversePrimary:           VibrantCravingsColors.darkInversePrimary,
-  surfaceTint:              VibrantCravingsColors.darkSurfaceTint,
+  brightness: Brightness.dark,
+  primary: VibrantCravingsColors.darkPrimary,
+  onPrimary: VibrantCravingsColors.darkOnPrimary,
+  primaryContainer: VibrantCravingsColors.darkPrimaryContainer,
+  onPrimaryContainer: VibrantCravingsColors.darkOnPrimaryContainer,
+  secondary: VibrantCravingsColors.darkSecondary,
+  onSecondary: VibrantCravingsColors.darkOnSecondary,
+  secondaryContainer: VibrantCravingsColors.darkSecondaryContainer,
+  onSecondaryContainer: VibrantCravingsColors.darkOnSecondaryContainer,
+  tertiary: VibrantCravingsColors.darkTertiary,
+  onTertiary: VibrantCravingsColors.darkOnTertiary,
+  tertiaryContainer: VibrantCravingsColors.darkTertiaryContainer,
+  onTertiaryContainer: VibrantCravingsColors.darkOnTertiaryContainer,
+  error: VibrantCravingsColors.darkError,
+  onError: VibrantCravingsColors.darkOnError,
+  errorContainer: VibrantCravingsColors.darkErrorContainer,
+  onErrorContainer: VibrantCravingsColors.darkOnErrorContainer,
+  surface: VibrantCravingsColors.darkSurface,
+  onSurface: VibrantCravingsColors.darkOnSurface,
+  onSurfaceVariant: VibrantCravingsColors.darkOnSurfaceVariant,
+  outline: VibrantCravingsColors.darkOutline,
+  outlineVariant: VibrantCravingsColors.darkOutlineVariant,
+  inverseSurface: VibrantCravingsColors.darkInverseSurface,
+  onInverseSurface: VibrantCravingsColors.darkInverseOnSurface,
+  inversePrimary: VibrantCravingsColors.darkInversePrimary,
+  surfaceTint: VibrantCravingsColors.darkSurfaceTint,
 );
 
 // -----------------------------------------------------------------------------
@@ -100,8 +99,8 @@ const TextTheme _lightTextTheme = TextTheme(
     fontFamily: _fontFamily,
     fontSize: 48,
     fontWeight: FontWeight.w800,
-    height: 56 / 48,          // lineHeight / fontSize
-    letterSpacing: -0.96,     // -0.02em × 48px
+    height: 56 / 48, // lineHeight / fontSize
+    letterSpacing: -0.96, // -0.02em × 48px
     color: VibrantCravingsColors.lightOnBackground,
   ),
 
@@ -172,21 +171,20 @@ const TextTheme _lightTextTheme = TextTheme(
 
 /// Dark text theme — same scale, colours flipped to dark tokens.
 TextTheme get _darkTextTheme => _lightTextTheme.apply(
-  bodyColor:        VibrantCravingsColors.darkOnSurface,
-  displayColor:     VibrantCravingsColors.darkOnBackground,
-  decorationColor:  VibrantCravingsColors.darkOnSurface,
+  bodyColor: VibrantCravingsColors.darkOnSurface,
+  displayColor: VibrantCravingsColors.darkOnBackground,
+  decorationColor: VibrantCravingsColors.darkOnSurface,
 );
-
 
 // -----------------------------------------------------------------------------
 // COMPONENT THEMES — shared helpers
 // -----------------------------------------------------------------------------
 
 ButtonStyle _elevatedButtonStyle(ColorScheme cs) => ElevatedButton.styleFrom(
-  backgroundColor:   cs.primary,
-  foregroundColor:   cs.onPrimary,
-  minimumSize:       const Size(0, 52),
-  padding:           const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+  backgroundColor: cs.primary,
+  foregroundColor: cs.onPrimary,
+  minimumSize: const Size(0, 52),
+  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(AppDimensions.radiusMax),
   ),
@@ -222,37 +220,38 @@ ButtonStyle _textButtonStyle(ColorScheme cs) => TextButton.styleFrom(
   ),
 );
 
-InputDecorationTheme _inputDecorationTheme(ColorScheme cs) => InputDecorationTheme(
-  filled: true,
-  fillColor: cs.surfaceContainerLow,
-  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-    borderSide: BorderSide(color: cs.outline, width: 1),
-  ),
-  enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-    borderSide: BorderSide(color: cs.outlineVariant, width: 1),
-  ),
-  focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-    borderSide: BorderSide(color: cs.primary, width: 2),
-  ),
-  errorBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-    borderSide: BorderSide(color: cs.error, width: 1),
-  ),
-  focusedErrorBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-    borderSide: BorderSide(color: cs.error, width: 2),
-  ),
-  hintStyle: TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
-    color: cs.onSurfaceVariant,
-  ),
-);
+InputDecorationTheme _inputDecorationTheme(ColorScheme cs) =>
+    InputDecorationTheme(
+      filled: true,
+      fillColor: cs.surfaceContainerLow,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+        borderSide: BorderSide(color: cs.outline, width: 1),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+        borderSide: BorderSide(color: cs.outlineVariant, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+        borderSide: BorderSide(color: cs.primary, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+        borderSide: BorderSide(color: cs.error, width: 1),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+        borderSide: BorderSide(color: cs.error, width: 2),
+      ),
+      hintStyle: TextStyle(
+        fontFamily: _fontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: cs.onSurfaceVariant,
+      ),
+    );
 
 CardThemeData _cardTheme(ColorScheme cs) => CardThemeData(
   color: cs.surfaceContainerLow,
@@ -265,7 +264,7 @@ CardThemeData _cardTheme(ColorScheme cs) => CardThemeData(
 );
 
 AppBarTheme _appBarTheme(ColorScheme cs, TextTheme tt) => AppBarTheme(
-  backgroundColor: cs.surface.withValues(alpha: .8),  // glassmorphic base
+  backgroundColor: cs.surface.withValues(alpha: .8), // glassmorphic base
   foregroundColor: cs.onSurface,
   surfaceTintColor: Colors.transparent,
   elevation: 0,
@@ -352,11 +351,8 @@ DialogThemeData _dialogTheme(ColorScheme cs) => DialogThemeData(
   ),
 );
 
-DividerThemeData _dividerTheme(ColorScheme cs) => DividerThemeData(
-  color: cs.outlineVariant,
-  thickness: 1,
-  space: 1,
-);
+DividerThemeData _dividerTheme(ColorScheme cs) =>
+    DividerThemeData(color: cs.outlineVariant, thickness: 1, space: 1);
 
 SnackBarThemeData _snackBarTheme(ColorScheme cs) => SnackBarThemeData(
   backgroundColor: cs.inverseSurface,
@@ -403,34 +399,38 @@ ThemeData appLightTheme() {
   final tt = _lightTextTheme;
 
   return ThemeData(
-    useMaterial3:            true,
-    brightness:              Brightness.light,
-    colorScheme:             cs,
+    useMaterial3: true,
+    brightness: Brightness.light,
+    colorScheme: cs,
     scaffoldBackgroundColor: VibrantCravingsColors.lightBackground,
-    fontFamily:              _fontFamily,
-    textTheme:               tt,
+    fontFamily: _fontFamily,
+    textTheme: tt,
 
     // Components
-    elevatedButtonTheme:     ElevatedButtonThemeData(style: _elevatedButtonStyle(cs)),
-    outlinedButtonTheme:     OutlinedButtonThemeData(style: _outlinedButtonStyle(cs)),
-    textButtonTheme:         TextButtonThemeData(style: _textButtonStyle(cs)),
-    inputDecorationTheme:    _inputDecorationTheme(cs),
-    cardTheme:               _cardTheme(cs),
-    appBarTheme:             _appBarTheme(cs, tt),
-    navigationBarTheme:      _navigationBarTheme(cs),
-    chipTheme:               _chipTheme(cs),
-    bottomSheetTheme:        _bottomSheetTheme(cs),
-    dialogTheme:             _dialogTheme(cs),
-    dividerTheme:            _dividerTheme(cs),
-    snackBarTheme:           _snackBarTheme(cs),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: _elevatedButtonStyle(cs),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: _outlinedButtonStyle(cs),
+    ),
+    textButtonTheme: TextButtonThemeData(style: _textButtonStyle(cs)),
+    inputDecorationTheme: _inputDecorationTheme(cs),
+    cardTheme: _cardTheme(cs),
+    appBarTheme: _appBarTheme(cs, tt),
+    navigationBarTheme: _navigationBarTheme(cs),
+    chipTheme: _chipTheme(cs),
+    bottomSheetTheme: _bottomSheetTheme(cs),
+    dialogTheme: _dialogTheme(cs),
+    dividerTheme: _dividerTheme(cs),
+    snackBarTheme: _snackBarTheme(cs),
     floatingActionButtonTheme: _fabTheme(cs),
-    switchTheme:             _switchTheme(cs),
+    switchTheme: _switchTheme(cs),
 
     // Page transitions
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
         TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.iOS:     CupertinoPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
       },
     ),
   );
@@ -441,33 +441,37 @@ ThemeData appDarkTheme() {
   final tt = _darkTextTheme;
 
   return ThemeData(
-    useMaterial3:            true,
-    brightness:              Brightness.dark,
-    colorScheme:             cs,
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: cs,
     scaffoldBackgroundColor: VibrantCravingsColors.darkBackground,
-    fontFamily:              _fontFamily,
-    textTheme:               tt,
+    fontFamily: _fontFamily,
+    textTheme: tt,
 
     // Components
-    elevatedButtonTheme:     ElevatedButtonThemeData(style: _elevatedButtonStyle(cs)),
-    outlinedButtonTheme:     OutlinedButtonThemeData(style: _outlinedButtonStyle(cs)),
-    textButtonTheme:         TextButtonThemeData(style: _textButtonStyle(cs)),
-    inputDecorationTheme:    _inputDecorationTheme(cs),
-    cardTheme:               _cardTheme(cs),
-    appBarTheme:             _appBarTheme(cs, tt),
-    navigationBarTheme:      _navigationBarTheme(cs),
-    chipTheme:               _chipTheme(cs),
-    bottomSheetTheme:        _bottomSheetTheme(cs),
-    dialogTheme:             _dialogTheme(cs),
-    dividerTheme:            _dividerTheme(cs),
-    snackBarTheme:           _snackBarTheme(cs),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: _elevatedButtonStyle(cs),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: _outlinedButtonStyle(cs),
+    ),
+    textButtonTheme: TextButtonThemeData(style: _textButtonStyle(cs)),
+    inputDecorationTheme: _inputDecorationTheme(cs),
+    cardTheme: _cardTheme(cs),
+    appBarTheme: _appBarTheme(cs, tt),
+    navigationBarTheme: _navigationBarTheme(cs),
+    chipTheme: _chipTheme(cs),
+    bottomSheetTheme: _bottomSheetTheme(cs),
+    dialogTheme: _dialogTheme(cs),
+    dividerTheme: _dividerTheme(cs),
+    snackBarTheme: _snackBarTheme(cs),
     floatingActionButtonTheme: _fabTheme(cs),
-    switchTheme:             _switchTheme(cs),
+    switchTheme: _switchTheme(cs),
 
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
         TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.iOS:     CupertinoPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
       },
     ),
   );
