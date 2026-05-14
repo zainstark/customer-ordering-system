@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
-import 'package:frontend/features/menu/data/models/menu_category_model.dart';
+import 'package:frontend/features/menu/domain/entities/menu_category_entity.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_surface_card.dart';
 
 class MenuCategorySidebar extends StatelessWidget {
@@ -11,7 +11,7 @@ class MenuCategorySidebar extends StatelessWidget {
     required this.onCategorySelected,
   });
 
-  final List<MenuCategoryModel> categories;
+  final List<MenuCategoryEntity> categories;
   final String selectedCategoryId;
   final ValueChanged<String> onCategorySelected;
 
@@ -50,7 +50,7 @@ class _MenuCategoryTile extends StatelessWidget {
     required this.onTap,
   });
 
-  final MenuCategoryModel category;
+  final MenuCategoryEntity category;
   final bool isSelected;
   final VoidCallback onTap;
 

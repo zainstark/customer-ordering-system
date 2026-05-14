@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
-import 'package:frontend/features/menu/data/models/menu_item_model.dart';
+import 'package:frontend/features/menu/domain/entities/menu_item_entity.dart';
 import 'package:frontend/features/widgets/app_network_image.dart';
 
 class MenuItemDetailsSheet extends StatelessWidget {
   const MenuItemDetailsSheet({super.key, required this.item});
 
-  final MenuItemModel item;
+  final MenuItemEntity item;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,7 @@ class MenuItemDetailsSheet extends StatelessWidget {
 class _ImagePanel extends StatelessWidget {
   const _ImagePanel({required this.item});
 
-  final MenuItemModel item;
+  final MenuItemEntity item;
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +81,7 @@ class _ImagePanel extends StatelessWidget {
 class _DetailsPanel extends StatefulWidget {
   const _DetailsPanel({required this.item});
 
-  final MenuItemModel item;
+  final MenuItemEntity item;
 
   @override
   State<_DetailsPanel> createState() => _DetailsPanelState();

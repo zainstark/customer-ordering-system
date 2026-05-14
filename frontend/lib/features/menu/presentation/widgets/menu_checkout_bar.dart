@@ -35,8 +35,14 @@ class MenuCheckoutBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SelectableText('2 items in cart', style: textTheme.labelLarge),
-                    SelectableText('Estimated 25 mins', style: textTheme.bodySmall),
+                    SelectableText(
+                      '2 items in cart',
+                      style: textTheme.labelLarge,
+                    ),
+                    SelectableText(
+                      'Estimated 25 mins',
+                      style: textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),

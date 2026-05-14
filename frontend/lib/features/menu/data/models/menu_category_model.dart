@@ -8,8 +8,6 @@ class MenuCategoryModel extends MenuCategoryEntity {
     required super.menuItems,
   });
 
-  
-
   factory MenuCategoryModel.fromJson(Map<String, dynamic> json) {
     return MenuCategoryModel(
       id: json['id'],

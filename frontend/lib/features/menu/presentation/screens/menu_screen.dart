@@ -21,6 +21,27 @@ class MenuScreen extends StatelessWidget {
 
     return BlocBuilder<MenuCubit, MenuState>(
       builder: (context, state) {
+        if (state.status == MenuRequestStatus.loading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state.status == MenuRequestStatus.error) {
+          return _ErrorStateView(
+            message:
+                state.errorMessage ??
+                'Something went wrong while loading menu.',
+            onRetry: () => context.read<MenuCubit>().loadMenu(),
+          );
+        }
+
+        if (state.status == MenuRequestStatus.success &&
+            state.categories.isEmpty) {
+          return _ErrorStateView(
+            message: 'No menu items are currently available.',
+            onRetry: () => context.read<MenuCubit>().loadMenu(),
+          );
+        }
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(AppDimensions.paddingLg),
           child: Row(
@@ -136,5 +157,34 @@ class MenuScreen extends StatelessWidget {
       if (category.id == state.selectedCategoryId) return category.label;
     }
     return 'Popular';
+  }
+}
+
+class _ErrorStateView extends StatelessWidget {
+  const _ErrorStateView({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.paddingXl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline),
+            const SizedBox(height: AppDimensions.spacingMd),
+            SelectableText(message, textAlign: TextAlign.center),
+            const SizedBox(height: AppDimensions.spacingMd),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: const SelectableText('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

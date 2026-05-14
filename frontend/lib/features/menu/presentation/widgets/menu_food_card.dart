@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
-import 'package:frontend/features/menu/data/models/menu_item_model.dart';
+import 'package:frontend/features/menu/domain/entities/menu_item_entity.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_surface_card.dart';
 import 'package:frontend/features/widgets/app_network_image.dart';
 
 class MenuFoodCard extends StatelessWidget {
   const MenuFoodCard({super.key, required this.item, required this.onTap});
 
-  final MenuItemModel item;
+  final MenuItemEntity item;
   final VoidCallback onTap;
 
   @override
@@ -54,10 +54,7 @@ class MenuFoodCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: AppDimensions.spacingSm),
-                    SelectableText(
-                      item.description,
-                      style: textTheme.bodyMedium,
-                    ),
+                  SelectableText(item.description, style: textTheme.bodyMedium),
                   const SizedBox(height: AppDimensions.spacingSm),
                   Row(
                     children: [
