@@ -19,7 +19,6 @@ class AppNetworkImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
       child: Image.network(

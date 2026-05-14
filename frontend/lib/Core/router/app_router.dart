@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:frontend/features/cart/presentation/screens/cart_screen.dart';
@@ -25,7 +26,7 @@ class AppRouter {
             path: RoutesPath.menu,
             name: RoutesName.menu,
             builder: (context, state) => BlocProvider(
-              create: (_) => MenuCubit(),
+              create: (_) => getIt<MenuCubit>()..loadMenu(),
               child: const MenuScreen(),
             ),
           ),
@@ -33,7 +34,7 @@ class AppRouter {
             path: RoutesPath.cart,
             name: RoutesName.cart,
             builder: (context, state) => BlocProvider(
-              create: (_) => CartCubit(),
+              create: (_) => getIt<CartCubit>()..loadCart(),
               child: const CartScreen(),
             ),
           ),
@@ -41,7 +42,7 @@ class AppRouter {
             path: RoutesPath.orders,
             name: RoutesName.orders,
             builder: (context, state) => BlocProvider(
-              create: (_) => OrdersCubit(),
+              create: (_) => getIt<OrdersCubit>()..loadOrders(),
               child: const OrdersScreen(),
             ),
           ),
