@@ -1,59 +1,146 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/cart/data/models/cart_item_model.dart';
+import 'package:frontend/features/cart/domain/entities/card_item_entity.dart';
+import 'package:frontend/features/cart/domain/usecases/get_cart_items_usecase.dart';
+import 'package:frontend/features/cart/domain/usecases/remove_cart_item_usecase.dart';
+import 'package:frontend/features/cart/domain/usecases/update_cart_item_quantity_usecase.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 
 class CartCubit extends Cubit<CartState> {
-  CartCubit()
-    : super(
-        CartState(
-          cartId: 'CRT-1001',
-          models: [
-            CartItemModel(
-              id: 'c1',
-              cartId: 'CRT-1001',
-              menuItemId: 'MI-100',
-              title: 'The Signature Burger',
-              subtitle: 'Double patty, cheddar, secret sauce',
-              unitPrice: 14.5,
-              quantity: 1,
-              imageUrl:
-                  'https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D',
-            ),
-            CartItemModel(
-              id: 'c2',
-              cartId: 'CRT-1001',
-              menuItemId: 'MI-200',
-              title: 'Classic Margherita',
-              subtitle: 'Sourdough, basil, San Marzano tomato',
-              unitPrice: 18.0,
-              quantity: 2,
-              imageUrl:
-                  'https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D',
-            ),
-          ],
-        ),
-      );
+  CartCubit({
+    required this._getCartItemsUseCase,
+    required this._updateCartItemQuantityUseCase,
+    required this._removeCartItemUseCase,
+  }) : super(const CartState(cartId: _defaultCartId, models: []));
 
-  void incrementItem(String id) {
+  static const String _defaultCartId = 'CRT-1001';
+
+  final GetCartItemsUseCase _getCartItemsUseCase;
+  final UpdateCartItemQuantityUseCase _updateCartItemQuantityUseCase;
+  final RemoveCartItemUseCase _removeCartItemUseCase;
+
+  Future<void> loadCart({String? cartId}) async {
+    final currentCartId = cartId ?? state.cartId;
     emit(
       state.copyWith(
-        models: state.models.map((item) {
-          if (item.id != id) return item;
-          return item.copyWith(quantity: item.quantity + 1);
-        }).toList(),
+        cartId: currentCartId,
+        status: CartRequestStatus.loading,
+        clearErrorMessage: true,
       ),
     );
+
+    try {
+      final items = await _getCartItemsUseCase(cartId: currentCartId);
+      emit(
+        state.copyWith(
+          models: items,
+          status: CartRequestStatus.success,
+          clearErrorMessage: true,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: CartRequestStatus.error,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
+  void incrementItem(String id) {
+    _incrementItem(id);
+  }
+
+  Future<void> _incrementItem(String id) async {
+    final item = _findItemById(id);
+    if (item == null) return;
+
+    try {
+      final items = await _updateCartItemQuantityUseCase(
+        cartId: state.cartId,
+        cartItemId: id,
+        quantity: item.quantity + 1,
+      );
+      emit(
+        state.copyWith(
+          models: items,
+          status: CartRequestStatus.success,
+          clearErrorMessage: true,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: CartRequestStatus.error,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
   }
 
   void decrementItem(String id) {
-    emit(
-      state.copyWith(
-        models: state.models.map((item) {
-          if (item.id != id) return item;
-          final nextQty = item.quantity > 1 ? item.quantity - 1 : 1;
-          return item.copyWith(quantity: nextQty);
-        }).toList(),
-      ),
-    );
+    _decrementItem(id);
+  }
+
+  Future<void> _decrementItem(String id) async {
+    final item = _findItemById(id);
+    if (item == null) return;
+    final nextQty = item.quantity > 1 ? item.quantity - 1 : 1;
+
+    try {
+      final items = await _updateCartItemQuantityUseCase(
+        cartId: state.cartId,
+        cartItemId: id,
+        quantity: nextQty,
+      );
+      emit(
+        state.copyWith(
+          models: items,
+          status: CartRequestStatus.success,
+          clearErrorMessage: true,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: CartRequestStatus.error,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
+  void removeItem(String id) {
+    _removeItem(id);
+  }
+
+  Future<void> _removeItem(String id) async {
+    try {
+      final items = await _removeCartItemUseCase(
+        cartId: state.cartId,
+        cartItemId: id,
+      );
+      emit(
+        state.copyWith(
+          models: items,
+          status: CartRequestStatus.success,
+          clearErrorMessage: true,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: CartRequestStatus.error,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
+  CartItemEntity? _findItemById(String id) {
+    for (final item in state.models) {
+      if (item.id == id) return item;
+    }
+    return null;
   }
 }

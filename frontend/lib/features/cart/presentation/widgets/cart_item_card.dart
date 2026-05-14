@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
-import 'package:frontend/features/cart/data/models/cart_item_model.dart';
+import 'package:frontend/features/cart/domain/entities/card_item_entity.dart';
 import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dart';
 import 'package:frontend/features/widgets/app_network_image.dart';
 
@@ -12,7 +12,7 @@ class CartItemCard extends StatelessWidget {
     required this.onDecrement,
   });
 
-  final CartItemModel model;
+  final CartItemEntity model;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
 
@@ -42,12 +42,12 @@ class CartItemCard extends StatelessWidget {
                 SelectableText(model.subtitle, style: textTheme.bodyMedium),
                 const SizedBox(height: AppDimensions.spacingMd),
                 SelectableText(
-                  'cart_item_id: ${model.cartItemId} • menu_item_id: ${model.menuItemId}',
+                  'cart_item_id: ${model.id} • menu_item_id: ${model.menuItemId}',
                   style: textTheme.labelSmall,
                 ),
                 const SizedBox(height: AppDimensions.spacingSm),
                 SelectableText(
-                  '\$${model.lineTotal.toStringAsFixed(2)}',
+                  '\$${(model.unitPrice * model.quantity).toStringAsFixed(2)}',
                   style: textTheme.headlineMedium?.copyWith(
                     color: colorScheme.primary,
                   ),
@@ -82,7 +82,10 @@ class CartItemCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: AppDimensions.spacingMd),
-                    SelectableText('${model.quantity}', style: textTheme.labelLarge),
+                    SelectableText(
+                      '${model.quantity}',
+                      style: textTheme.labelLarge,
+                    ),
                     const SizedBox(width: AppDimensions.spacingMd),
                     InkWell(
                       onTap: onIncrement,

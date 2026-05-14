@@ -15,6 +15,26 @@ class CartScreen extends StatelessWidget {
 
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, state) {
+        if (state.status == CartRequestStatus.loading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state.status == CartRequestStatus.error) {
+          return _StateMessage(
+            message:
+                state.errorMessage ??
+                'Something went wrong while loading cart.',
+            onRetry: () => context.read<CartCubit>().loadCart(),
+          );
+        }
+
+        if (state.status == CartRequestStatus.success && state.models.isEmpty) {
+          return _StateMessage(
+            message: 'Your cart is empty.',
+            onRetry: () => context.read<CartCubit>().loadCart(),
+          );
+        }
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(AppDimensions.paddingLg),
           child: isDesktop
@@ -39,6 +59,35 @@ class CartScreen extends StatelessWidget {
                 ),
         );
       },
+    );
+  }
+}
+
+class _StateMessage extends StatelessWidget {
+  const _StateMessage({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.paddingXl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline),
+            const SizedBox(height: AppDimensions.spacingMd),
+            SelectableText(message, textAlign: TextAlign.center),
+            const SizedBox(height: AppDimensions.spacingMd),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: const SelectableText('Retry'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

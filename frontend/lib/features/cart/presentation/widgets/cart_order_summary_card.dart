@@ -19,7 +19,10 @@ class CartOrderSummaryCard extends StatelessWidget {
         children: [
           SelectableText('Order summary', style: textTheme.headlineMedium),
           const SizedBox(height: AppDimensions.spacingSm),
-          SelectableText('cart_id: ${state.cartId}', style: textTheme.labelSmall),
+          SelectableText(
+            'cart_id: ${state.cartId}',
+            style: textTheme.labelSmall,
+          ),
           const SizedBox(height: AppDimensions.spacingXl),
           _SummaryRow(
             label: 'Subtotal',
@@ -54,7 +57,10 @@ class CartOrderSummaryCard extends StatelessWidget {
                 const Icon(Icons.credit_card_outlined),
                 const SizedBox(width: AppDimensions.spacingMd),
                 Expanded(
-                  child: SelectableText('Visa •••• 4242', style: textTheme.bodyLarge),
+                  child: SelectableText(
+                    'Visa •••• 4242',
+                    style: textTheme.bodyLarge,
+                  ),
                 ),
                 const Icon(Icons.chevron_right),
               ],
@@ -65,16 +71,16 @@ class CartOrderSummaryCard extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {},
-            child: const Text('Place order'),
+              child: const Text('Place order'),
+            ),
           ),
-        ),
-        const SizedBox(height: AppDimensions.spacingMd),
-        Center(
-          child: SelectableText(
-            'Estimated delivery: 25–35 mins',
-            style: textTheme.bodyMedium,
+          const SizedBox(height: AppDimensions.spacingMd),
+          Center(
+            child: SelectableText(
+              'Estimated delivery: 25–35 mins',
+              style: textTheme.bodyMedium,
+            ),
           ),
-        ),
         ],
       ),
     );
