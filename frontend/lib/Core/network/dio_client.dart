@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:frontend/Core/network/app_exception.dart';
+import 'package:frontend/Core/network/errors.dart';
 
 class DioClient {
   final Dio _dio;
@@ -30,7 +32,10 @@ class DioClient {
           return handler.next(response);
         },
         onError: (error, handler) {
-          return handler.next(error);
+          final appException = NetworkErrors.fromDioException(error);
+          return handler.reject(
+            error.copyWith(error: appException, message: appException.message),
+          );
         },
       ),
     );
@@ -42,7 +47,16 @@ class DioClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    return _dio.get(path, queryParameters: queryParameters, options: options);
+    try {
+      return await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (error) {
+      if (error.error is AppException) throw error.error! as AppException;
+      throw NetworkErrors.fromDioException(error);
+    }
   }
 
   // POST request
@@ -52,12 +66,17 @@ class DioClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    return _dio.post(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
+    try {
+      return await _dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (error) {
+      if (error.error is AppException) throw error.error! as AppException;
+      throw NetworkErrors.fromDioException(error);
+    }
   }
 
   // PUT request
@@ -67,12 +86,17 @@ class DioClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    return _dio.put(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
+    try {
+      return await _dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (error) {
+      if (error.error is AppException) throw error.error! as AppException;
+      throw NetworkErrors.fromDioException(error);
+    }
   }
 
   // DELETE request
@@ -82,11 +106,16 @@ class DioClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    return _dio.delete(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
+    try {
+      return await _dio.delete(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (error) {
+      if (error.error is AppException) throw error.error! as AppException;
+      throw NetworkErrors.fromDioException(error);
+    }
   }
 }
