@@ -16,6 +16,28 @@ class OrdersScreen extends StatelessWidget {
 
     return BlocBuilder<OrdersCubit, OrdersState>(
       builder: (context, state) {
+        if (state.status == OrdersRequestStatus.loading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state.status == OrdersRequestStatus.error) {
+          return _StateMessage(
+            message:
+                state.errorMessage ??
+                'Something went wrong while loading orders.',
+            onRetry: () => context.read<OrdersCubit>().loadOrders(),
+          );
+        }
+
+        if (state.status == OrdersRequestStatus.success &&
+            state.activeOrders.isEmpty &&
+            state.pastOrders.isEmpty) {
+          return _StateMessage(
+            message: 'No orders available right now.',
+            onRetry: () => context.read<OrdersCubit>().loadOrders(),
+          );
+        }
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(AppDimensions.paddingLg),
           child: Column(
@@ -61,6 +83,35 @@ class OrdersScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _StateMessage extends StatelessWidget {
+  const _StateMessage({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.paddingXl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline),
+            const SizedBox(height: AppDimensions.spacingMd),
+            SelectableText(message, textAlign: TextAlign.center),
+            const SizedBox(height: AppDimensions.spacingMd),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: const SelectableText('Retry'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

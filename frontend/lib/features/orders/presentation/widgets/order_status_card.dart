@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
-import 'package:frontend/features/orders/data/models/order_item_model.dart';
+import 'package:frontend/features/orders/domain/entities/order_item_entities.dart';
 import 'package:frontend/features/orders/presentation/widgets/orders_surface_card.dart';
 
 class OrderStatusCard extends StatelessWidget {
   const OrderStatusCard({super.key, required this.order});
 
-  final OrderItemModel order;
+  final OrderItemEntity order;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,10 @@ class OrderStatusCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SelectableText(order.orderId, style: textTheme.headlineMedium),
+                    SelectableText(
+                      order.orderId,
+                      style: textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: AppDimensions.spacingXs),
                     SelectableText(
                       'account_id: ${order.accountId} • placed_at: ${_formatDate(order.placedAt)}',
@@ -82,9 +85,15 @@ class OrderStatusCard extends StatelessWidget {
                 style: textTheme.bodyLarge,
               ),
               const Spacer(),
-              OutlinedButton(onPressed: () {}, child: const SelectableText('Support')),
+              OutlinedButton(
+                onPressed: () {},
+                child: const SelectableText('Support'),
+              ),
               const SizedBox(width: AppDimensions.spacingSm),
-              ElevatedButton(onPressed: () {}, child: const SelectableText('Track')),
+              ElevatedButton(
+                onPressed: () {},
+                child: const SelectableText('Track'),
+              ),
             ],
           ),
         ],
