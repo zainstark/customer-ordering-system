@@ -16,7 +16,6 @@ develop-eggs/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -166,6 +165,12 @@ cython_debug/
 # FLUTTER / DART
 # ============================================================================
 
+<<<<<<< HEAD
+# Streamlit
+.streamlit/secrets.toml
+.DS_Store
+frontend/devtools_options.yaml
+=======
 # Miscellaneous
 *.class
 *.log
@@ -275,3 +280,4 @@ Desktop.ini
 
 # Linux
 .directory
+>>>>>>> origin/main

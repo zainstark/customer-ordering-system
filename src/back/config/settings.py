@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "apps.order",
+    "apps.cart",
+    "apps.menu",
+    "apps.authentication",
 ]
 
 MIDDLEWARE = [
@@ -77,7 +80,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": BASE_DIR / "database" / "database.db",
     }
 }
 
