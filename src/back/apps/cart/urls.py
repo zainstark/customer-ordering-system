@@ -16,6 +16,10 @@ from . import views
 app_name = 'cart'
 
 urlpatterns = [
-    path('<str:cart_id>/', views.cart_detail, name='cart_detail'),
-    path('<str:cart_id>/items/<str:cart_item_id>/', views.cart_item_detail, name='cart_item_detail'),
+    path('', views.get_cart, name='get_cart'),
+    path('validate/', views.validate_cart, name='validate_cart'),
+    path('clear/', views.clear_cart, name='clear_cart'),
+    path('items/', views.add_item_to_cart, name='add_item'),
+    path('items/<str:cart_item_id>/', views.update_cart_item, name='update_item'),
+    path('items/<str:cart_item_id>/delete/', views.remove_item_from_cart, name='remove_item'),
 ]

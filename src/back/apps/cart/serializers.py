@@ -11,44 +11,38 @@ from .services import CartService
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    """Serializer that matches the Flutter cart contract."""
+    """Serializer for CartItem with menu item details."""
 
-    id = serializers.CharField(source='cart_item_id', read_only=True)
-    cartId = serializers.CharField(source='cart.cart_id', read_only=True)
-    menuItemId = serializers.CharField(source='menu_item_id', read_only=True)
-    title = serializers.SerializerMethodField()
-    subtitle = serializers.SerializerMethodField()
-    unitPrice = serializers.SerializerMethodField()
-    imageUrl = serializers.SerializerMethodField()
+    menu_item_name = serializers.SerializerMethodField()
+    menu_item_description = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
         fields = [
-            'id',
-            'cartId',
-            'menuItemId',
-            'title',
-            'subtitle',
-            'unitPrice',
+            'cart_item_id',
+            'menu_item_id',
+            'menu_item_name',
+            'menu_item_description',
             'quantity',
-            'imageUrl',
+            'unit_price_snapshot',
+            'line_total',
+            'created_at',
+            'updated_at',
         ]
-        read_only_fields = fields
+        read_only_fields = [
+            'cart_item_id',
+            'line_total',
+            'created_at',
+            'updated_at',
+        ]
 
-    def get_title(self, obj):
+    def get_menu_item_name(self, obj):
         menu_item = CartService._get_menu_item(obj.menu_item_id)
         return menu_item['name'] if menu_item else 'Unknown Item'
 
-    def get_subtitle(self, obj):
+    def get_menu_item_description(self, obj):
         menu_item = CartService._get_menu_item(obj.menu_item_id)
         return menu_item.get('description', '') if menu_item else ''
-
-    def get_unitPrice(self, obj):
-        return round(obj.unit_price_snapshot / 100, 2)
-
-    def get_imageUrl(self, obj):
-        menu_item = CartService._get_menu_item(obj.menu_item_id)
-        return menu_item.get('imageUrl', '') if menu_item else ''
 
 
 class CartSerializer(serializers.ModelSerializer):
