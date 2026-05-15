@@ -8,8 +8,7 @@ class DioClient {
   DioClient()
     : _dio = Dio(
         BaseOptions(
-          // TODO: Set the base URL for your API here
-          baseUrl: "",
+          baseUrl: "http://127.0.0.1:8000",
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
           headers: {
