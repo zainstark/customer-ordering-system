@@ -20,7 +20,7 @@ class CartOrderSummaryCard extends StatelessWidget {
           SelectableText('Order summary', style: textTheme.headlineMedium),
           const SizedBox(height: AppDimensions.spacingSm),
           SelectableText(
-            'cart_id: ${state.cartId}',
+            'account_id: ${state.accountId}',
             style: textTheme.labelSmall,
           ),
           const SizedBox(height: AppDimensions.spacingXl),

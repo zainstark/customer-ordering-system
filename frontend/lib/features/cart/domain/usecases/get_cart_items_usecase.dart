@@ -6,7 +6,7 @@ class GetCartItemsUseCase {
 
   final CartRepository _cartRepository;
 
-  Future<List<CartItemEntity>> call({required String cartId}) {
-    return _cartRepository.getCartItems(cartId: cartId);
+  Future<List<CartItemEntity>> call({required String accountId}) {
+    return _cartRepository.getCartItems(accountId: accountId);
   }
 }

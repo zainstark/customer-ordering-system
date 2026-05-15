@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/cart/domain/entities/card_item_entity.dart';
 import 'package:frontend/features/cart/domain/usecases/get_cart_items_usecase.dart';
@@ -10,26 +11,30 @@ class CartCubit extends Cubit<CartState> {
     required this._getCartItemsUseCase,
     required this._updateCartItemQuantityUseCase,
     required this._removeCartItemUseCase,
-  }) : super(const CartState(cartId: _defaultCartId, models: []));
+  }) : super(const CartState(accountId: _defaultAccountId, models: []));
 
-  static const String _defaultCartId = 'CRT-1001';
+  static const String _defaultAccountId = 'test_account_001';
 
   final GetCartItemsUseCase _getCartItemsUseCase;
   final UpdateCartItemQuantityUseCase _updateCartItemQuantityUseCase;
   final RemoveCartItemUseCase _removeCartItemUseCase;
 
-  Future<void> loadCart({String? cartId}) async {
-    final currentCartId = cartId ?? state.cartId;
+  Future<void> loadCart({String? accountId}) async {
+    print("))))))))))))))))))))");
+    final currentAccountId = accountId ?? state.accountId;
     emit(
       state.copyWith(
-        cartId: currentCartId,
+        accountId: currentAccountId,
         status: CartRequestStatus.loading,
         clearErrorMessage: true,
       ),
     );
 
     try {
-      final items = await _getCartItemsUseCase(cartId: currentCartId);
+      debugPrint("))))))))))))))))))))");
+      final items =
+          await _getCartItemsUseCase(accountId: currentAccountId);
+      debugPrint("))))))))))))))))))))");
       emit(
         state.copyWith(
           models: items,
@@ -57,7 +62,6 @@ class CartCubit extends Cubit<CartState> {
 
     try {
       final items = await _updateCartItemQuantityUseCase(
-        cartId: state.cartId,
         cartItemId: id,
         quantity: item.quantity + 1,
       );
@@ -89,7 +93,6 @@ class CartCubit extends Cubit<CartState> {
 
     try {
       final items = await _updateCartItemQuantityUseCase(
-        cartId: state.cartId,
         cartItemId: id,
         quantity: nextQty,
       );
@@ -116,10 +119,7 @@ class CartCubit extends Cubit<CartState> {
 
   Future<void> _removeItem(String id) async {
     try {
-      final items = await _removeCartItemUseCase(
-        cartId: state.cartId,
-        cartItemId: id,
-      );
+      final items = await _removeCartItemUseCase(cartItemId: id);
       emit(
         state.copyWith(
           models: items,

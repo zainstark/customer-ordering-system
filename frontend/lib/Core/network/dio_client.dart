@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:frontend/Core/network/app_exception.dart';
 import 'package:frontend/Core/network/errors.dart';
@@ -24,13 +25,27 @@ class DioClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Add any request modifications here (e.g., auth token)
+          debugPrint('🌐 REQUEST: ${options.method} ${options.path}');
+          debugPrint('   Full URL: ${options.uri}');
+          debugPrint('   Headers: ${options.headers}');
+          if (options.queryParameters.isNotEmpty) {
+            debugPrint('   Query: ${options.queryParameters}');
+          }
+          if (options.data != null) {
+            debugPrint('   Body: ${options.data}');
+          }
           return handler.next(options);
         },
         onResponse: (response, handler) {
+          debugPrint('✅ RESPONSE: ${response.statusCode} ${response.requestOptions.path}');
+          debugPrint('   Data: ${response.data}');
           return handler.next(response);
         },
         onError: (error, handler) {
+          debugPrint('❌ ERROR: ${error.type} - ${error.message}');
+          debugPrint('   Path: ${error.requestOptions.path}');
+          debugPrint('   Status: ${error.response?.statusCode}');
+          debugPrint('   Response: ${error.response?.data}');
           final appException = NetworkErrors.fromDioException(error);
           return handler.reject(
             error.copyWith(error: appException, message: appException.message),
@@ -107,6 +122,26 @@ class DioClient {
   }) async {
     try {
       return await _dio.delete(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (error) {
+      if (error.error is AppException) throw error.error! as AppException;
+      throw NetworkErrors.fromDioException(error);
+    }
+  }
+
+  // PATCH request
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      return await _dio.patch(
         path,
         data: data,
         queryParameters: queryParameters,

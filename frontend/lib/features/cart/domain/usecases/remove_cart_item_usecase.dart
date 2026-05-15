@@ -7,9 +7,8 @@ class RemoveCartItemUseCase {
   final CartRepository _cartRepository;
 
   Future<List<CartItemEntity>> call({
-    required String cartId,
     required String cartItemId,
   }) {
-    return _cartRepository.removeItem(cartId: cartId, cartItemId: cartItemId);
+    return _cartRepository.removeItem(cartItemId: cartItemId);
   }
 }

@@ -8,29 +8,36 @@ class CartRepositoryImpl implements CartRepository {
   final CartRemoteDataSource _cartRemoteDataSource;
 
   @override
-  Future<List<CartItemEntity>> getCartItems({required String cartId}) {
-    return _cartRemoteDataSource.getCartItems(cartId);
+  Future<List<CartItemEntity>> getCartItems({required String accountId}) {
+    return _cartRemoteDataSource.getCartItems(accountId: accountId);
   }
 
   @override
-  Future<List<CartItemEntity>> removeItem({
-    required String cartId,
-    required String cartItemId,
+  Future<List<CartItemEntity>> addItem({
+    required String accountId,
+    required String menuItemId,
+    required int quantity,
   }) {
-    return _cartRemoteDataSource.removeItem(
-      cartId: cartId,
-      cartItemId: cartItemId,
+    return _cartRemoteDataSource.addItem(
+      accountId: accountId,
+      menuItemId: menuItemId,
+      quantity: quantity,
     );
   }
 
   @override
+  Future<List<CartItemEntity>> removeItem({
+    required String cartItemId,
+  }) {
+    return _cartRemoteDataSource.removeItem(cartItemId: cartItemId);
+  }
+
+  @override
   Future<List<CartItemEntity>> updateItemQuantity({
-    required String cartId,
     required String cartItemId,
     required int quantity,
   }) {
     return _cartRemoteDataSource.updateItemQuantity(
-      cartId: cartId,
       cartItemId: cartItemId,
       quantity: quantity,
     );

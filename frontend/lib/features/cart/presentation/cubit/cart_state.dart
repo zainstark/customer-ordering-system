@@ -4,13 +4,13 @@ enum CartRequestStatus { initial, loading, success, error }
 
 class CartState {
   const CartState({
-    required this.cartId,
+    required this.accountId,
     required this.models,
     this.status = CartRequestStatus.initial,
     this.errorMessage,
   });
 
-  final String cartId;
+  final String accountId;
   final List<CartItemEntity> models;
   final CartRequestStatus status;
   final String? errorMessage;
@@ -22,14 +22,14 @@ class CartState {
   double get total => subtotal + deliveryFee + taxes;
 
   CartState copyWith({
-    String? cartId,
+    String? accountId,
     List<CartItemEntity>? models,
     CartRequestStatus? status,
     String? errorMessage,
     bool clearErrorMessage = false,
   }) {
     return CartState(
-      cartId: cartId ?? this.cartId,
+      accountId: accountId ?? this.accountId,
       models: models ?? this.models,
       status: status ?? this.status,
       errorMessage: clearErrorMessage

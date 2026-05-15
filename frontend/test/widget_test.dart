@@ -80,13 +80,31 @@ class _FakeCartRepository implements CartRepository {
   ];
 
   @override
-  Future<List<CartItemEntity>> getCartItems({required String cartId}) async {
+  Future<List<CartItemEntity>> getCartItems({required String accountId}) async {
+    return _items;
+  }
+
+  @override
+  Future<List<CartItemEntity>> addItem({
+    required String accountId,
+    required String menuItemId,
+    required int quantity,
+  }) async {
+    _items.add(CartItemModel(
+      id: 'c${_items.length + 1}',
+      cartId: 'CRT-1001',
+      menuItemId: menuItemId,
+      title: 'Item $menuItemId',
+      subtitle: 'Description',
+      unitPrice: 10.0,
+      quantity: quantity,
+      imageUrl: 'https://example.com/item.jpg',
+    ));
     return _items;
   }
 
   @override
   Future<List<CartItemEntity>> removeItem({
-    required String cartId,
     required String cartItemId,
   }) async {
     _items = _items.where((item) => item.id != cartItemId).toList();
@@ -95,7 +113,6 @@ class _FakeCartRepository implements CartRepository {
 
   @override
   Future<List<CartItemEntity>> updateItemQuantity({
-    required String cartId,
     required String cartItemId,
     required int quantity,
   }) async {
