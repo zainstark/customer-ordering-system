@@ -1,38 +1,31 @@
 from rest_framework import serializers
-from apps.order.models import Order, OrderItem, OrderStatusHistory
+from .models import Order, OrderItem
 
-class OrderItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = [
-            'order_item_id', 
-            'menu_item_id', 
-            'item_name_snapshot', 
-            'unit_price_snapshot', 
-            'quantity', 
-            'line_total'
-        ]
+class CartItemInputSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    name = serializers.CharField()
+    price_cents = serializers.IntegerField()
+    quantity = serializers.IntegerField(min_value=1)
 
-class OrderStatusHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderStatusHistory
-        fields = ['order_status', 'note', 'changed_at']
+class CreateOrderRequestSerializer(serializers.Serializer):
+    expected_total_cents = serializers.IntegerField()
+    payment_method = serializers.CharField()
+    items = CartItemInputSerializer(many=True)
 
-class OrderSerializer(serializers.ModelSerializer):
-    # Nested relationships based on the 'related_name' in models.py
-    items = OrderItemSerializer(many=True, read_only=True)
-    status_history = OrderStatusHistorySerializer(many=True, read_only=True)
-
+class OrderResponseSerializer(serializers.ModelSerializer):
+    # Mapping to Flutter Contract: { id, accountId, orderId, status, placedAt, totalAmount, progress }
+    id = serializers.UUIDField(source='order_id')
+    accountId = serializers.CharField(source='account_id')
+    orderId = serializers.UUIDField(source='order_id')
+    status = serializers.CharField(source='order_status')
+    placedAt = serializers.DateTimeField(source='placed_at')
+    totalAmount = serializers.IntegerField(source='total_amount')
+    progress = serializers.SerializerMethodField()
+    
     class Meta:
         model = Order
-        fields = [
-            'order_id', 
-            'account_id', 
-            'total_amount', 
-            'placed_at', 
-            'order_status', 
-            'confirmed_at', 
-            'updated_at', 
-            'items', 
-            'status_history'
-        ]
+        fields = ['id', 'accountId', 'orderId', 'status', 'placedAt', 'totalAmount', 'progress']
+
+    def get_progress(self, obj):
+        # Maps status to Flutter's expected progress indicator
+        return {'PENDING': 0.1, 'CONFIRMED': 0.3, 'PREPARING': 0.5, 'READY': 0.7, 'OUT_FOR_DELIVERY': 0.9, 'DELIVERED': 1.0}.get(obj.order_status, 0.0)
