@@ -15,14 +15,6 @@ class CustomerAccount {
   +authenticate()
 }
 
-class Session {
-  +String sessionId
-  +DateTime createdAt
-  +DateTime expiresAt
-  +Boolean active
-  +invalidate()
-}
-
 class AuthenticationService {
   +registerCustomer()
   +login()
@@ -38,12 +30,18 @@ class MenuCatalog {
   +sortItems()
 }
 
+class Category {
+  +String categoryId
+  +String categoryName
+  +String description
+}
+
 class MenuItem {
   +String menuItemId
   +String name
   +String description
   +Decimal price
-  +String category
+  +Category category
   +Boolean available
   +String imageUrl
 }
@@ -119,10 +117,8 @@ class OrderTrackingService {
 
 class PaymentMethod {
   <<enumeration>>
+  CASH
   CARD
-  DIGITAL_WALLET
-  BANK_TRANSFER
-  CASH_ON_DELIVERY
 }
 
 class Payment {
@@ -172,13 +168,14 @@ class NotificationService {
 class OrderStatus {
   <<enumeration>>
   PENDING
-  PAID
   CONFIRMED
-  PAYMENT_FAILED
   PREPARING
   READY
   OUT_FOR_DELIVERY
   DELIVERED
+  CANCELLED
+  REFUNDED
+  FAILED
 }
 
 class PaymentStatus {
@@ -189,11 +186,11 @@ class PaymentStatus {
   FAILED
 }
 
-CustomerAccount "1" o-- "0..1" Session : owns
 CustomerAccount "1" o-- "1" Cart : has
 CustomerAccount "1" o-- "0..*" Order : places
 
 MenuCatalog "1" o-- "0..*" MenuItem : contains
+MenuCatalog "1" o-- "0..*" Category : groups
 Cart "1" *-- "1..*" CartItem : contains
 CartItem "*" --> "1" MenuItem : references
 
@@ -205,7 +202,6 @@ Payment "1" o-- "0..1" Transaction : records
 Payment "1" --> "1" PaymentMethod : uses
 
 AuthenticationService --> CustomerAccount : manages
-AuthenticationService --> Session : creates
 MenuService --> MenuCatalog : queries
 CartService --> Cart : updates
 CartService --> MenuItem : validates stock
@@ -234,10 +230,9 @@ This class diagram is designed to separate the system into smaller responsibilit
 
 ## Customer and Authentication Components
 
-`CustomerAccount`, `Session`, and `AuthenticationService` manage user identity and login behavior.
+`CustomerAccount` and `AuthenticationService` manage user identity and login behavior.
 
 - `CustomerAccount` stores customer information such as email, password hash, and phone number.
-- `Session` represents an active login session and handles expiration/logout behavior.
 - `AuthenticationService` performs operations such as registration, login, and session management.
 
 This separation keeps authentication logic organized and improves security.
@@ -246,10 +241,11 @@ This separation keeps authentication logic organized and improves security.
 
 ## Menu Components
 
-`MenuCatalog`, `MenuItem`, and `MenuService` are responsible for browsing food items.
+`MenuCatalog`, `Category`, `MenuItem`, and `MenuService` are responsible for browsing food items.
 
 - `MenuCatalog` represents the complete restaurant menu.
-- `MenuItem` represents a single product such as a burger or pizza.
+- `Category` represents a food classification such as Starters, Mains, or Desserts.
+- `MenuItem` represents a single product such as a burger or pizza. Each item belongs to one category.
 - `MenuService` handles searching, filtering, and retrieving menu data.
 
 Separating menu data from menu operations makes the system easier to update and scale.
@@ -260,7 +256,7 @@ Separating menu data from menu operations makes the system easier to update and 
 
 `Cart`, `CartItem`, and `CartService` manage temporary shopping activity before checkout.
 
-- `Cart` represents the customer’s current shopping cart.
+- `Cart` represents the customer's current shopping cart.
 - `CartItem` stores item quantity and pricing information.
 - `CartService` contains the business logic for adding, updating, and removing items.
 
@@ -274,7 +270,7 @@ The cart is separated from orders because cart contents can change frequently be
 
 - `Order` represents a completed checkout request.
 - `OrderItem` stores a permanent snapshot of purchased items.
-- `OrderStatus` defines the current stage of the order.
+- `OrderStatus` defines the current stage of the order. Valid statuses are: `PENDING`, `CONFIRMED`, `PREPARING`, `READY`, `OUT_FOR_DELIVERY`, `DELIVERED`, `CANCELLED`, `REFUNDED`, and `FAILED`.
 - `OrderStatusHistory` stores all previous status updates for tracking purposes.
 - `OrderService` validates carts and creates orders.
 
@@ -286,7 +282,7 @@ This design supports order tracking and prevents historical purchase data from c
 
 `Payment`, `Transaction`, `PaymentMethod`, `PaymentService`, and `PaymentGatewayAdapter` handle payment processing.
 
-- `PaymentMethod` defines available payment options such as card or cash on delivery.
+- `PaymentMethod` defines available payment options: `CASH` and `CARD`.
 - `Payment` stores payment information and status.
 - `Transaction` stores the response returned from the payment provider.
 - `PaymentService` controls payment flow and retry logic.
