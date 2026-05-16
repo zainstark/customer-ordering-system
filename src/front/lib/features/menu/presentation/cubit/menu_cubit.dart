@@ -3,8 +3,9 @@ import 'package:frontend/features/menu/domain/usecases/get_menu_categories_useca
 import 'package:frontend/features/menu/presentation/cubit/menu_state.dart';
 
 class MenuCubit extends Cubit<MenuState> {
-  MenuCubit({required this._getMenuCategoriesUseCase})
-    : super(const MenuState(categories: [], selectedCategoryId: ''));
+  MenuCubit(GetMenuCategoriesUseCase getMenuCategoriesUseCase)
+    : _getMenuCategoriesUseCase = getMenuCategoriesUseCase,
+      super(const MenuState(categories: [], selectedCategoryId: ''));
 
   final GetMenuCategoriesUseCase _getMenuCategoriesUseCase;
 

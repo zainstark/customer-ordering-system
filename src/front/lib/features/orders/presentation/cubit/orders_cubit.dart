@@ -4,8 +4,9 @@ import 'package:frontend/features/orders/domain/usecases/get_orders_usecase.dart
 import 'package:frontend/features/orders/presentation/cubit/orders_state.dart';
 
 class OrdersCubit extends Cubit<OrdersState> {
-  OrdersCubit({required this._getOrdersUseCase})
-    : super(
+  OrdersCubit(GetOrdersUseCase getOrdersUseCase)
+    : _getOrdersUseCase = getOrdersUseCase,
+      super(
         const OrdersState(
           selectedTab: OrdersTab.active,
           activeOrders: [],

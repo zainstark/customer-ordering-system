@@ -1,0 +1,1 @@
+ /home/shent/Projects/customer-ordering-system/src/front/build/28e80ece1924d5cad4511b73823c942b/dart_build_result.json:  /home/shent/Projects/customer-ordering-system/src/front/.dart_tool/package_config.json /home/shent/Projects/customer-ordering-system/src/front/pubspec.yaml /home/shent/develop/flutter/bin/cache/dart-sdk/version

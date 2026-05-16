@@ -7,11 +7,14 @@ import 'package:frontend/features/cart/domain/usecases/update_cart_item_quantity
 import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 
 class CartCubit extends Cubit<CartState> {
-  CartCubit({
-    required this._getCartItemsUseCase,
-    required this._updateCartItemQuantityUseCase,
-    required this._removeCartItemUseCase,
-  }) : super(const CartState(accountId: _defaultAccountId, models: []));
+  CartCubit(
+    GetCartItemsUseCase getCartItemsUseCase,
+    UpdateCartItemQuantityUseCase updateCartItemQuantityUseCase,
+    RemoveCartItemUseCase removeCartItemUseCase,
+  ) : _getCartItemsUseCase = getCartItemsUseCase,
+      _updateCartItemQuantityUseCase = updateCartItemQuantityUseCase,
+      _removeCartItemUseCase = removeCartItemUseCase,
+      super(const CartState(accountId: _defaultAccountId, models: []));
 
   static const String _defaultAccountId = 'test_account_001';
 
@@ -20,7 +23,6 @@ class CartCubit extends Cubit<CartState> {
   final RemoveCartItemUseCase _removeCartItemUseCase;
 
   Future<void> loadCart({String? accountId}) async {
-    print("))))))))))))))))))))");
     final currentAccountId = accountId ?? state.accountId;
     emit(
       state.copyWith(

@@ -1,12 +1,11 @@
 PRAGMA foreign_keys = ON;
 
--- =========================
--- CUSTOMER ACCOUNTS
--- =========================
-CREATE TABLE customer_accounts (
+CREATE TABLE accounts (
     account_id TEXT PRIMARY KEY,
     display_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL DEFAULT 'customer'
+        CHECK(role IN ('customer','admin')),
     password_hash TEXT NOT NULL,
     phone_number TEXT,
     active BOOLEAN NOT NULL DEFAULT 1,
@@ -14,24 +13,7 @@ CREATE TABLE customer_accounts (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- SESSIONS
--- =========================
-CREATE TABLE sessions (
-    session_id TEXT PRIMARY KEY,
-    account_id TEXT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expires_at DATETIME NOT NULL,
-    active BOOLEAN NOT NULL DEFAULT 1,
 
-    FOREIGN KEY (account_id)
-        REFERENCES customer_accounts(account_id)
-        ON DELETE CASCADE
-);
-
--- =========================
--- MENU CATALOGS
--- =========================
 CREATE TABLE menu_catalogs (
     catalog_id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -40,16 +22,21 @@ CREATE TABLE menu_catalogs (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- MENU ITEMS
--- =========================
+CREATE TABLE categories (
+    category_id TEXT PRIMARY KEY,
+    category_name TEXT NOT NULL,
+    description TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE menu_items (
     menu_item_id TEXT PRIMARY KEY,
     catalog_id TEXT NOT NULL,
     name TEXT NOT NULL,
     description TEXT,
-    price_penny INTEGER NOT NULL,
-    category TEXT,
+    price_penny INTEGER NOT NULL CHECK(price_penny >= 0),
+    category_id TEXT NOT NULL,
     available BOOLEAN NOT NULL DEFAULT 1,
     image_url TEXT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -57,34 +44,30 @@ CREATE TABLE menu_items (
 
     FOREIGN KEY (catalog_id)
         REFERENCES menu_catalogs(catalog_id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (category_id)
+        REFERENCES categories(category_id)
 );
 
--- =========================
--- CARTS
--- =========================
 CREATE TABLE carts (
     cart_id TEXT PRIMARY KEY,
     account_id TEXT NOT NULL UNIQUE,
-    status TEXT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (account_id)
-        REFERENCES customer_accounts(account_id)
+        REFERENCES accounts(account_id)
         ON DELETE CASCADE
 );
 
--- =========================
--- CART ITEMS
--- =========================
 CREATE TABLE cart_items (
     cart_item_id TEXT PRIMARY KEY,
     cart_id TEXT NOT NULL,
     menu_item_id TEXT NOT NULL,
     quantity INTEGER NOT NULL CHECK(quantity > 0),
-    unit_price_snapshot INTEGER NOT NULL,
-    line_total INTEGER NOT NULL,
+    unit_price_snapshot INTEGER CHECK(unit_price_snapshot >= 0),
+    line_total INTEGER CHECK(line_total >= 0),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -96,47 +79,41 @@ CREATE TABLE cart_items (
         REFERENCES menu_items(menu_item_id)
 );
 
--- =========================
--- ORDERS
--- =========================
 CREATE TABLE orders (
     order_id TEXT PRIMARY KEY,
     account_id TEXT NOT NULL,
-    total_amount INTEGER NOT NULL,
+    total_amount INTEGER NOT NULL CHECK(total_amount >= 0),
     placed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    order_status TEXT NOT NULL,
+    order_status TEXT NOT NULL
+        CHECK(order_status IN (
+            'PENDING',
+            'CONFIRMED',
+            'PREPARING',
+            'READY',
+            'OUT_FOR_DELIVERY',
+            'DELIVERED',
+            'CANCELLED',
+            'REFUNDED',
+            'FAILED'
+        )),
     confirmed_at DATETIME,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CHECK(order_status IN (
-    'PENDING',
-    'CONFIRMED',
-    'PREPARING',
-    'READY',
-    'OUT_FOR_DELIVERY',
-    'DELIVERED',
-    'CANCELLED',
-    'REFUNDED',
-    'FAILED'
-))
+    address TEXT NOT NULL,
 
     FOREIGN KEY (account_id)
-        REFERENCES customer_accounts(account_id)
+        REFERENCES accounts(account_id)
         ON DELETE CASCADE
 );
 
--- =========================
--- ORDER ITEMS
--- =========================
 CREATE TABLE order_items (
     order_item_id TEXT PRIMARY KEY,
     order_id TEXT NOT NULL,
     menu_item_id TEXT NOT NULL,
     item_name_snapshot TEXT NOT NULL,
     item_description_snapshot TEXT,
-    unit_price_snapshot INTEGER NOT NULL,
+    unit_price_snapshot INTEGER NOT NULL CHECK(unit_price_snapshot >= 0),
     quantity INTEGER NOT NULL CHECK(quantity > 0),
-    line_total INTEGER NOT NULL,
+    line_total INTEGER NOT NULL CHECK(line_total >= 0),
 
     FOREIGN KEY (order_id)
         REFERENCES orders(order_id)
@@ -146,40 +123,34 @@ CREATE TABLE order_items (
         REFERENCES menu_items(menu_item_id)
 );
 
--- =========================
--- PAYMENTS
--- =========================
 CREATE TABLE payments (
     payment_id TEXT PRIMARY KEY,
     order_id TEXT NOT NULL,
-    amount INTEGER NOT NULL,
+    amount INTEGER NOT NULL CHECK(amount >= 0),
     initiated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     processed_at DATETIME,
 
-    payment_method TEXT NOT NULL,
-    payment_status TEXT NOT NULL,
+    payment_method TEXT NOT NULL
+        CHECK(payment_method IN (
+            'CASH',
+            'CARD'
+        )),
 
-    CHECK(payment_method IN (
-        'CASH',
-        'CARD'
-)),
-    CHECK(payment_status IN (
-        'PENDING',
-        'AUTHORIZED',
-        'COMPLETED',
-        'FAILED',
-        'REFUNDED',
-        'CANCELLED'
-)),
+    payment_status TEXT NOT NULL
+        CHECK(payment_status IN (
+            'PENDING',
+            'AUTHORIZED',
+            'COMPLETED',
+            'FAILED',
+            'REFUNDED',
+            'CANCELLED'
+        )),
 
     FOREIGN KEY (order_id)
         REFERENCES orders(order_id)
         ON DELETE CASCADE
 );
 
--- =========================
--- TRANSACTIONS
--- =========================
 CREATE TABLE transactions (
     transaction_id TEXT PRIMARY KEY,
     payment_id TEXT NOT NULL,
@@ -192,13 +163,21 @@ CREATE TABLE transactions (
         ON DELETE CASCADE
 );
 
--- =========================
--- ORDER STATUS HISTORY
--- =========================
 CREATE TABLE order_status_history (
     history_id TEXT PRIMARY KEY,
     order_id TEXT NOT NULL,
-    order_status TEXT NOT NULL,
+    order_status TEXT NOT NULL
+        CHECK(order_status IN (
+            'PENDING',
+            'CONFIRMED',
+            'PREPARING',
+            'READY',
+            'OUT_FOR_DELIVERY',
+            'DELIVERED',
+            'CANCELLED',
+            'REFUNDED',
+            'FAILED'
+        )),
     note TEXT,
     changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -207,34 +186,31 @@ CREATE TABLE order_status_history (
         ON DELETE CASCADE
 );
 
--- =========================
--- NOTIFICATION MESSAGES
--- =========================
 CREATE TABLE notification_messages (
     message_id TEXT PRIMARY KEY,
     account_id TEXT NOT NULL,
     order_id TEXT,
-    subject TEXT NOT NULL,
-    body TEXT NOT NULL,
-    delivery_channel TEXT NOT NULL,
-    delivery_status TEXT NOT NULL,
+    subject TEXT,
+    body TEXT,
+    delivery_channel TEXT NOT NULL
+        CHECK(delivery_channel IN (
+            'EMAIL',
+            'SMS',
+            'IN_APP',
+            'WHATSAPP'
+        )),
+    delivery_status TEXT NOT NULL
+        CHECK(delivery_status IN (
+            'PENDING',
+            'SENT',
+            'FAILED',
+            'DELIVERED'
+        )),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     sent_at DATETIME,
 
-    CHECK(delivery_channel IN (
-    'EMAIL',
-    'SMS',
-    'IN_APP',
-    'WHATSAPP'
-)),
-    CHECK(delivery_status IN (
-    'PENDING',
-    'SENT',
-    'FAILED',
-    'DELIVERED'
-))
     FOREIGN KEY (account_id)
-        REFERENCES customer_accounts(account_id)
+        REFERENCES accounts(account_id)
         ON DELETE CASCADE,
 
     FOREIGN KEY (order_id)
@@ -242,43 +218,15 @@ CREATE TABLE notification_messages (
         ON DELETE SET NULL
 );
 
--- =========================
--- INDEXES
--- =========================
-
-CREATE INDEX idx_sessions_account_id
-ON sessions(account_id);
-
-CREATE INDEX idx_menu_items_catalog_id
-ON menu_items(catalog_id);
-
-CREATE INDEX idx_cart_items_cart_id
-ON cart_items(cart_id);
-
-CREATE INDEX idx_cart_items_menu_item_id
-ON cart_items(menu_item_id);
-
-CREATE INDEX idx_orders_account_id
-ON orders(account_id);
-
-CREATE INDEX idx_order_items_order_id
-ON order_items(order_id);
-
-CREATE INDEX idx_order_items_menu_item_id
-ON order_items(menu_item_id);
-
-CREATE INDEX idx_payments_order_id
-ON payments(order_id);
-
-CREATE INDEX idx_transactions_payment_id
-ON transactions(payment_id);
-
-CREATE INDEX idx_order_status_history_order_id
-ON order_status_history(order_id);
-
-CREATE INDEX idx_notification_messages_account_id
-ON notification_messages(account_id);
-
-CREATE INDEX idx_notification_messages_order_id
-ON notification_messages(order_id);
-
+CREATE INDEX idx_menu_items_catalog_id ON menu_items(catalog_id);
+CREATE INDEX idx_menu_items_category_id ON menu_items(category_id);
+CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
+CREATE INDEX idx_cart_items_menu_item_id ON cart_items(menu_item_id);
+CREATE INDEX idx_orders_account_id ON orders(account_id);
+CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_order_items_menu_item_id ON order_items(menu_item_id);
+CREATE INDEX idx_payments_order_id ON payments(order_id);
+CREATE INDEX idx_transactions_payment_id ON transactions(payment_id);
+CREATE INDEX idx_order_status_history_order_id ON order_status_history(order_id);
+CREATE INDEX idx_notification_messages_account_id ON notification_messages(account_id);
+CREATE INDEX idx_notification_messages_order_id ON notification_messages(order_id);

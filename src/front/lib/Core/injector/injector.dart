@@ -105,18 +105,18 @@ void setupDependencies() {
   );
 
   getIt.registerFactory<MenuCubit>(
-    () => MenuCubit(getMenuCategoriesUseCase: getIt()),
+    () => MenuCubit(getIt()),
   );
 
   getIt.registerFactory<CartCubit>(
     () => CartCubit(
-      getCartItemsUseCase: getIt(),
-      updateCartItemQuantityUseCase: getIt(),
-      removeCartItemUseCase: getIt(),
+      getIt(),
+      getIt(),
+      getIt(),
     ),
   );
 
   getIt.registerFactory<OrdersCubit>(
-    () => OrdersCubit(getOrdersUseCase: getIt()),
+    () => OrdersCubit(getIt()),
   );
 }
