@@ -7,13 +7,23 @@ class MenuItemSerializer(serializers.ModelSerializer):
     subtitle = serializers.CharField(source='description', allow_null=True, read_only=True)
     unitPrice = serializers.SerializerMethodField()
     imageUrl = serializers.CharField(source='image_url', allow_null=True, read_only=True)
+    category = serializers.SerializerMethodField()
 
     def get_unitPrice(self, obj):
         return obj.price  # Returns price in dollars as float
 
+    def get_category(self, obj):
+        # Prefer normalized Category FK name when available; fall back to legacy string
+        try:
+            if getattr(obj, 'category_fk', None):
+                return obj.category_fk.name
+        except Exception:
+            pass
+        return obj.category
+
     class Meta:
         model = MenuItem
-        fields = ['id', 'title', 'subtitle', 'unitPrice', 'imageUrl']
+        fields = ['id', 'title', 'subtitle', 'unitPrice', 'imageUrl', 'category']
 
 class MenuCatalogSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source='catalog_id', read_only=True)
