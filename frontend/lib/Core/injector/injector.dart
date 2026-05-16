@@ -83,3 +83,18 @@ void setupDependencies() {
     () => OrdersCubit(getOrdersUseCase: getIt()),
   );
 }
+
+
+
+// Auth
+sl.registerLazySingleton<AuthRemoteDataSource>(
+  () => AuthRemoteDataSource(sl<Dio>()),
+);
+sl.registerLazySingleton<AuthRepository>(
+  () => AuthRepositoryImpl(sl<AuthRemoteDataSource>()),
+);
+sl.registerLazySingleton(() => RegisterUsecase(sl<AuthRepository>()));
+sl.registerLazySingleton(() => LoginUsecase(sl<AuthRepository>()));
+sl.registerFactory(
+  () => AuthCubit(sl<RegisterUsecase>(), sl<LoginUsecase>(), sl<AuthRepository>()),
+);
