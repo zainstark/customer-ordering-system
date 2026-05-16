@@ -32,10 +32,12 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
+    "django.contrib.auth",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    'rest_framework_simplejwt.token_blacklist',
     "apps.cart",
     "apps.menu",
     "apps.authentication",
@@ -98,6 +100,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#REST
+
+#REST_FRAMEWORK = {
+#    'DEFAULT_AUTHENTICATION_CLASSES': [
+#        'apps.authentication.authentication.CustomJWTAuthentication',
+#    ],
+#}
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

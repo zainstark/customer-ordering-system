@@ -9,7 +9,7 @@ from django.db import models
 
 
 class CartItems(models.Model):
-    cart_item_id = models.TextField(primary_key=True, blank=True, null=True)
+    cart_item_id = models.TextField(primary_key=True, blank=True, null=False)
     cart = models.ForeignKey('Carts', models.DO_NOTHING)
     menu_item = models.ForeignKey('MenuItems', models.DO_NOTHING)
     quantity = models.IntegerField()
@@ -24,7 +24,7 @@ class CartItems(models.Model):
 
 
 class Carts(models.Model):
-    cart_id = models.TextField(primary_key=True, blank=True, null=True)
+    cart_id = models.TextField(primary_key=True, blank=True, null=False)
     account = models.OneToOneField('Accounts', models.DO_NOTHING)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
@@ -35,7 +35,7 @@ class Carts(models.Model):
 
 
 class Categories(models.Model):
-    category_id = models.TextField(primary_key=True, blank=True, null=True)
+    category_id = models.TextField(primary_key=True, blank=True, null=False)
     category_name = models.TextField()
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField()
@@ -47,7 +47,7 @@ class Categories(models.Model):
 
 
 class Accounts(models.Model):
-    account_id = models.TextField(primary_key=True, blank=True, null=True)
+    account_id = models.TextField(primary_key=True, blank=True, null=False)
     display_name = models.TextField()
     email = models.TextField(unique=True)
     role = models.TextField()
@@ -63,7 +63,7 @@ class Accounts(models.Model):
 
 
 class MenuCatalogs(models.Model):
-    catalog_id = models.TextField(primary_key=True, blank=True, null=True)
+    catalog_id = models.TextField(primary_key=True, blank=True, null=False)
     name = models.TextField()
     active = models.BooleanField()
     created_at = models.DateTimeField()
@@ -75,7 +75,7 @@ class MenuCatalogs(models.Model):
 
 
 class MenuItems(models.Model):
-    menu_item_id = models.TextField(primary_key=True, blank=True, null=True)
+    menu_item_id = models.TextField(primary_key=True, blank=True, null=False)
     catalog = models.ForeignKey(MenuCatalogs, models.DO_NOTHING)
     name = models.TextField()
     description = models.TextField(blank=True, null=True)
@@ -92,7 +92,7 @@ class MenuItems(models.Model):
 
 
 class NotificationMessages(models.Model):
-    message_id = models.TextField(primary_key=True, blank=True, null=True)
+    message_id = models.TextField(primary_key=True, blank=True, null=False)
     account = models.ForeignKey(Accounts, models.DO_NOTHING)
     order = models.ForeignKey('Orders', models.DO_NOTHING, blank=True, null=True)
     subject = models.TextField(blank=True, null=True)
@@ -108,7 +108,7 @@ class NotificationMessages(models.Model):
 
 
 class OrderItems(models.Model):
-    order_item_id = models.TextField(primary_key=True, blank=True, null=True)
+    order_item_id = models.TextField(primary_key=True, blank=True, null=False)
     order = models.ForeignKey('Orders', models.DO_NOTHING)
     menu_item = models.ForeignKey(MenuItems, models.DO_NOTHING)
     item_name_snapshot = models.TextField()
@@ -123,7 +123,7 @@ class OrderItems(models.Model):
 
 
 class OrderStatusHistory(models.Model):
-    history_id = models.TextField(primary_key=True, blank=True, null=True)
+    history_id = models.TextField(primary_key=True, blank=True, null=False)
     order = models.ForeignKey('Orders', models.DO_NOTHING)
     order_status = models.TextField()
     note = models.TextField(blank=True, null=True)
@@ -135,7 +135,7 @@ class OrderStatusHistory(models.Model):
 
 
 class Orders(models.Model):
-    order_id = models.TextField(primary_key=True, blank=True, null=True)
+    order_id = models.TextField(primary_key=True, blank=True, null=False)
     account = models.ForeignKey(Accounts, models.DO_NOTHING)
     total_amount = models.IntegerField()
     placed_at = models.DateTimeField()
@@ -150,7 +150,7 @@ class Orders(models.Model):
 
 
 class Payments(models.Model):
-    payment_id = models.TextField(primary_key=True, blank=True, null=True)
+    payment_id = models.TextField(primary_key=True, blank=True, null=False)
     order = models.ForeignKey(Orders, models.DO_NOTHING)
     amount = models.IntegerField()
     initiated_at = models.DateTimeField()
@@ -163,20 +163,9 @@ class Payments(models.Model):
         db_table = 'payments'
 
 
-class Sessions(models.Model):
-    session_id = models.TextField(primary_key=True, blank=True, null=True)
-    account = models.ForeignKey(Accounts, models.DO_NOTHING)
-    created_at = models.DateTimeField()
-    expires_at = models.DateTimeField()
-    active = models.BooleanField()
-
-    class Meta:
-        managed = False
-        db_table = 'sessions'
-
 
 class Transactions(models.Model):
-    transaction_id = models.TextField(primary_key=True, blank=True, null=True)
+    transaction_id = models.TextField(primary_key=True, blank=True, null=False)
     payment = models.ForeignKey(Payments, models.DO_NOTHING)
     gateway_reference = models.TextField(blank=True, null=True)
     authorization_code = models.TextField(blank=True, null=True)
