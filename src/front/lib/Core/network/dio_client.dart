@@ -1,15 +1,26 @@
 // lib/core/network/dio_client.dart
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:frontend/Core/network/app_exception.dart';
 import 'package:frontend/Core/network/errors.dart';
 import 'package:frontend/Core/storage/token_storage.dart';
 
+class _QueuedRequest {
+  _QueuedRequest(this.requestOptions, this.completer);
+
+  final RequestOptions requestOptions;
+  final Completer<Response> completer;
+}
+
 class DioClient {
   final Dio _dio;
   final TokenStorage _storage;
   bool _isRefreshing = false;
-  final List<Function> _refreshRequests = [];
+  final List<_QueuedRequest> _refreshRequests = [];
+
+  VoidCallback? onSessionExpired;
 
   DioClient(this._storage)
     : _dio = Dio(
@@ -62,11 +73,13 @@ class DioClient {
 
           // Handle token expiration and refresh
           final is401 = error.response?.statusCode == 401;
+          final detailMessage =
+              (error.response?.data?['detail'] as String? ?? '').toLowerCase();
           final is403Expired =
               error.response?.statusCode == 403 &&
-              (error.response?.data?['detail'] as String? ?? '')
-                  .toLowerCase()
-                  .contains('expired');
+              (detailMessage.contains('expired') ||
+                  detailMessage.contains('invalid') ||
+                  detailMessage.contains('token'));
 
           if ((is401 || is403Expired) &&
               error.requestOptions.path != '/api/auth/token/refresh/' &&
@@ -88,21 +101,31 @@ class DioClient {
     DioException error,
     ErrorInterceptorHandler handler,
   ) async {
+    final refreshToken = await _storage.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) {
+      await _handleSessionExpired();
+      return handler.reject(error);
+    }
+
+    final completer = Completer<Response>();
+    _refreshRequests.add(_QueuedRequest(error.requestOptions, completer));
+
     if (!_isRefreshing) {
       _isRefreshing = true;
       try {
-        final refreshToken = await _storage.getRefreshToken();
-        if (refreshToken == null) {
-          _isRefreshing = false; // ← Bug 2 fix
-          return handler.reject(error);
-        }
-
         final refreshResponse = await _dio.post(
           '/api/auth/token/refresh/',
           data: {'refresh': refreshToken},
         );
 
-        final newAccessToken = refreshResponse.data['access'] as String;
+        final newAccessToken = refreshResponse.data['access'] as String?;
+        if (newAccessToken == null || newAccessToken.isEmpty) {
+          throw AppException(
+            message: 'Unable to refresh authentication token.',
+            statusCode: refreshResponse.statusCode,
+          );
+        }
+
         await _storage.write(
           key: TokenStorage.accessTokenKey,
           value: newAccessToken,
@@ -110,42 +133,60 @@ class DioClient {
 
         _isRefreshing = false;
 
-        // ← Bug 1 fix: drain the queue
-        for (final retryRequest in _refreshRequests) {
-          retryRequest();
+        for (final queued in _refreshRequests) {
+          try {
+            queued.completer.complete(
+              await _retryRequest(queued.requestOptions, newAccessToken),
+            );
+          } catch (retryError) {
+            queued.completer.completeError(retryError);
+          }
         }
         _refreshRequests.clear();
-
-        // Retry the original request
-        final opts = error.requestOptions;
-        opts.headers['Authorization'] = 'Bearer $newAccessToken';
-        return handler.resolve(
-          await _dio.request(
-            opts.path,
-            options: Options(method: opts.method, headers: opts.headers),
-            data: opts.data,
-            queryParameters: opts.queryParameters,
-          ),
-        );
       } catch (e) {
         _isRefreshing = false;
-        _refreshRequests.clear(); // ← don't leave stale requests on failure
-        return handler.reject(error);
+        for (final queued in _refreshRequests) {
+          queued.completer.completeError(e);
+        }
+        _refreshRequests.clear();
+        await _handleSessionExpired();
       }
-    } else {
-      _refreshRequests.add(() async {
-        final opts = error.requestOptions;
-        final accessToken = await _storage.getAccessToken();
-        opts.headers['Authorization'] = 'Bearer $accessToken';
-        return handler.resolve(
-          await _dio.request(
-            opts.path,
-            options: Options(method: opts.method, headers: opts.headers),
-            data: opts.data,
-            queryParameters: opts.queryParameters,
-          ),
-        );
-      });
+    }
+
+    try {
+      final response = await completer.future;
+      return handler.resolve(response);
+    } catch (_) {
+      return handler.reject(error);
+    }
+  }
+
+  Future<Response> _retryRequest(RequestOptions requestOptions, String accessToken) {
+    final headers = Map<String, dynamic>.from(requestOptions.headers);
+    headers['Authorization'] = 'Bearer $accessToken';
+
+    return _dio.request(
+      requestOptions.path,
+      data: requestOptions.data,
+      queryParameters: requestOptions.queryParameters,
+      options: Options(
+        method: requestOptions.method,
+        headers: headers,
+        responseType: requestOptions.responseType,
+        contentType: requestOptions.contentType,
+        sendTimeout: requestOptions.sendTimeout,
+        receiveTimeout: requestOptions.receiveTimeout,
+        extra: requestOptions.extra,
+        followRedirects: requestOptions.followRedirects,
+        validateStatus: requestOptions.validateStatus,
+      ),
+    );
+  }
+
+  Future<void> _handleSessionExpired() async {
+    await _storage.clearTokens();
+    if (onSessionExpired != null) {
+      onSessionExpired!();
     }
   }
 
