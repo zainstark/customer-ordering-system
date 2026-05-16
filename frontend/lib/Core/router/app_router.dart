@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/Core/router/routes.dart';
+import 'package:frontend/features/authentication/presentation/cubit/auth_cubit.dart';
+import 'package:frontend/features/authentication/presentation/cubit/auth_state.dart';
+import 'package:frontend/features/authentication/presentation/screens/signup_screen.dart';
+import 'package:frontend/features/authentication/presentation/screens/login_screen.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:frontend/features/cart/presentation/screens/cart_screen.dart';
 import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
@@ -15,9 +19,26 @@ class AppRouter {
   AppRouter._();
 
   static final GoRouter router = GoRouter(
-    initialLocation: RoutesPath.menu,
+    initialLocation: RoutesPath.login,
     redirect: _handleRedirect,
     routes: [
+      GoRoute(
+        path: RoutesPath.signup,
+        name: RoutesName.signup,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<AuthCubit>()..initialize(),
+          child: const SignupScreen(),
+        ),
+      ),
+      GoRoute(
+        path: RoutesPath.login,
+        name: RoutesName.login,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<AuthCubit>()..initialize(),
+          child: const LoginScreen(),
+        ),
+      ),
+
       ShellRoute(
         builder: (context, state, child) =>
             AppShellScaffold(currentPath: state.uri.path, child: child),
@@ -52,7 +73,19 @@ class AppRouter {
   );
 
   static String? _handleRedirect(BuildContext context, GoRouterState state) {
-    // TODO: No redirection logic for now, but this is where you can add authentication checks or other conditions to redirect users to different routes.
+    final authStatus = getIt<AuthCubit>().state.status;
+    final isAuthenticated = authStatus == AuthStatus.authenticated;
+    final isOnAuthPage = state.matchedLocation == RoutesPath.login ||
+        state.matchedLocation == RoutesPath.signup;
+
+    if (authStatus == AuthStatus.initial || authStatus == AuthStatus.loading) {
+      return null;
+    }
+
+    if (!isAuthenticated && !isOnAuthPage) return RoutesPath.login;
+
+    if (isAuthenticated && isOnAuthPage) return RoutesPath.menu;
+
     return null;
   }
 }

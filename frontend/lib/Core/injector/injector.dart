@@ -16,13 +16,46 @@ import 'package:frontend/features/orders/data/repositories/orders_repository_imp
 import 'package:frontend/features/orders/domain/repositories/orders_repository.dart';
 import 'package:frontend/features/orders/domain/usecases/get_orders_usecase.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:frontend/features/authentication/data/datasources/auth_remote_data_source.dart';
+import 'package:frontend/features/authentication/data/repositories/auth_repository_impl.dart';
+import 'package:frontend/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:frontend/features/authentication/domain/usecases/login_usecase.dart';
+import 'package:frontend/features/authentication/domain/usecases/register_usecase.dart';
+import 'package:frontend/features/authentication/presentation/cubit/auth_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
 
 void setupDependencies() {
+  // Core
   getIt.registerLazySingleton<DioClient>(() => DioClient());
 
+  // Authentication
+  getIt.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSource(getIt<DioClient>()),
+  );
+
+  getIt.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(getIt<AuthRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<RegisterUsecase>(
+    () => RegisterUsecase(getIt<AuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<LoginUsecase>(
+    () => LoginUsecase(getIt<AuthRepository>()),
+  );
+
+  getIt.registerFactory<AuthCubit>(
+    () => AuthCubit(
+      getIt<RegisterUsecase>(),
+      getIt<LoginUsecase>(),
+      getIt<AuthRepository>(),
+    ),
+  );
+
+  // Menu
   getIt.registerLazySingleton<MenuRemoteDataSource>(
     () => MenuRemoteDataSourceImpl(getIt()),
   );

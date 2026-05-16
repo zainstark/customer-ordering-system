@@ -13,4 +13,9 @@ class ApiEndpoints {
 
   static const String orders = '/orders';
   static const String accountOrders = '/accounts/{accountId}/orders';
+
+  static const String register     = '/auth/register/';
+  static const String login        = '/auth/login/';
+  static const String logout       = '/auth/logout/';
+  static const String tokenRefresh = '/auth/token/refresh/';
 }
