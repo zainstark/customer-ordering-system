@@ -12,8 +12,9 @@ Mounted endpoints under `/api/cart/`:
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .models import Cart, CartItem
 from .services import CartService
 from .serializers import (
@@ -23,6 +24,10 @@ from .serializers import (
 )
 
 
+def _get_request_account_id(request):
+    return getattr(request.user, 'account_id', None)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_cart(request):
@@ -30,17 +35,12 @@ def get_cart(request):
 
     Retrieve the authenticated user's cart with nested items.
     """
-    # Get or create cart for authenticated user
-    # Note: In production, use request.user.account_id or similar
-    # For now, we'll expect account_id in query params or headers
-    account_id = request.GET.get('account_id') or getattr(
-        request.user, 'account_id', None
-    )
+    account_id = _get_request_account_id(request)
     
     if not account_id:
         return Response(
-            {'error': 'account_id is required'},
-            status=status.HTTP_400_BAD_REQUEST,
+            {'error': 'Authentication token is required'},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
     
     cart = CartService.get_or_create_cart(account_id)
@@ -63,14 +63,12 @@ def add_item_to_cart(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
     
-    account_id = request.data.get('account_id') or getattr(
-        request.user, 'account_id', None
-    )
+    account_id = _get_request_account_id(request)
     
     if not account_id:
         return Response(
-            {'error': 'account_id is required'},
-            status=status.HTTP_400_BAD_REQUEST,
+            {'error': 'Authentication token is required'},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
     
     # Get or create cart
@@ -116,6 +114,27 @@ def update_cart_item(request, cart_item_id):
             status=status.HTTP_400_BAD_REQUEST,
         )
     
+    account_id = _get_request_account_id(request)
+    if not account_id:
+        return Response(
+            {'error': 'Authentication token is required'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    try:
+        owned_item = CartItem.objects.get(cart_item_id=cart_item_id)
+    except CartItem.DoesNotExist:
+        return Response(
+            {'error': f'Cart item {cart_item_id} not found'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if owned_item.cart.account_id != account_id:
+        return Response(
+            {'error': f'Cart item {cart_item_id} not found'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
     # Update item quantity
     new_quantity = serializer.validated_data['quantity']
     cart_item, error = CartService.update_item_quantity(
@@ -145,11 +164,24 @@ def remove_item_from_cart(request, cart_item_id):
 
     Remove item from cart.
     """
+    account_id = _get_request_account_id(request)
+    if not account_id:
+        return Response(
+            {'error': 'Authentication token is required'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
     # Get cart_item to find parent cart
     try:
         cart_item = CartItem.objects.get(cart_item_id=cart_item_id)
         cart = cart_item.cart
     except CartItem.DoesNotExist:
+        return Response(
+            {'error': f'Cart item {cart_item_id} not found'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if cart.account_id != account_id:
         return Response(
             {'error': f'Cart item {cart_item_id} not found'},
             status=status.HTTP_404_NOT_FOUND,
@@ -180,14 +212,12 @@ def validate_cart(request):
 
     Validate all cart items (availability and pricing consistency).
     """
-    account_id = request.data.get('account_id') or getattr(
-        request.user, 'account_id', None
-    )
+    account_id = _get_request_account_id(request)
     
     if not account_id:
         return Response(
-            {'error': 'account_id is required'},
-            status=status.HTTP_400_BAD_REQUEST,
+            {'error': 'Authentication token is required'},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
     
     # Get cart
@@ -218,14 +248,12 @@ def clear_cart(request):
 
     Clear all items from the account's cart.
     """
-    account_id = request.data.get('account_id') or getattr(
-        request.user, 'account_id', None
-    )
+    account_id = _get_request_account_id(request)
     
     if not account_id:
         return Response(
-            {'error': 'account_id is required'},
-            status=status.HTTP_400_BAD_REQUEST,
+            {'error': 'Authentication token is required'},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
     
     # Get cart

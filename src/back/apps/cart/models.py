@@ -11,28 +11,19 @@ def generate_uuid():
 
 
 class Cart(models.Model):
-    CART_STATUS_CHOICES = [
-        ('ACTIVE', 'Active'),
-        ('ABANDONED', 'Abandoned'),
-        ('CONVERTED', 'Converted to Order'),
-    ]
-
     cart_id = models.CharField(
         max_length=36,
         primary_key=True,
         default=generate_uuid,
         editable=False,
     )
-    account_id = models.CharField(
-        max_length=36,
-        unique=True,
-        db_index=True,
-        help_text='Foreign key to customer_accounts.account_id',
-    )
-    status = models.CharField(
-        max_length=20,
-        choices=CART_STATUS_CHOICES,
-        default='ACTIVE',
+    account = models.OneToOneField(
+        'authentication.Accounts',
+        on_delete=models.DO_NOTHING,
+        db_column='account_id',
+        related_name='cart',
+        to_field='account_id',
+        db_constraint=False,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -47,10 +38,10 @@ class Cart(models.Model):
         return f"Cart {self.cart_id[:8]}... for {self.account_id[:8]}..."
 
     def get_cart_total(self):
-        return sum(item.line_total for item in self.cartitem_set.all()) or 0
+        return sum(item.line_total for item in self.items.all()) or 0
 
     def get_item_count(self):
-        return sum(item.quantity for item in self.cartitem_set.all()) or 0
+        return sum(item.quantity for item in self.items.all()) or 0
 
 
 class CartItem(models.Model):
@@ -62,13 +53,18 @@ class CartItem(models.Model):
     )
     cart = models.ForeignKey(
         Cart,
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         db_column='cart_id',
+        related_name='items',
+        db_constraint=False,
     )
-    menu_item_id = models.CharField(
-        max_length=36,
-        db_index=True,
-        help_text='Foreign key to menu_items.menu_item_id',
+    menu_item = models.ForeignKey(
+        'menu.MenuItem',
+        on_delete=models.DO_NOTHING,
+        db_column='menu_item_id',
+        related_name='cart_items',
+        to_field='menu_item_id',
+        db_constraint=False,
     )
     quantity = models.PositiveIntegerField(
         validators=[MinValueValidator(1)],
@@ -87,7 +83,6 @@ class CartItem(models.Model):
         db_table = 'cart_items'
         verbose_name = 'Cart Item'
         verbose_name_plural = 'Cart Items'
-        unique_together = [('cart', 'menu_item_id')]
         ordering = ['created_at']
 
     def __str__(self):
