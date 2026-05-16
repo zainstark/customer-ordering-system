@@ -13,11 +13,13 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) async {
+    print("___________--__-_-_-_-__-_-_--_-________--_-_-_-_-____-_-_--_-__----__--__---__-__2");
     final data = await _dataSource.register(
       displayName: displayName,
       email: email,
       password: password,
     );
+    print("___________--__-_-_-_-__-_-_--_-________--_-_-_-_-____-_-_--_-__----__--__---__-__3");
     return AccountModel.fromTokenPayload(data);
   }
 

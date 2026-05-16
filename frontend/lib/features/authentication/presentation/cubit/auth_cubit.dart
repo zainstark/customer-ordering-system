@@ -28,6 +28,7 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     emit(state.copyWith(status: AuthStatus.loading));
     try {
+
       final account = await _register(
         displayName: displayName,
         email: email,
