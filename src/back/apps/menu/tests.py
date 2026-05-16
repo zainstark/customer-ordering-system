@@ -70,7 +70,7 @@ class MenuSerializerTestCase(TestCase):
 
     def test_menu_item_serializer_prefers_fk(self):
         # Create a Category and ensure serializer prefers FK name
-        from .models import Category
+        from apps.menu.models import Category
         cat = Category.objects.create(category_id='catg1', name='BeverageFK')
         self.item.category_fk = cat
         self.item.save()
