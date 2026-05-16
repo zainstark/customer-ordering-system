@@ -217,23 +217,6 @@ else Unauthorized access
 end
 ```
 
----
-
-# Design Notes
-
-## Purpose of SSDs
-
-The System Sequence Diagrams describe:
-
-* how actors interact with the system
-* the order of operations
-* major validation points
-* failure handling behavior
-
-Unlike class diagrams, SSDs focus on runtime interaction flow rather than internal structure.
-
----
-
 ## Relationship to Requirements
 
 Each SSD corresponds directly to a use case:
