@@ -61,7 +61,14 @@ class DioClient {
           debugPrint('   Response: ${error.response?.data}');
 
           // Handle token expiration and refresh
-          if (error.response?.statusCode == 401 &&
+          final is401 = error.response?.statusCode == 401;
+          final is403Expired =
+              error.response?.statusCode == 403 &&
+              (error.response?.data?['detail'] as String? ?? '')
+                  .toLowerCase()
+                  .contains('expired');
+
+          if ((is401 || is403Expired) &&
               error.requestOptions.path != '/api/auth/token/refresh/' &&
               error.requestOptions.path != '/api/auth/login/' &&
               error.requestOptions.path != '/api/auth/register/') {
@@ -86,6 +93,7 @@ class DioClient {
       try {
         final refreshToken = await _storage.getRefreshToken();
         if (refreshToken == null) {
+          _isRefreshing = false; // ← Bug 2 fix
           return handler.reject(error);
         }
 
@@ -102,7 +110,13 @@ class DioClient {
 
         _isRefreshing = false;
 
-        // Retry the original request with new token
+        // ← Bug 1 fix: drain the queue
+        for (final retryRequest in _refreshRequests) {
+          retryRequest();
+        }
+        _refreshRequests.clear();
+
+        // Retry the original request
         final opts = error.requestOptions;
         opts.headers['Authorization'] = 'Bearer $newAccessToken';
         return handler.resolve(
@@ -115,10 +129,10 @@ class DioClient {
         );
       } catch (e) {
         _isRefreshing = false;
+        _refreshRequests.clear(); // ← don't leave stale requests on failure
         return handler.reject(error);
       }
     } else {
-      // Already refreshing, queue this request
       _refreshRequests.add(() async {
         final opts = error.requestOptions;
         final accessToken = await _storage.getAccessToken();
