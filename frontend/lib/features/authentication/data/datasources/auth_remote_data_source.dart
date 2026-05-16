@@ -1,17 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../data/models/account_model.dart';
 import '../../../../Core/network/app_exception.dart';
+import '../../../../Core/network/dio_client.dart';
 
 class AuthRemoteDataSource {
-  static const _refreshKey = 'refresh_token';
+  final DioClient _dioClient;
 
-  final Dio _dio;
-  final FlutterSecureStorage _storage;
-  String? accessToken;
-
-  AuthRemoteDataSource(this._dio)
-      : _storage = const FlutterSecureStorage();
+  AuthRemoteDataSource(this._dioClient);
 
   Future<Map<String, dynamic>> register({
     required String displayName,
@@ -20,13 +15,13 @@ class AuthRemoteDataSource {
     String? phoneNumber,
   }) async {
     try {
-      final res = await _dio.post('/auth/register/', data: {
+      final res = await _dioClient.post('/api/auth/register/', data: {
         'display_name': displayName,
         'email':        email,
         'password':     password,
         if (phoneNumber != null) 'phone_number': phoneNumber,
       });
-      await _saveTokens(res.data['access'], res.data['refresh']);
+      await _dioClient.saveTokens(res.data['access'], res.data['refresh']);
       return res.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw AppException(_parseError(e));
@@ -38,11 +33,11 @@ class AuthRemoteDataSource {
     required String password,
   }) async {
     try {
-      final res = await _dio.post('/auth/login/', data: {
+      final res = await _dioClient.post('/api/auth/login/', data: {
         'email':    email,
         'password': password,
       });
-      await _saveTokens(res.data['access'], res.data['refresh']);
+      await _dioClient.saveTokens(res.data['access'], res.data['refresh']);
       return res.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw AppException(_parseError(e));
@@ -50,37 +45,23 @@ class AuthRemoteDataSource {
   }
 
   Future<void> logout() async {
-    final refresh = await _storage.read(key: _refreshKey);
-    if (refresh != null) {
-      try {
-        await _dio.post('/auth/logout/', data: {'refresh': refresh});
-      } catch (_) {}
+    try {
+      await _dioClient.post('/api/auth/logout/');
+    } catch (_) {
+      // Ignore errors on logout
     }
-    await _clearTokens();
+    await _dioClient.clearTokens();
   }
 
   Future<bool> tryRestoreSession() async {
-    final refresh = await _storage.read(key: _refreshKey);
-    if (refresh == null) return false;
     try {
-      final plain = Dio(BaseOptions(baseUrl: _dio.options.baseUrl));
-      final res = await plain.post('/auth/token/refresh/', data: {'refresh': refresh});
-      accessToken = res.data['access'] as String;
-      return true;
+      // Use the DioClient's refresh mechanism which handles token refresh
+      final accessToken = await _dioClient.getAccessToken();
+      return accessToken != null && accessToken.isNotEmpty;
     } catch (_) {
-      await _clearTokens();
+      await _dioClient.clearTokens();
       return false;
     }
-  }
-
-  Future<void> _saveTokens(String access, String refresh) async {
-    accessToken = access;
-    await _storage.write(key: _refreshKey, value: refresh);
-  }
-
-  Future<void> _clearTokens() async {
-    accessToken = null;
-    await _storage.delete(key: _refreshKey);
   }
 
   String _parseError(DioException e) {
@@ -96,3 +77,4 @@ class AuthRemoteDataSource {
     return 'Network error, please try again';
   }
 }
+
