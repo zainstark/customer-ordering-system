@@ -18,6 +18,7 @@ Including another URLconf
 from django.urls import path, include
 
 urlpatterns = [
+    path('api/', include('apps.authentication.urls')),
     path('api/cart/', include('apps.cart.urls')),
     path("menu/", include("apps.menu.urls")),
 ]
