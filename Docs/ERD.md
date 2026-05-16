@@ -402,6 +402,39 @@ This improves reliability and customer communication.
 
 ---
 
+## TOKEN_BLACKLIST_OUTSTANDINGTOKEN
+
+This table is created and managed automatically by the `djangorestframework-simplejwt` library.
+
+It stores a record of every JWT token that has been issued by the system.
+
+Each row stores:
+- a unique token identifier (`jti`)
+- the full token string
+- the token's creation and expiry timestamps
+
+This table is not written to by application code directly. simplejwt populates it automatically when a token is generated during login or registration.
+
+Note: the `user_id` column exists because simplejwt was designed to work with Django's built-in user model. Since this system uses a custom `accounts` table instead, `user_id` is always stored as null and has no effect on functionality.
+
+---
+
+## TOKEN_BLACKLIST_BLACKLISTEDTOKEN
+
+This table is created and managed automatically by the `djangorestframework-simplejwt` library.
+
+It stores a record of every token that has been explicitly invalidated.
+
+A token is added to this table when a customer logs out. Once a token appears here, it can never be used again — even if it has not yet expired.
+
+Each row stores:
+- a reference to the token in `token_blacklist_outstandingtoken`
+- the timestamp when the token was blacklisted
+
+This table works together with `token_blacklist_outstandingtoken` to implement server-side logout. On every authenticated request, simplejwt checks whether the incoming token's `jti` exists in this table. If it does, the request is rejected immediately.
+
+---
+
 # Relationship Explanation
 
 The relationships in the ERD describe how data connects together.
