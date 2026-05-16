@@ -11,7 +11,7 @@ class DioClient {
   final Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   bool _isRefreshing = false;
-  List<Function> _refreshRequests = [];
+  final List<Function> _refreshRequests = [];
 
   DioClient()
     : _dio = Dio(

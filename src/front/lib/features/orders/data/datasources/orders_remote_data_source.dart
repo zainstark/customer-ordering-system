@@ -18,11 +18,6 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
       '{accountId}',
       accountId,
     );
-    final repo = await _dioClient.get("api/cart/?account_id=test_account_001");
-    print("00097809-8709867098y098y9-8");
-    print(repo.statusCode);
-    print(repo.data);
-    print("00097809-8709867098y098y9-8");
     final response = await _dioClient.get(path);
     final list = _extractList(response.data);
     return list

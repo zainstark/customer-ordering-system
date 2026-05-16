@@ -222,7 +222,7 @@ void main() {
 
   test('menu cubit changes selected category and filters dishes', () async {
     final cubit = MenuCubit(
-      getMenuCategoriesUseCase: GetMenuCategoriesUseCase(_FakeMenuRepository()),
+      GetMenuCategoriesUseCase(_FakeMenuRepository()),
     );
     await cubit.loadMenu();
     final initialCategory = cubit.state.selectedCategoryId;
@@ -244,9 +244,9 @@ void main() {
   test('cart cubit updates quantity and totals', () async {
     final repo = _FakeCartRepository();
     final cubit = CartCubit(
-      getCartItemsUseCase: GetCartItemsUseCase(repo),
-      updateCartItemQuantityUseCase: UpdateCartItemQuantityUseCase(repo),
-      removeCartItemUseCase: RemoveCartItemUseCase(repo),
+      GetCartItemsUseCase(repo),
+      UpdateCartItemQuantityUseCase(repo),
+      RemoveCartItemUseCase(repo),
     );
     await cubit.loadCart();
     final item = cubit.state.models.first;
@@ -264,7 +264,7 @@ void main() {
 
   test('orders cubit switches between active and past tabs', () async {
     final cubit = OrdersCubit(
-      getOrdersUseCase: GetOrdersUseCase(_FakeOrdersRepository()),
+      GetOrdersUseCase(_FakeOrdersRepository()),
     );
     await cubit.loadOrders(accountId: 'ACC-100');
     expect(cubit.state.selectedTab, OrdersTab.active);

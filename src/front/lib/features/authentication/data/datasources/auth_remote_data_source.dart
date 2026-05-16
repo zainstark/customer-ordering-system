@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import '../../data/models/account_model.dart';
 import '../../../../Core/network/app_exception.dart';
 import '../../../../Core/network/dio_client.dart';
 
@@ -24,7 +23,7 @@ class AuthRemoteDataSource {
       await _dioClient.saveTokens(res.data['access'], res.data['refresh']);
       return res.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw AppException(_parseError(e));
+      throw AppException(message: _parseError(e));
     }
   }
 
@@ -40,7 +39,7 @@ class AuthRemoteDataSource {
       await _dioClient.saveTokens(res.data['access'], res.data['refresh']);
       return res.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw AppException(_parseError(e));
+      throw AppException(message: _parseError(e));
     }
   }
 
