@@ -1,19 +1,17 @@
+// lib/core/network/dio_client.dart
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/Core/network/app_exception.dart';
 import 'package:frontend/Core/network/errors.dart';
+import 'package:frontend/Core/storage/token_storage.dart';
 
 class DioClient {
-  static const _refreshTokenKey = 'refresh_token';
-  static const _accessTokenKey = 'access_token';
-  
   final Dio _dio;
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final TokenStorage _storage;
   bool _isRefreshing = false;
-  List<Function> _refreshRequests = [];
+  final List<Function> _refreshRequests = [];
 
-  DioClient()
+  DioClient(this._storage)
     : _dio = Dio(
         BaseOptions(
           baseUrl: "http://127.0.0.1:8000",
@@ -33,11 +31,11 @@ class DioClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           // Add authorization header if token exists
-          final accessToken = await _storage.read(key: _accessTokenKey);
+          final accessToken = await _storage.getAccessToken();
           if (accessToken != null && accessToken.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $accessToken';
           }
-          
+
           debugPrint('🌐 REQUEST: ${options.method} ${options.path}');
           debugPrint('   Full URL: ${options.uri}');
           debugPrint('   Headers: ${options.headers}');
@@ -50,7 +48,9 @@ class DioClient {
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          debugPrint('✅ RESPONSE: ${response.statusCode} ${response.requestOptions.path}');
+          debugPrint(
+            '✅ RESPONSE: ${response.statusCode} ${response.requestOptions.path}',
+          );
           debugPrint('   Data: ${response.data}');
           return handler.next(response);
         },
@@ -59,7 +59,7 @@ class DioClient {
           debugPrint('   Path: ${error.requestOptions.path}');
           debugPrint('   Status: ${error.response?.statusCode}');
           debugPrint('   Response: ${error.response?.data}');
-          
+
           // Handle token expiration and refresh
           if (error.response?.statusCode == 401 &&
               error.requestOptions.path != '/api/auth/token/refresh/' &&
@@ -67,7 +67,7 @@ class DioClient {
               error.requestOptions.path != '/api/auth/register/') {
             return _handleTokenExpiry(error, handler);
           }
-          
+
           final appException = NetworkErrors.fromDioException(error);
           return handler.reject(
             error.copyWith(error: appException, message: appException.message),
@@ -77,74 +77,62 @@ class DioClient {
     );
   }
 
-  Future<dynamic> _handleTokenExpiry(DioException error, ErrorInterceptorHandler handler) async {
+  Future<dynamic> _handleTokenExpiry(
+    DioException error,
+    ErrorInterceptorHandler handler,
+  ) async {
     if (!_isRefreshing) {
       _isRefreshing = true;
       try {
-        final refreshToken = await _storage.read(key: _refreshTokenKey);
+        final refreshToken = await _storage.getRefreshToken();
         if (refreshToken == null) {
-          // No refresh token, reject the request
           return handler.reject(error);
         }
-        
+
         final refreshResponse = await _dio.post(
           '/api/auth/token/refresh/',
           data: {'refresh': refreshToken},
         );
-        
+
         final newAccessToken = refreshResponse.data['access'] as String;
-        await _storage.write(key: _accessTokenKey, value: newAccessToken);
-        
+        await _storage.write(
+          key: TokenStorage.accessTokenKey,
+          value: newAccessToken,
+        );
+
         _isRefreshing = false;
-        
+
         // Retry the original request with new token
         final opts = error.requestOptions;
         opts.headers['Authorization'] = 'Bearer $newAccessToken';
-        return handler.resolve(await _dio.request(
-          opts.path,
-          options: Options(
-            method: opts.method,
-            headers: opts.headers,
+        return handler.resolve(
+          await _dio.request(
+            opts.path,
+            options: Options(method: opts.method, headers: opts.headers),
+            data: opts.data,
+            queryParameters: opts.queryParameters,
           ),
-          data: opts.data,
-          queryParameters: opts.queryParameters,
-        ));
+        );
       } catch (e) {
         _isRefreshing = false;
-        // Refresh failed, reject the request
         return handler.reject(error);
       }
     } else {
       // Already refreshing, queue this request
       _refreshRequests.add(() async {
         final opts = error.requestOptions;
-        final accessToken = await _storage.read(key: _accessTokenKey);
+        final accessToken = await _storage.getAccessToken();
         opts.headers['Authorization'] = 'Bearer $accessToken';
-        return handler.resolve(await _dio.request(
-          opts.path,
-          options: Options(
-            method: opts.method,
-            headers: opts.headers,
+        return handler.resolve(
+          await _dio.request(
+            opts.path,
+            options: Options(method: opts.method, headers: opts.headers),
+            data: opts.data,
+            queryParameters: opts.queryParameters,
           ),
-          data: opts.data,
-          queryParameters: opts.queryParameters,
-        ));
+        );
       });
     }
-  }
-
-  Future<String?> getAccessToken() async {
-    return await _storage.read(key: _accessTokenKey);
-  }
-
-  Future<void> saveTokens(String accessToken, String refreshToken) async {
-    await _storage.write(key: _accessTokenKey, value: accessToken);
-    await _storage.write(key: _refreshTokenKey, value: refreshToken);
-  }
-
-  Future<void> clearTokens() async {
-    await _storage.delete(key: _accessTokenKey);
-    await _storage.delete(key: _refreshTokenKey);
   }
 
   // GET request
