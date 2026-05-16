@@ -6,139 +6,170 @@ This ERD is derived from the UML class diagram and keeps only the persistent dat
 
 ```mermaid
 erDiagram
-  CUSTOMER_ACCOUNTS ||--o{ SESSIONS : has
-  CUSTOMER_ACCOUNTS ||--|| CARTS : owns
-  CUSTOMER_ACCOUNTS ||--o{ ORDERS : places
-  CUSTOMER_ACCOUNTS ||--o{ NOTIFICATION_MESSAGES : receives
 
-  MENU_CATALOGS ||--o{ MENU_ITEMS : contains
-  CARTS ||--o{ CART_ITEMS : contains
-  MENU_ITEMS ||--o{ CART_ITEMS : referenced_by
-
-  ORDERS ||--|{ ORDER_ITEMS : contains
-  MENU_ITEMS ||--o{ ORDER_ITEMS : referenced_by
-  ORDERS ||--o{ PAYMENTS : paid_by
-  ORDERS ||--o{ ORDER_STATUS_HISTORY : has
-
-  PAYMENTS ||--o{ TRANSACTIONS : records
-
-  CUSTOMER_ACCOUNTS {
-    string account_id PK
-    string display_name
-    string email UK
-    string password_hash
-    string phone_number
-    boolean active
+  accounts {
+    text account_id PK
+    text display_name
+    text email UK
+    text role
+    text password_hash
+    text phone_number
+    bool active
     datetime created_at
     datetime updated_at
   }
 
-  SESSIONS {
-    string session_id PK
-    string account_id FK
-    datetime created_at
-    datetime expires_at
-    boolean active
-  }
-
-  MENU_CATALOGS {
-    string catalog_id PK
-    string name
-    boolean active
+  menu_catalogs {
+    text catalog_id PK
+    text name
+    bool active
     datetime created_at
     datetime updated_at
   }
 
-  MENU_ITEMS {
-    string menu_item_id PK
-    string catalog_id FK
-    string name
-    string description
-    decimal price
-    string category
-    boolean available
-    string image_url
+  categories {
+    text category_id PK
+    text category_name
+    text description
     datetime created_at
     datetime updated_at
   }
 
-  CARTS {
-    string cart_id PK
-    string account_id FK
-    string status
+  menu_items {
+    text menu_item_id PK
+    text catalog_id FK
+    text category_id FK
+    text name
+    text description
+    int price_penny
+    bool available
+    text image_url
     datetime created_at
     datetime updated_at
   }
 
-  CART_ITEMS {
-    string cart_item_id PK
-    string cart_id FK
-    string menu_item_id FK
+  carts {
+    text cart_id PK
+    text account_id FK
+    datetime created_at
+    datetime updated_at
+  }
+
+  cart_items {
+    text cart_item_id PK
+    text cart_id FK
+    text menu_item_id FK
     int quantity
-    decimal unit_price_snapshot
-    decimal line_total
+    int unit_price_snapshot
+    int line_total
     datetime created_at
     datetime updated_at
   }
 
-  ORDERS {
-    string order_id PK
-    string account_id FK
-    string order_status
-    decimal total_amount
+  orders {
+    text order_id PK
+    text account_id FK
+    int total_amount
     datetime placed_at
+    text order_status
     datetime confirmed_at
+    text address
     datetime updated_at
   }
 
-  ORDER_ITEMS {
-    string order_item_id PK
-    string order_id FK
-    string menu_item_id FK
-    string item_name_snapshot
-    string item_description_snapshot
-    decimal unit_price_snapshot
+  order_items {
+    text order_item_id PK
+    text order_id FK
+    text menu_item_id FK
+    text item_name_snapshot
+    text item_description_snapshot
+    int unit_price_snapshot
     int quantity
-    decimal line_total
+    int line_total
   }
 
-  PAYMENTS {
-    string payment_id PK
-    string order_id FK
-    string payment_method
-    string payment_status
-    decimal amount
+  payments {
+    text payment_id PK
+    text order_id FK
+    int amount
     datetime initiated_at
     datetime processed_at
+    text payment_method
+    text payment_status
   }
 
-  TRANSACTIONS {
-    string transaction_id PK
-    string payment_id FK
-    string gateway_reference
-    string authorization_code
+  transactions {
+    text transaction_id PK
+    text payment_id FK
+    text gateway_reference
+    text authorization_code
     datetime processed_at
   }
 
-  ORDER_STATUS_HISTORY {
-    string history_id PK
-    string order_id FK
-    string order_status
-    string note
+  order_status_history {
+    text history_id PK
+    text order_id FK
+    text order_status
+    text note
     datetime changed_at
   }
 
-  NOTIFICATION_MESSAGES {
-    string message_id PK
-    string account_id FK
-    string order_id FK
-    string subject
-    string body
-    string delivery_channel
-    string delivery_status
+  notification_messages {
+    text message_id PK
+    text account_id FK
+    text order_id FK
+    text subject
+    text body
+    text delivery_channel
+    text delivery_status
     datetime created_at
     datetime sent_at
   }
+
+  auth_user {
+    int id PK
+    text username
+    text email
+    text password
+    bool is_staff
+    bool is_active
+  }
+
+  token_blacklist_outstandingtoken {
+    int id PK
+    text jti UK
+    text token
+    int user_id FK
+    datetime created_at
+    datetime expires_at
+  }
+
+  token_blacklist_blacklistedtoken {
+    int id PK
+    int outstanding_token_id FK
+    datetime blacklisted_at
+  }
+
+  accounts ||--|| carts : "account_id"
+  accounts ||--o{ orders : "account_id"
+  accounts ||--o{ notification_messages : "account_id"
+
+  menu_catalogs ||--o{ menu_items : "catalog_id"
+  categories ||--o{ menu_items : "category_id"
+
+  carts ||--o{ cart_items : "cart_id"
+  menu_items ||--o{ cart_items : "menu_item_id"
+  menu_items ||--o{ order_items : "menu_item_id"
+
+  orders ||--o{ order_items : "order_id"
+  orders ||--o{ payments : "order_id"
+  orders ||--o{ order_status_history : "order_id"
+  orders ||--o{ notification_messages : "order_id"
+
+  payments ||--o{ transactions : "payment_id"
+
+  auth_user ||--o{ token_blacklist_outstandingtoken : "user_id"
+  token_blacklist_outstandingtoken ||--|| token_blacklist_blacklistedtoken : "outstanding_token_id"
 ```
 
 # ERD Explanation and Design Notes
@@ -157,7 +188,7 @@ Each table is responsible for storing a specific part of that process.
 ---
 
 
-## CUSTOMER_ACCOUNTS
+## ACCOUNTS
 
 This table stores customer identity and account information.
 
@@ -177,19 +208,6 @@ This acts as the central user table of the system.
 
 ---
 
-## SESSIONS
-
-This table stores active login sessions.
-
-A session is created when a customer logs in and is used to:
-- keep the user authenticated
-- track login expiration
-- support logout and timeout behavior
-
-This separation improves security and session management.
-
----
-
 ## MENU_CATALOGS
 
 This table groups menu items into catalogs.
@@ -201,6 +219,20 @@ Examples:
 
 In a simple deployment, only one catalog may exist.  
 However, keeping this table makes the system easier to expand later.
+
+---
+
+## CATEGORIES
+
+This table stores the available food categories used to classify menu items.
+
+Examples:
+- Starters
+- Main Course
+- Desserts
+- Drinks
+
+Keeping categories in a dedicated table allows them to be managed independently without modifying menu items directly.
 
 ---
 
@@ -217,17 +249,17 @@ Each item stores:
 - name
 - description
 - price
-- category
+- a reference to its category via `category_id`
 - availability
 - image URL
 
-This represents the live restaurant menu.
+Each menu item belongs to one catalog and one category. This represents the live restaurant menu.
 
 ---
 
 ## CARTS
 
-This table stores a customer’s active shopping cart.
+This table stores a customer's active shopping cart.
 
 The cart acts as temporary storage before checkout.
 
@@ -269,6 +301,7 @@ An order is created when checkout is completed.
 The table stores:
 - order status
 - total amount
+- delivery address
 - timestamps
 - customer reference
 
@@ -369,6 +402,39 @@ This improves reliability and customer communication.
 
 ---
 
+## TOKEN_BLACKLIST_OUTSTANDINGTOKEN
+
+This table is created and managed automatically by the `djangorestframework-simplejwt` library.
+
+It stores a record of every JWT token that has been issued by the system.
+
+Each row stores:
+- a unique token identifier (`jti`)
+- the full token string
+- the token's creation and expiry timestamps
+
+This table is not written to by application code directly. simplejwt populates it automatically when a token is generated during login or registration.
+
+Note: the `user_id` column exists because simplejwt was designed to work with Django's built-in user model. Since this system uses a custom `accounts` table instead, `user_id` is always stored as null and has no effect on functionality.
+
+---
+
+## TOKEN_BLACKLIST_BLACKLISTEDTOKEN
+
+This table is created and managed automatically by the `djangorestframework-simplejwt` library.
+
+It stores a record of every token that has been explicitly invalidated.
+
+A token is added to this table when a customer logs out. Once a token appears here, it can never be used again — even if it has not yet expired.
+
+Each row stores:
+- a reference to the token in `token_blacklist_outstandingtoken`
+- the timestamp when the token was blacklisted
+
+This table works together with `token_blacklist_outstandingtoken` to implement server-side logout. On every authenticated request, simplejwt checks whether the incoming token's `jti` exists in this table. If it does, the request is rejected immediately.
+
+---
+
 # Relationship Explanation
 
 The relationships in the ERD describe how data connects together.
@@ -376,7 +442,6 @@ The relationships in the ERD describe how data connects together.
 ## Customer Relationships
 
 A customer can:
-- create many sessions over time
 - place many orders
 - receive many notifications
 
@@ -391,6 +456,17 @@ A cart contains many cart items.
 Each cart item references exactly one menu item.
 
 This allows customers to select multiple products and quantities before checkout.
+
+---
+
+## Menu Relationships
+
+Each menu item belongs to one catalog and one category.
+
+A catalog can contain many menu items.  
+A category can contain many menu items.
+
+This separation allows the menu to be organized and filtered independently by catalog or category.
 
 ---
 
@@ -478,7 +554,7 @@ This prevents invalid business data such as:
 Indexes improve database query performance.
 
 Examples:
-- searching menu items
+- searching menu items by catalog or category
 - loading order history
 - tracking order status changes
 

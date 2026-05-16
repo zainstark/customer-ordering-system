@@ -1,4 +1,5 @@
 import 'package:frontend/Core/network/dio_client.dart';
+import 'package:frontend/Core/storage/token_storage.dart';
 import 'package:frontend/features/cart/data/datasources/cart_remote_data_source.dart';
 import 'package:frontend/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:frontend/features/cart/domain/repositories/cart_repository.dart';
@@ -28,12 +29,15 @@ final getIt = GetIt.instance;
 
 void setupDependencies() {
   // Core
-  getIt.registerLazySingleton<DioClient>(() => DioClient());
+  getIt.registerLazySingleton<TokenStorage>(() => TokenStorage());
+  
+  getIt.registerLazySingleton<DioClient>(() => DioClient(getIt<TokenStorage>()));
 
   // Authentication
   getIt.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSource(getIt<DioClient>()),
+    () => AuthRemoteDataSource(getIt<DioClient>(), getIt<TokenStorage>()),
   );
+
 
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(getIt<AuthRemoteDataSource>()),

@@ -19,58 +19,61 @@ class AppRouter {
   AppRouter._();
 
   static final GoRouter router = GoRouter(
-    initialLocation: RoutesPath.login,
-    redirect: _handleRedirect,
-    routes: [
-      GoRoute(
-        path: RoutesPath.signup,
-        name: RoutesName.signup,
-        builder: (context, state) => BlocProvider(
-          create: (_) => getIt<AuthCubit>()..initialize(),
-          child: const SignupScreen(),
+  initialLocation: RoutesPath.login,
+  redirect: _handleRedirect,
+  routes: [
+    // ✅ One top-level ShellRoute provides AuthCubit to ALL routes
+    ShellRoute(
+      builder: (context, state, child) => BlocProvider(
+        create: (_) => getIt<AuthCubit>()..initialize(),
+        child: child,   // child is the whole subtree — auth pages AND app pages
+      ),
+      routes: [
+        GoRoute(
+          path: RoutesPath.signup,
+          name: RoutesName.signup,
+          builder: (_, __) => const SignupScreen(),
         ),
-      ),
-      GoRoute(
-        path: RoutesPath.login,
-        name: RoutesName.login,
-        builder: (context, state) => BlocProvider(
-          create: (_) => getIt<AuthCubit>()..initialize(),
-          child: const LoginScreen(),
+        GoRoute(
+          path: RoutesPath.login,
+          name: RoutesName.login,
+          builder: (_, __) => const LoginScreen(),
         ),
-      ),
-
-      ShellRoute(
-        builder: (context, state, child) =>
-            AppShellScaffold(currentPath: state.uri.path, child: child),
-        routes: [
-          GoRoute(
-            path: RoutesPath.menu,
-            name: RoutesName.menu,
-            builder: (context, state) => BlocProvider(
-              create: (_) => getIt<MenuCubit>()..loadMenu(),
-              child: const MenuScreen(),
+        // Nested ShellRoute MUST have its own builder
+        ShellRoute(
+          builder: (context, state, child) =>
+              AppShellScaffold(currentPath: state.uri.path, child: child),
+          routes: [
+            GoRoute(
+              path: RoutesPath.menu,
+              name: RoutesName.menu,
+              builder: (context, _) => BlocProvider(
+                create: (_) => getIt<MenuCubit>()..loadMenu(),
+                child: const MenuScreen(),
+              ),
             ),
-          ),
-          GoRoute(
-            path: RoutesPath.cart,
-            name: RoutesName.cart,
-            builder: (context, state) => BlocProvider(
-              create: (_) => getIt<CartCubit>()..loadCart(),
-              child: const CartScreen(),
+            GoRoute(
+              path: RoutesPath.cart,
+              name: RoutesName.cart,
+              builder: (context, _) => BlocProvider(
+                create: (_) => getIt<CartCubit>()..loadCart(),
+                child: const CartScreen(),
+              ),
             ),
-          ),
-          GoRoute(
-            path: RoutesPath.orders,
-            name: RoutesName.orders,
-            builder: (context, state) => BlocProvider(
-              create: (_) => getIt<OrdersCubit>()..loadOrders(),
-              child: const OrdersScreen(),
+            GoRoute(
+              path: RoutesPath.orders,
+              name: RoutesName.orders,
+              builder: (context, _) => BlocProvider(
+                create: (_) => getIt<OrdersCubit>()..loadOrders(),
+                child: const OrdersScreen(),
+              ),
             ),
-          ),
-        ],
-      ),
-    ],
-  );
+          ],
+        ),
+      ],
+    ),
+  ],
+);
 
   static String? _handleRedirect(BuildContext context, GoRouterState state) {
     final authStatus = getIt<AuthCubit>().state.status;

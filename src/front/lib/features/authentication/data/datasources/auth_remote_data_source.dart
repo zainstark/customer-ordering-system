@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:frontend/Core/storage/token_storage.dart';
 import '../../../../Core/network/app_exception.dart';
 import '../../../../Core/network/dio_client.dart';
 
 class AuthRemoteDataSource {
   final DioClient _dioClient;
+  final TokenStorage _storage;
 
-  AuthRemoteDataSource(this._dioClient);
+  AuthRemoteDataSource(this._dioClient, this._storage);
 
   Future<Map<String, dynamic>> register({
     required String displayName,
@@ -14,13 +16,16 @@ class AuthRemoteDataSource {
     String? phoneNumber,
   }) async {
     try {
-      final res = await _dioClient.post('/api/auth/register/', data: {
-        'display_name': displayName,
-        'email':        email,
-        'password':     password,
-        if (phoneNumber != null) 'phone_number': phoneNumber,
-      });
-      await _dioClient.saveTokens(res.data['access'], res.data['refresh']);
+      final res = await _dioClient.post(
+        '/api/auth/register/',
+        data: {
+          'display_name': displayName,
+          'email': email,
+          'password': password,
+          if (phoneNumber != null) 'phone_number': phoneNumber,
+        },
+      );
+      await _storage.saveTokens(res.data['access'], res.data['refresh']);
       return res.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw AppException(message: _parseError(e));
@@ -32,11 +37,11 @@ class AuthRemoteDataSource {
     required String password,
   }) async {
     try {
-      final res = await _dioClient.post('/api/auth/login/', data: {
-        'email':    email,
-        'password': password,
-      });
-      await _dioClient.saveTokens(res.data['access'], res.data['refresh']);
+      final res = await _dioClient.post(
+        '/api/auth/login/',
+        data: {'email': email, 'password': password},
+      );
+      await _storage.saveTokens(res.data['access'], res.data['refresh']);
       return res.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw AppException(message: _parseError(e));
@@ -49,16 +54,16 @@ class AuthRemoteDataSource {
     } catch (_) {
       // Ignore errors on logout
     }
-    await _dioClient.clearTokens();
+    await _storage.clearTokens();
   }
 
   Future<bool> tryRestoreSession() async {
     try {
       // Use the DioClient's refresh mechanism which handles token refresh
-      final accessToken = await _dioClient.getAccessToken();
+      final accessToken = await _storage.getAccessToken();
       return accessToken != null && accessToken.isNotEmpty;
     } catch (_) {
-      await _dioClient.clearTokens();
+      await _storage.clearTokens();
       return false;
     }
   }
@@ -76,4 +81,3 @@ class AuthRemoteDataSource {
     return 'Network error, please try again';
   }
 }
-
