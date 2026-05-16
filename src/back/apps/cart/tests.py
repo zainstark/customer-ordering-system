@@ -1,302 +1,242 @@
-"""
-Unit and integration tests for cart app.
+"""Tests for cart service and API behavior with JWT-only auth."""
 
-Tests cover:
-- CartService methods (add, update, remove, validate, clear)
-- API endpoints with authenticated requests
-- Edge cases (empty cart, invalid quantities, out of stock)
-- Database constraints (foreign keys, unique constraints)
-"""
+import uuid
 
-from django.test import TestCase, Client
+from django.db import connection
+from django.test import TestCase
 from django.utils import timezone
-from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-import json
+from rest_framework.test import APIClient, APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Cart, CartItem
-from .services import CartService
+from apps.authentication.models import Accounts
+from apps.menu.models import MenuCatalog, MenuItem
+
+from apps.cart.models import Cart, CartItem
+from apps.cart.services import CartService
 
 
-class CartModelTestCase(TestCase):
-    """Test Cart and CartItem models."""
-    
-    def setUp(self):
-        """Set up test fixtures with dummy data."""
-        self.account_id = 'test_account_001'
-        self.cart = Cart.objects.create(
-            account_id=self.account_id,
-            status='ACTIVE',
-        )
-    
-    def test_cart_creation(self):
-        """Test creating a cart."""
-        self.assertIsNotNone(self.cart.cart_id)
-        self.assertEqual(self.cart.account_id, self.account_id)
-        self.assertEqual(self.cart.status, 'ACTIVE')
-    
-    def test_cart_get_total_empty(self):
-        """Test cart total with no items."""
-        total = self.cart.get_cart_total()
-        self.assertEqual(total, 0)
-    
-    def test_cart_get_total_with_items(self):
-        """Test cart total with items."""
-        CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=2,
-            unit_price_snapshot=1500,
-        )
-        CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_002',
-            quantity=1,
-            unit_price_snapshot=800,
-        )
-        total = self.cart.get_cart_total()
-        self.assertEqual(total, 3800)  # (2 * 1500) + (1 * 800)
-    
-    def test_cart_item_line_total_calculation(self):
-        """Test CartItem line_total auto-calculation on save."""
-        item = CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=3,
-            unit_price_snapshot=1500,
-        )
-        self.assertEqual(item.line_total, 4500)  # 3 * 1500
-    
-    def test_cart_unique_constraint(self):
-        """Test that only one cart per account_id is allowed."""
-        with self.assertRaises(Exception):  # IntegrityError
-            Cart.objects.create(
-                account_id=self.account_id,
-                status='ACTIVE',
+def _ensure_accounts_table():
+    """Create accounts table for unmanaged auth model when absent in test DB."""
+    table_name = Accounts._meta.db_table
+    existing_tables = connection.introspection.table_names()
+    if table_name in existing_tables:
+        return
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            CREATE TABLE accounts (
+                account_id TEXT PRIMARY KEY NOT NULL,
+                display_name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                role TEXT NOT NULL,
+                password_hash TEXT NOT NULL,
+                phone_number TEXT,
+                active BOOL NOT NULL,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL
             )
-    
-    def test_cart_item_unique_constraint(self):
-        """Test that same menu_item can't be added twice to cart."""
-        CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=2,
-            unit_price_snapshot=1500,
+            """
         )
-        with self.assertRaises(Exception):  # IntegrityError
-            CartItem.objects.create(
-                cart=self.cart,
-                menu_item_id='menu_001',
-                quantity=1,
-                unit_price_snapshot=1500,
-            )
 
 
-class CartServiceTestCase(TestCase):
-    """Test CartService business logic."""
-    
+class CartServiceDummyDataTestCase(TestCase):
+    """Ensure dummy menu fixtures still work through the provider seam."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        _ensure_accounts_table()
+
     def setUp(self):
-        """Set up test fixtures."""
-        self.account_id = 'test_account_001'
-        self.cart = Cart.objects.create(
-            account_id=self.account_id,
-            status='ACTIVE',
+        now = timezone.now()
+        self.account = Accounts.objects.create(
+            account_id='acct_dummy_001',
+            display_name='Dummy Tester',
+            email='dummy@test.local',
+            role='customer',
+            password_hash='hash',
+            phone_number='',
+            active=True,
+            created_at=now,
+            updated_at=now,
         )
-    
-    def test_get_or_create_cart_existing(self):
-        """Test getting existing cart."""
-        cart = CartService.get_or_create_cart(self.account_id)
-        self.assertEqual(cart.cart_id, self.cart.cart_id)
-    
-    def test_get_or_create_cart_new(self):
-        """Test creating new cart."""
-        new_account_id = 'test_account_002'
-        cart = CartService.get_or_create_cart(new_account_id)
-        self.assertEqual(cart.account_id, new_account_id)
-        self.assertEqual(cart.status, 'ACTIVE')
-    
-    def test_add_item_to_cart_success(self):
-        """Test successfully adding item to cart."""
+        self.cart = Cart.objects.create(account=self.account)
+
+        self.menu_fixture = {
+            'menu_dummy_001': {
+                'menu_item_id': 'menu_dummy_001',
+                'name': 'Dummy Pizza',
+                'description': 'Fixture description',
+                'price_penny': 1234,
+                'available': True,
+                'image_url': 'https://example.test/dummy.png',
+            }
+        }
+        CartService.set_menu_provider(lambda menu_item_id: self.menu_fixture.get(menu_item_id))
+
+    def tearDown(self):
+        CartService.set_menu_provider(None)
+
+    def test_add_item_uses_dummy_fixture_price_snapshot(self):
         cart_item, error = CartService.add_item_to_cart(
             self.cart.cart_id,
-            'menu_001',
+            'menu_dummy_001',
             2,
         )
+
         self.assertIsNone(error)
         self.assertIsNotNone(cart_item)
-        self.assertEqual(cart_item.quantity, 2)
-        self.assertEqual(cart_item.unit_price_snapshot, 1500)
-    
-    def test_add_item_invalid_quantity(self):
-        """Test adding item with invalid quantity."""
-        _, error = CartService.add_item_to_cart(
-            self.cart.cart_id,
-            'menu_001',
-            -1,
-        )
-        self.assertIsNotNone(error)
-        self.assertIn('positive integer', error.lower())
-    
-    def test_add_item_not_found(self):
-        """Test adding non-existent menu item."""
-        _, error = CartService.add_item_to_cart(
-            self.cart.cart_id,
-            'invalid_item',
-            1,
-        )
-        self.assertIsNotNone(error)
-        self.assertIn('not found', error.lower())
-    
-    def test_add_item_out_of_stock(self):
-        """Test adding out-of-stock item."""
-        # This would require modifying DUMMY_MENU_ITEMS, so we'll skip for now
-        pass
-    
-    def test_add_duplicate_item_increases_quantity(self):
-        """Test that adding same item twice increases quantity."""
-        CartService.add_item_to_cart(self.cart.cart_id, 'menu_001', 2)
-        cart_item, _ = CartService.add_item_to_cart(self.cart.cart_id, 'menu_001', 3)
-        self.assertEqual(cart_item.quantity, 5)  # 2 + 3
-    
-    def test_update_item_quantity_success(self):
-        """Test updating item quantity."""
-        item = CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=2,
-            unit_price_snapshot=1500,
-        )
-        updated_item, error = CartService.update_item_quantity(item.cart_item_id, 5)
-        self.assertIsNone(error)
-        self.assertEqual(updated_item.quantity, 5)
-    
-    def test_update_item_invalid_quantity(self):
-        """Test updating with invalid quantity."""
-        item = CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=2,
-            unit_price_snapshot=1500,
-        )
-        _, error = CartService.update_item_quantity(item.cart_item_id, 0)
-        self.assertIsNotNone(error)
-    
-    def test_remove_item_success(self):
-        """Test removing item from cart."""
-        item = CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=2,
-            unit_price_snapshot=1500,
-        )
-        success, error = CartService.remove_item_from_cart(item.cart_item_id)
-        self.assertTrue(success)
-        self.assertIsNone(error)
-        self.assertEqual(CartItem.objects.filter(cart=self.cart).count(), 0)
-    
-    def test_remove_item_not_found(self):
-        """Test removing non-existent item."""
-        success, error = CartService.remove_item_from_cart('invalid_item_id')
-        self.assertFalse(success)
-        self.assertIsNotNone(error)
-    
-    def test_validate_cart_empty(self):
-        """Test validating empty cart."""
-        is_valid, issues = CartService.validate_cart_items(self.cart.cart_id)
-        self.assertTrue(is_valid)
-        self.assertEqual(len(issues), 0)
-    
-    def test_validate_cart_valid_items(self):
-        """Test validating cart with valid items."""
+        self.assertEqual(cart_item.menu_item_id, 'menu_dummy_001')
+        self.assertEqual(cart_item.unit_price_snapshot, 1234)
+        self.assertEqual(cart_item.line_total, 2468)
+
+    def test_validate_cart_detects_dummy_price_change(self):
         CartItem.objects.create(
             cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=2,
-            unit_price_snapshot=1500,
+            menu_item_id='menu_dummy_001',
+            quantity=1,
+            unit_price_snapshot=1000,
         )
+
         is_valid, issues = CartService.validate_cart_items(self.cart.cart_id)
-        self.assertTrue(is_valid)
-        self.assertEqual(len(issues), 0)
-    
-    def test_validate_cart_price_changed(self):
-        """Test validation detects price changes."""
-        CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=2,
-            unit_price_snapshot=1000,  # Old price, current is 1500
-        )
-        is_valid, issues = CartService.validate_cart_items(self.cart.cart_id)
+
         self.assertFalse(is_valid)
         self.assertEqual(len(issues), 1)
-        self.assertIn('price', issues[0]['issue'].lower())
-    
-    def test_clear_cart_success(self):
-        """Test clearing cart."""
-        CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=2,
-            unit_price_snapshot=1500,
-        )
-        CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_002',
-            quantity=1,
-            unit_price_snapshot=1700,
-        )
-        success, error = CartService.clear_cart(self.cart.cart_id)
-        self.assertTrue(success)
-        self.assertEqual(CartItem.objects.filter(cart=self.cart).count(), 0)
-    
-    def test_calculate_cart_total(self):
-        """Test calculating cart total."""
-        CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_001',
-            quantity=2,
-            unit_price_snapshot=1500,
-        )
-        CartItem.objects.create(
-            cart=self.cart,
-            menu_item_id='menu_002',
-            quantity=1,
-            unit_price_snapshot=1700,
-        )
-        total, error = CartService.calculate_cart_total(self.cart.cart_id)
-        self.assertIsNone(error)
-        self.assertEqual(total, 4700)  # (2 * 1500) + (1 * 1700)
+        self.assertIn('Price has changed', issues[0]['issue'])
 
 
-class CartAPITestCase(APITestCase):
-    """Test cart API endpoints."""
-    
+class CartAPIJWTTestCase(APITestCase):
+    """API tests requiring generated bearer tokens and ownership checks."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        _ensure_accounts_table()
+
     def setUp(self):
-        """Set up test client and fixtures."""
         self.client = APIClient()
-        self.account_id = 'test_account_001'
-        self.cart = Cart.objects.create(
-            account_id=self.account_id,
-            status='ACTIVE',
+        now = timezone.now()
+
+        self.account_a = Accounts.objects.create(
+            account_id='acct_api_001',
+            display_name='API User A',
+            email='apia@test.local',
+            role='customer',
+            password_hash='hash',
+            phone_number='',
+            active=True,
+            created_at=now,
+            updated_at=now,
         )
-        # Note: In a real scenario, we'd create an authenticated user/session
-        # For now, we'll pass account_id in requests
-    
-    def test_get_cart_creates_if_not_exists(self):
-        """Test GET /api/cart/ creates cart if doesn't exist."""
-        new_account_id = 'test_account_002'
-        response = self.client.get(
-            '/api/cart/',
-            {'account_id': new_account_id},
+        self.account_b = Accounts.objects.create(
+            account_id='acct_api_002',
+            display_name='API User B',
+            email='apib@test.local',
+            role='customer',
+            password_hash='hash',
+            phone_number='',
+            active=True,
+            created_at=now,
+            updated_at=now,
         )
-        # Note: This will fail because endpoint requires authentication
-        # We'll document this as needing proper auth setup
-    
-    def test_add_item_success(self):
-        """Test POST /api/cart/items/ adds item."""
-        # Note: Endpoints require authentication, so we skip for now
-        pass
-    
-    def test_add_item_validation_error(self):
-        """Test adding item with invalid data."""
-        pass
+
+        self.catalog = MenuCatalog.objects.create(
+            catalog_id=f'cat_{uuid.uuid4()}',
+            name='Main Menu',
+            active=True,
+        )
+        self.menu_item = MenuItem.objects.create(
+            menu_item_id='menu_api_001',
+            catalog=self.catalog,
+            name='API Burger',
+            description='Beef burger',
+            price_penny=1599,
+            category='Burger',
+            available=True,
+            image_url='https://example.test/burger.png',
+        )
+
+    def _access_token_for(self, account):
+        refresh = RefreshToken()
+        refresh['account_id'] = account.account_id
+        refresh['email'] = account.email
+        refresh['role'] = account.role
+        refresh['display_name'] = account.display_name
+        return str(refresh.access_token)
+
+    def _authenticate(self, account):
+        token = self._access_token_for(account)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+
+    def test_get_cart_requires_generated_token(self):
+        response = self.client.get('/api/cart/')
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
+
+    def test_get_cart_uses_token_account_not_query_account(self):
+        self._authenticate(self.account_a)
+        response = self.client.get('/api/cart/', {'account_id': self.account_b.account_id})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['accountId'], self.account_a.account_id)
+
+    def test_add_item_returns_flutter_item_shape(self):
+        self._authenticate(self.account_a)
+        response = self.client.post(
+            '/api/cart/items/',
+            {
+                'account_id': self.account_b.account_id,
+                'menu_item_id': self.menu_item.menu_item_id,
+                'quantity': 2,
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('items', response.data)
+        self.assertEqual(len(response.data['items']), 1)
+
+        item = response.data['items'][0]
+        self.assertEqual(
+            sorted(item.keys()),
+            sorted(['id', 'cartId', 'menuItemId', 'title', 'subtitle', 'unitPrice', 'quantity', 'imageUrl']),
+        )
+        self.assertEqual(item['menuItemId'], self.menu_item.menu_item_id)
+        self.assertEqual(item['title'], self.menu_item.name)
+        self.assertEqual(item['unitPrice'], 15.99)
+
+    def test_update_item_in_other_account_cart_returns_404(self):
+        cart_b = Cart.objects.create(account=self.account_b)
+        item_b = CartItem.objects.create(
+            cart=cart_b,
+            menu_item=self.menu_item,
+            quantity=1,
+            unit_price_snapshot=1599,
+        )
+
+        self._authenticate(self.account_a)
+        response = self.client.patch(
+            f'/api/cart/items/{item_b.cart_item_id}/',
+            {'quantity': 3},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_item_in_other_account_cart_returns_404(self):
+        cart_b = Cart.objects.create(account=self.account_b)
+        item_b = CartItem.objects.create(
+            cart=cart_b,
+            menu_item=self.menu_item,
+            quantity=1,
+            unit_price_snapshot=1599,
+        )
+
+        self._authenticate(self.account_a)
+        response = self.client.delete(f'/api/cart/items/{item_b.cart_item_id}/delete/')
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

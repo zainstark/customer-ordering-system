@@ -6,81 +6,95 @@ including menu item enrichment from dummy data.
 """
 
 from rest_framework import serializers
+
 from .models import Cart, CartItem
 from .services import CartService
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    """Serializer for CartItem with menu item details."""
+    """Serializer for CartItem in Flutter-compatible shape."""
 
-    menu_item_name = serializers.SerializerMethodField()
-    menu_item_description = serializers.SerializerMethodField()
+    id = serializers.CharField(source='cart_item_id', read_only=True)
+    cartId = serializers.CharField(source='cart.cart_id', read_only=True)
+    menuItemId = serializers.CharField(source='menu_item_id', read_only=True)
+    title = serializers.SerializerMethodField()
+    subtitle = serializers.SerializerMethodField()
+    unitPrice = serializers.SerializerMethodField()
+    imageUrl = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
         fields = [
-            'cart_item_id',
-            'menu_item_id',
-            'menu_item_name',
-            'menu_item_description',
+            'id',
+            'cartId',
+            'menuItemId',
+            'title',
+            'subtitle',
+            'unitPrice',
             'quantity',
-            'unit_price_snapshot',
-            'line_total',
-            'created_at',
-            'updated_at',
+            'imageUrl',
         ]
         read_only_fields = [
-            'cart_item_id',
-            'line_total',
-            'created_at',
-            'updated_at',
+            'id',
+            'cartId',
+            'menuItemId',
+            'title',
+            'subtitle',
+            'unitPrice',
+            'imageUrl',
         ]
 
-    def get_menu_item_name(self, obj):
+    def _get_menu_item(self, obj):
         menu_item = CartService._get_menu_item(obj.menu_item_id)
-        return menu_item['name'] if menu_item else 'Unknown Item'
+        return menu_item or {}
 
-    def get_menu_item_description(self, obj):
-        menu_item = CartService._get_menu_item(obj.menu_item_id)
-        return menu_item.get('description', '') if menu_item else ''
+    def get_title(self, obj):
+        return self._get_menu_item(obj).get('name', 'Unknown Item')
+
+    def get_subtitle(self, obj):
+        return self._get_menu_item(obj).get('description') or ''
+
+    def get_unitPrice(self, obj):
+        return float(obj.unit_price_snapshot) / 100.0
+
+    def get_imageUrl(self, obj):
+        menu_item = self._get_menu_item(obj)
+        return menu_item.get('image_url') or menu_item.get('imageUrl') or ''
 
 
 class CartSerializer(serializers.ModelSerializer):
-    """Serializer for Cart with nested items and calculated total."""
-    
+    """Serializer for Cart response with nested Flutter-compatible items."""
+
     items = CartItemSerializer(
         many=True,
-        source='cartitem_set',
         read_only=True,
     )
-    cart_total = serializers.SerializerMethodField()
-    item_count = serializers.SerializerMethodField()
-    
+    cartId = serializers.CharField(source='cart_id', read_only=True)
+    accountId = serializers.CharField(source='account_id', read_only=True)
+    cartTotal = serializers.SerializerMethodField()
+    itemCount = serializers.SerializerMethodField()
+
     class Meta:
         model = Cart
         fields = [
-            'cart_id',
-            'account_id',
-            'status',
+            'cartId',
+            'accountId',
             'items',
-            'item_count',
-            'cart_total',
-            'created_at',
-            'updated_at',
+            'itemCount',
+            'cartTotal',
         ]
         read_only_fields = [
-            'cart_id',
-            'account_id',
-            'created_at',
-            'updated_at',
+            'cartId',
+            'accountId',
+            'items',
+            'itemCount',
+            'cartTotal',
         ]
-    
-    def get_cart_total(self, obj):
-        """Calculate and return cart total."""
-        return obj.get_cart_total()
-    
-    def get_item_count(self, obj):
-        """Get total item count in cart."""
+
+    def get_cartTotal(self, obj):
+        return float(obj.get_cart_total()) / 100.0
+
+    def get_itemCount(self, obj):
         return obj.get_item_count()
 
 
