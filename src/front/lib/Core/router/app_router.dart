@@ -12,6 +12,9 @@ import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
 import 'package:frontend/features/menu/presentation/screens/menu_screen.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:frontend/features/orders/presentation/screens/orders_screen.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
+import 'package:frontend/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:frontend/features/shell/presentation/widgets/app_shell_scaffold.dart';
 import 'package:go_router/go_router.dart';
 
@@ -66,6 +69,21 @@ class AppRouter {
               builder: (context, _) => BlocProvider(
                 create: (_) => getIt<OrdersCubit>()..loadOrders(),
                 child: const OrdersScreen(),
+              ),
+            ),
+            GoRoute(
+              path: RoutesPath.notifications,
+              name: RoutesName.notifications,
+              builder: (context, _) => MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (_) => getIt<NotificationCubit>(),
+                  ),
+                  BlocProvider(
+                    create: (_) => getIt<NotificationBadgeCubit>(),
+                  ),
+                ],
+                child: const NotificationsPage(),
               ),
             ),
           ],

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
+import 'package:frontend/features/notifications/presentation/widgets/notification_bell_with_popup.dart';
 import 'package:go_router/go_router.dart';
 
 class AppShellScaffold extends StatelessWidget {
@@ -84,9 +89,16 @@ class _ShellTopBar extends StatelessWidget {
             ),
             const SizedBox(width: AppDimensions.spacingLg),
           ],
-          Icon(
-            Icons.notifications_none_outlined,
-            color: colorScheme.onSurfaceVariant,
+          MultiBlocProvider(
+            providers: [
+              BlocProvider<NotificationCubit>(
+                create: (_) => getIt<NotificationCubit>(),
+              ),
+              BlocProvider<NotificationBadgeCubit>(
+                create: (_) => getIt<NotificationBadgeCubit>(),
+              ),
+            ],
+            child: const NotificationBellWithPopup(),
           ),
           const SizedBox(width: AppDimensions.spacingMd),
           CircleAvatar(
