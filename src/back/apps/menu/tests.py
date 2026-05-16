@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.contrib.auth.models import User
+from apps.authentication.models import Accounts
 from apps.menu.models import MenuCatalog, MenuItem
 from apps.menu.serializers import MenuCatalogSerializer, MenuItemSerializer
 from apps.menu.services import MenuService
@@ -56,6 +56,8 @@ class MenuSerializerTestCase(TestCase):
         self.assertEqual(data['subtitle'], 'Hot coffee')
         self.assertEqual(data['unitPrice'], 5.0)
         self.assertEqual(data['imageUrl'], 'http://example.com/coffee.jpg')
+        # Legacy category string should be returned when FK is not set
+        self.assertEqual(data.get('category'), 'Hot Drinks')
 
     def test_menu_catalog_serializer(self):
         serializer = MenuCatalogSerializer(self.catalog)
@@ -64,6 +66,17 @@ class MenuSerializerTestCase(TestCase):
         self.assertEqual(data['label'], 'Beverages')
         self.assertEqual(len(data['menuItems']), 1)
         self.assertEqual(data['menuItems'][0]['title'], 'Coffee')
+        self.assertEqual(data['menuItems'][0].get('category'), 'Hot Drinks')
+
+    def test_menu_item_serializer_prefers_fk(self):
+        # Create a Category and ensure serializer prefers FK name
+        from .models import Category
+        cat = Category.objects.create(category_id='catg1', name='BeverageFK')
+        self.item.category_fk = cat
+        self.item.save()
+        serializer = MenuItemSerializer(self.item)
+        data = serializer.data
+        self.assertEqual(data.get('category'), 'BeverageFK')
 
 class MenuServiceTestCase(TestCase):
     def setUp(self):
@@ -122,7 +135,13 @@ class MenuServiceTestCase(TestCase):
 
 class MenuAPITestCase(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass')
+        # Use centralized Accounts model for JWT-authenticated tests. Do not save to DB (managed externally).
+        self.user = Accounts(
+            account_id='test-uuid',
+            email='test@test.com',
+            role='customer',
+            active=True,
+        )
         self.catalog = MenuCatalog.objects.create(
             catalog_id='cat1',
             name='Beverages'
@@ -136,7 +155,7 @@ class MenuAPITestCase(APITestCase):
         )
 
     def test_get_menu_categories_authenticated(self):
-        self.client.login(username='testuser', password='testpass')
+        self.client.force_authenticate(user=self.user)
         response = self.client.get('/menu/categories/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
@@ -147,13 +166,13 @@ class MenuAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_get_menu_categories_with_search(self):
-        self.client.login(username='testuser', password='testpass')
+        self.client.force_authenticate(user=self.user)
         response = self.client.get('/menu/categories/?search=coffee')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
     def test_get_menu_categories_no_results(self):
-        self.client.login(username='testuser', password='testpass')
+        self.client.force_authenticate(user=self.user)
         response = self.client.get('/menu/categories/?search=nonexistent')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
@@ -161,7 +180,7 @@ class MenuAPITestCase(APITestCase):
     def test_get_menu_categories_empty_menu(self):
         # Remove all catalogs
         MenuCatalog.objects.all().delete()
-        self.client.login(username='testuser', password='testpass')
+        self.client.force_authenticate(user=self.user)
         response = self.client.get('/menu/categories/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)

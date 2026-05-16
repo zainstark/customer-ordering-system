@@ -15,3 +15,11 @@ class Accounts(models.Model):
         managed = False
         db_table = 'accounts'
 
+    @property
+    def is_authenticated(self):
+        """Return True if the account is active (compatible with DRF IsAuthenticated permission)."""
+        return self.active
+
+    # USERNAME_FIELD is required for DRF authentication compatibility
+    USERNAME_FIELD = 'account_id'
+
