@@ -17,6 +17,15 @@ import 'package:frontend/features/orders/data/repositories/orders_repository_imp
 import 'package:frontend/features/orders/domain/repositories/orders_repository.dart';
 import 'package:frontend/features/orders/domain/usecases/get_orders_usecase.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:frontend/features/checkout/data/datasources/checkout_remote_data_source.dart';
+import 'package:frontend/features/checkout/data/repositories/checkout_repository_impl.dart';
+import 'package:frontend/features/checkout/domain/repositories/checkout_repository.dart';
+import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
+import 'package:frontend/features/checkout/domain/usecases/create_payment_session_usecase.dart';
+import 'package:frontend/features/checkout/domain/usecases/get_payment_status_usecase.dart';
+import 'package:frontend/features/checkout/domain/usecases/retry_payment_usecase.dart';
+import 'package:frontend/features/checkout/domain/usecases/validate_cart_usecase.dart';
+import 'package:frontend/features/checkout/presentation/cubit/checkout_cubit.dart';
 import 'package:frontend/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:frontend/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:frontend/features/authentication/domain/repositories/auth_repository.dart';
@@ -102,6 +111,44 @@ void setupDependencies() {
 
   getIt.registerLazySingleton<GetOrdersUseCase>(
     () => GetOrdersUseCase(getIt()),
+  );
+
+  getIt.registerLazySingleton<CheckoutRemoteDataSource>(
+    () => CheckoutRemoteDataSourceImpl(getIt()),
+  );
+
+  getIt.registerLazySingleton<CheckoutRepository>(
+    () => CheckoutRepositoryImpl(getIt()),
+  );
+
+  getIt.registerLazySingleton<ValidateCartUseCase>(
+    () => ValidateCartUseCase(getIt()),
+  );
+
+  getIt.registerLazySingleton<CreateOrderUseCase>(
+    () => CreateOrderUseCase(getIt()),
+  );
+
+  getIt.registerLazySingleton<CreatePaymentSessionUseCase>(
+    () => CreatePaymentSessionUseCase(getIt()),
+  );
+
+  getIt.registerLazySingleton<GetPaymentStatusUseCase>(
+    () => GetPaymentStatusUseCase(getIt()),
+  );
+
+  getIt.registerLazySingleton<RetryPaymentUseCase>(
+    () => RetryPaymentUseCase(getIt()),
+  );
+
+  getIt.registerFactory<CheckoutCubit>(
+    () => CheckoutCubit(
+      getIt(),
+      getIt(),
+      getIt(),
+      getIt(),
+      getIt(),
+    ),
   );
 
   getIt.registerFactory<MenuCubit>(

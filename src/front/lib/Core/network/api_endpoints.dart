@@ -14,6 +14,11 @@ class ApiEndpoints {
   static const String orders = '/orders';
   static const String accountOrders = '/accounts/{accountId}/orders';
 
+  static const String createOrder = '/api/orders/';
+  static const String createPaymentSession = '/api/payments/create-session/';
+  static const String paymentStatusById = '/api/payments/{paymentId}/status/';
+  static const String retryPaymentById = '/api/payments/{paymentId}/retry/';
+
   static const String register     = '/auth/register/';
   static const String login        = '/auth/login/';
   static const String logout       = '/auth/logout/';
