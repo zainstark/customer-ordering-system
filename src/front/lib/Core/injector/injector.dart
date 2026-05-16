@@ -51,13 +51,17 @@ void setupDependencies() {
     () => LoginUsecase(getIt<AuthRepository>()),
   );
 
-  getIt.registerFactory<AuthCubit>(
+  getIt.registerLazySingleton<AuthCubit>(
     () => AuthCubit(
       getIt<RegisterUsecase>(),
       getIt<LoginUsecase>(),
       getIt<AuthRepository>(),
     ),
   );
+
+  getIt<DioClient>().onSessionExpired = () {
+    getIt<AuthCubit>().logout();
+  };
 
   // Menu
   getIt.registerLazySingleton<MenuRemoteDataSource>(
