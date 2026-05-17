@@ -22,11 +22,16 @@ import 'package:frontend/features/notifications/presentation/cubit/notification_
 import 'package:frontend/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:frontend/features/shell/presentation/widgets/app_shell_scaffold.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 class AppRouter {
   AppRouter._();
 
   static final GoRouter router = GoRouter(
+  refreshListenable: GoRouterRefreshStream(
+    getIt<AuthCubit>().stream,
+  ),
     initialLocation: RoutesPath.login,
     redirect: _handleRedirect,
     routes: [
@@ -143,5 +148,25 @@ class AppRouter {
     if (isAuthenticated && isOnAuthPage) return RoutesPath.menu;
 
     return null;
+  }
+}
+
+
+
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+
+    _subscription = stream.asBroadcastStream().listen(
+      (_) => notifyListeners(),
+    );
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }

@@ -66,7 +66,7 @@ class DioClient {
         onError: (error, handler) async {
           final appException = NetworkErrors.fromDioException(error);
          // If 401, session is dead — clear and notify
-         if (error.response?.statusCode == 401) {
+         if (error.response?.statusCode == 401 || error.response?.statusCode == 403) {
            await _handleSessionExpired();
          }
 

@@ -41,13 +41,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
         return media_path + filename
 
     def get_category(self, obj):
-        # Prefer normalized Category FK name when available; fall back to legacy string
-        try:
-            if getattr(obj, 'category_fk', None):
-                return obj.category_fk.name
-        except Exception:
-            pass
-        return obj.category
+        return obj.category_fk.name if obj.category_fk else None
 
     class Meta:
         model = MenuItem
