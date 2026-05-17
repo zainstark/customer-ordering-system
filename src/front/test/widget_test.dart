@@ -29,7 +29,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/orders/domain/usecases/place_order_usecase.dart';
 import 'package:frontend/features/orders/presentation/cubit/order_cubit.dart';
 import 'package:frontend/features/cart/presentation/widgets/cart_order_summary_card.dart';
-import 'package:frontend/features/payment/presentation/screens/payment_screen.dart';
 
 class _FakeMenuRepository implements MenuRepository {
   @override
@@ -170,12 +169,7 @@ class _FakeOrdersRepository implements OrdersRepository {
       items: [],
     );
   }
-  
-  @override
-  Future<OrderItemEntity> placeOrder({required String address}) {
-    // TODO: implement placeOrder
-    throw UnimplementedError();
-  }
+
 }
 
 void main() {
