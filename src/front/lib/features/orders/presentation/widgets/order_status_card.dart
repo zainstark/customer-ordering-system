@@ -84,16 +84,6 @@ class OrderStatusCard extends StatelessWidget {
                 'total_amount: \$${order.totalAmount.toStringAsFixed(2)}',
                 style: textTheme.bodyLarge,
               ),
-              const Spacer(),
-              OutlinedButton(
-                onPressed: () {},
-                child: const SelectableText('Support'),
-              ),
-              const SizedBox(width: AppDimensions.spacingSm),
-              ElevatedButton(
-                onPressed: () {},
-                child: const SelectableText('Track'),
-              ),
             ],
           ),
         ],

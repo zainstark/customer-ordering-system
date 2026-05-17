@@ -48,27 +48,27 @@ class CartOrderSummaryCard extends StatelessWidget {
             isTotal: true,
           ),
           const SizedBox(height: AppDimensions.spacingXl),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppDimensions.paddingMd),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.credit_card_outlined),
-                const SizedBox(width: AppDimensions.spacingMd),
-                Expanded(
-                  child: SelectableText(
-                    'Visa •••• 4242',
-                    style: textTheme.bodyLarge,
-                  ),
-                ),
-                const Icon(Icons.chevron_right),
-              ],
-            ),
-          ),
+          // Container(
+          //   width: double.infinity,
+          //   padding: const EdgeInsets.all(AppDimensions.paddingMd),
+          //   decoration: BoxDecoration(
+          //     color: colorScheme.surfaceContainerHigh,
+          //     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+          //   ),
+          //   child: Row(
+          //     children: [
+          //       const Icon(Icons.credit_card_outlined),
+          //       const SizedBox(width: AppDimensions.spacingMd),
+          //       Expanded(
+          //         child: SelectableText(
+          //           'Visa •••• 4242',
+          //           style: textTheme.bodyLarge,
+          //         ),
+          //       ),
+          //       const Icon(Icons.chevron_right),
+          //     ],
+          //   ),
+          // ),
           const SizedBox(height: AppDimensions.spacingXl),
           SizedBox(
             width: double.infinity,
@@ -93,13 +93,6 @@ class CartOrderSummaryCard extends StatelessWidget {
                 // );
               },
               child: const Text('Proceed to checkout'),
-            ),
-          ),
-          const SizedBox(height: AppDimensions.spacingMd),
-          Center(
-            child: SelectableText(
-              'Estimated delivery: 25–35 mins',
-              style: textTheme.bodyMedium,
             ),
           ),
         ],
