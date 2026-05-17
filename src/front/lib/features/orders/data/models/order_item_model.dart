@@ -26,14 +26,24 @@ class OrderItemModel extends OrderItemEntity {
   }
 
   factory OrderItemModel.fromMap(Map<String, dynamic> map) {
+    // API contract uses camelCase keys. Accept both snake_case and camelCase
+    // and normalize fields. Ensure status is uppercase (PENDING etc.).
+    final orderIdVal = (map['orderId'] ?? map['order_id'] ?? map['id']) as String;
+    final idVal = (map['id'] ?? map['orderId'] ?? map['order_id']) as String;
+    final accountIdVal = (map['accountId'] ?? map['account_id']) as String;
+    final statusVal = ((map['status'] ?? map['order_status'] ?? '') as String).toUpperCase();
+    final placedAtRaw = (map['placedAt'] ?? map['placed_at']) as String;
+    final totalAmountVal = (map['totalAmount'] ?? map['total_amount']) as num;
+    final progressVal = (map['progress'] ?? 0) as num;
+
     return OrderItemModel(
-      id: map['id'] as String,
-      accountId: map['accountId'] as String,
-      orderId: map['orderId'] as String,
-      status: map['status'] as String,
-      placedAt: DateTime.parse(map['placedAt'] as String),
-      totalAmount: (map['totalAmount'] as num).toDouble(),
-      progress: (map['progress'] as num).toDouble(),
+      id: idVal,
+      accountId: accountIdVal,
+      orderId: orderIdVal,
+      status: statusVal,
+      placedAt: DateTime.parse(placedAtRaw),
+      totalAmount: totalAmountVal.toDouble(),
+      progress: progressVal.toDouble(),
     );
   }
 

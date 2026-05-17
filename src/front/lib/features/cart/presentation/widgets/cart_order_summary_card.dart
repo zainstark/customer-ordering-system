@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
+import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_cubit.dart';
 
 class CartOrderSummaryCard extends StatelessWidget {
   const CartOrderSummaryCard({super.key, required this.state});
@@ -70,8 +73,26 @@ class CartOrderSummaryCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
-              child: const Text('Place order'),
+              onPressed: () async {
+                final cubit = getIt<OrderCubit>();
+                // Minimal address provided since UI does not collect address here
+                const address = 'No address provided';
+                await cubit.placeOrder(address: address);
+
+                // TODO: After successful order placement, navigate to the payment
+                // screen and provide the same OrderCubit instance so the payment
+                // implementation can access `state.order?.orderId`.
+                // Example to implement later:
+                // Navigator.of(context).push(
+                //   MaterialPageRoute(
+                //     builder: (_) => BlocProvider.value(
+                //       value: cubit,
+                //       child: const PaymentScreen(), // implement this screen
+                //     ),
+                //   ),
+                // );
+              },
+              child: const Text('Proceed to checkout'),
             ),
           ),
           const SizedBox(height: AppDimensions.spacingMd),
