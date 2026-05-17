@@ -28,6 +28,7 @@ from django.utils import timezone
 from apps.cart.models import Cart, CartItem
 from apps.cart.services import CartService
 from apps.order.models import Orders as Order, OrderItems
+from apps.notification.services import NotificationService
 
 
 # How long a PENDING/CONFIRMED order blocks a new placement attempt.
@@ -136,6 +137,9 @@ class OrderService:
                 # succeeded. CartService.clear_cart is already tested and
                 # handles its own DB writes safely inside this outer atomic block.
                 CartService.clear_cart(cart.cart_id)
+
+                # Send in-app notification to the account that placed the order
+                NotificationService.notify_order_placed(order)
 
                 return order, None
 
