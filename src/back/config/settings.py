@@ -92,6 +92,13 @@ DATABASES = {
     }
 }
 
+#Cache
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "authentication-security-cache",
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -119,7 +126,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME':  timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME':  timedelta(minutes=2),
 }
 
 # CORS Configuration
