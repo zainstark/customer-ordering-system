@@ -26,7 +26,8 @@ urlpatterns = [
     path('api/auth/', include('rest_framework.urls')),
     path('api/cart/', include('apps.cart.urls')),
     path("menu/", include("apps.menu.urls")),
-    path('order/', include('apps.order.urls')),
+    path('api/order/', include('apps.order.urls')),
+
 ]
 
 urlpatterns += static(

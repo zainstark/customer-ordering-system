@@ -15,23 +15,23 @@ class MenuItemModel extends MenuItemEntity {
   factory MenuItemModel.fromJson(Map<String, dynamic> json) {
     return MenuItemModel(
       id: json['id'],
-      categoryId: json['categoryId'],
+      categoryId: json['category'], // Changed from 'categoryId' to 'category'
       title: json['title'],
-      description: json['description'],
-      price: (json['price'] as num).toDouble(),
-      available: json['available'],
-      rating: (json['rating'] as num).toDouble(),
-      imageUrl: json['imageUrl'] as String,
+      description: json['subtitle'], // Changed from 'description' to 'subtitle'
+      price: (json['unitPrice'] as num).toDouble(), // Changed from 'price' to 'unitPrice'
+      available: json['available'] ?? true, // Added default value
+      rating: json['rating'] ?? 0.0, // Added default value
+      imageUrl: json['imageUrl'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'categoryId': categoryId,
+      'category': categoryId, // Changed from 'categoryId' to 'category'
       'title': title,
-      'description': description,
-      'price': price,
+      'subtitle': description, // Changed from 'description' to 'subtitle'
+      'unitPrice': price, // Changed from 'price' to 'unitPrice'
       'available': available,
       'rating': rating,
       'imageUrl': imageUrl,

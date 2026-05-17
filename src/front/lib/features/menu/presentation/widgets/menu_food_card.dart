@@ -27,7 +27,7 @@ class MenuFoodCard extends StatelessWidget {
               height: 110,
               width: double.infinity,
               child: AppNetworkImage(
-                imageUrl: item.imageUrl,
+                imageUrl: item.imageUrl ?? 'https://via.placeholder.com/300',
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(AppDimensions.radiusLg),
                 ),
@@ -54,7 +54,7 @@ class MenuFoodCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: AppDimensions.spacingSm),
-                  SelectableText(item.description, style: textTheme.bodyMedium),
+                  SelectableText(item.description ?? "No description available", style: textTheme.bodyMedium),
                   const SizedBox(height: AppDimensions.spacingSm),
                   Row(
                     children: [
