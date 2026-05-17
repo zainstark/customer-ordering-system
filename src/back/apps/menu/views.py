@@ -18,7 +18,8 @@ class MenuCategoriesView(APIView):
 
         try:
             catalogs = MenuService.get_catalogs(search=search, category_filter=category)
-            serializer = MenuCatalogSerializer(catalogs, many=True)
+            # Pass request into serializer context so nested serializers can build absolute media URLs
+            serializer = MenuCatalogSerializer(catalogs, many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             # Log the error
