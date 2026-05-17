@@ -5,7 +5,6 @@ from .models import NotificationMessages
 
 
 class NotificationMessageSerializer(serializers.ModelSerializer):
-    message_id = serializers.CharField(source='message_id')
     order_id = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
     sent_at = serializers.SerializerMethodField()
@@ -27,7 +26,7 @@ class NotificationMessageSerializer(serializers.ModelSerializer):
         if dt is None:
             return None
         # Ensure UTC Z format
-        utc = dt.astimezone(timezone.utc)
+        utc = dt.astimezone(timezone.UTC)
         return utc.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     def get_order_id(self, obj):
