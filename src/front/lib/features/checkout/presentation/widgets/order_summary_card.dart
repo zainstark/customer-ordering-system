@@ -34,27 +34,27 @@ class OrderSummaryCard extends StatelessWidget {
             '\$${state.total.toStringAsFixed(2)}',
             isTotal: true,
           ),
-          const SizedBox(height: AppDimensions.spacingLg),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppDimensions.paddingMd),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            ),
-            child: Text(
-              state.selectedMethod.label,
-              style: textTheme.bodyLarge,
-            ),
-          ),
-          const SizedBox(height: AppDimensions.spacingLg),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: null,
-              child: const Text('Proceed to payment'),
-            ),
-          ),
+          // const SizedBox(height: AppDimensions.spacingLg),
+          // Container(
+          //   width: double.infinity,
+          //   padding: const EdgeInsets.all(AppDimensions.paddingMd),
+          //   decoration: BoxDecoration(
+          //     color: colorScheme.surfaceContainerHigh,
+          //     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+          //   ),
+          //   child: Text(
+          //     state.selectedMethod.label,
+          //     style: textTheme.bodyLarge,
+          //   ),
+          // ),
+          // const SizedBox(height: AppDimensions.spacingLg),
+          // SizedBox(
+          //   width: double.infinity,
+          //   child: ElevatedButton(
+          //     onPressed: null,
+          //     child: const Text('Proceed to payment'),
+          //   ),
+          // ),
         ],
       ),
     );

@@ -6,7 +6,6 @@ import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/checkout/presentation/cubit/checkout_cubit.dart';
 import 'package:frontend/features/checkout/presentation/cubit/checkout_state.dart';
 import 'package:frontend/features/checkout/presentation/widgets/payment_processing_indicator.dart';
-import 'package:frontend/features/checkout/presentation/widgets/payment_status_banner.dart';
 import 'package:frontend/features/checkout/presentation/widgets/retry_payment_button.dart';
 
 class PaymentProcessingScreen extends StatelessWidget {
