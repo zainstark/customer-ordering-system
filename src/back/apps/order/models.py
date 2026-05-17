@@ -1,33 +1,54 @@
 import uuid
+
 from django.db import models
+from django.utils import timezone
 
-class OrderStatus(models.TextChoices):
-    PENDING = 'PENDING', 'Pending'
-    CONFIRMED = 'CONFIRMED', 'Confirmed'
-    PREPARING = 'PREPARING', 'Preparing'
-    READY = 'READY', 'Ready'
-    OUT_FOR_DELIVERY = 'OUT_FOR_DELIVERY', 'Out for Delivery'
-    DELIVERED = 'DELIVERED', 'Delivered'
 
-class Order(models.Model):
-    order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    account_id = models.CharField(max_length=255) 
-    total_amount = models.IntegerField(help_text="Stored in cents")
-    order_status = models.CharField(max_length=50, choices=OrderStatus.choices, default=OrderStatus.PENDING)
-    placed_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+def _uuid_str():
+    return str(uuid.uuid4())
 
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    menu_item_id = models.CharField(max_length=255)
-    item_name_snapshot = models.CharField(max_length=255)
+
+class OrderItems(models.Model):
+    order_item_id = models.TextField(primary_key=True, blank=True, null=False, default=_uuid_str)
+    order = models.ForeignKey('Orders', models.CASCADE, related_name='items')
+    menu_item = models.ForeignKey("menu.MenuItem", models.DO_NOTHING)
+    item_name_snapshot = models.TextField()
+    item_description_snapshot = models.TextField(blank=True, null=True)
     unit_price_snapshot = models.IntegerField()
-    quantity = models.PositiveIntegerField()
-    line_total = models.IntegerField()
+    quantity = models.IntegerField()
+    line_total = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'order_items'
+
+    def save(self, *args, **kwargs):
+        # Auto-compute line_total if not explicitly set
+        if not self.line_total:
+            self.line_total = self.unit_price_snapshot * self.quantity
+        super().save(*args, **kwargs)
+
 
 class OrderStatusHistory(models.Model):
-    history_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    order = models.ForeignKey(Order, related_name='status_history', on_delete=models.CASCADE)
-    order_status = models.CharField(max_length=50, choices=OrderStatus.choices)
+    history_id = models.TextField(primary_key=True, blank=True, null=False, default=_uuid_str)
+    order = models.ForeignKey('Orders', models.DO_NOTHING)
+    order_status = models.TextField()
     note = models.TextField(blank=True, null=True)
-    changed_at = models.DateTimeField(auto_now_add=True)
+    changed_at = models.DateTimeField()
+
+    class Meta:
+        db_table = 'order_status_history'
+
+
+class Orders(models.Model):
+    order_id = models.TextField(primary_key=True, blank=True, null=False, default=_uuid_str)
+    account = models.ForeignKey("authentication.Accounts", models.DO_NOTHING)
+    total_amount = models.IntegerField()
+    placed_at = models.DateTimeField()
+    order_status = models.TextField()
+    confirmed_at = models.DateTimeField(blank=True, null=True)
+    updated_at = models.DateTimeField(default=timezone.now)
+    address = models.TextField()
+
+    class Meta:
+        db_table = 'orders'
