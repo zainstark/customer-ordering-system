@@ -13,9 +13,9 @@ class MenuItemEntity {
   final String id;
   final String categoryId;
   final String title;
-  final String description;
+  final String? description;
   final double price;
   final bool available;
   final double rating;
-  final String imageUrl;
+  final String? imageUrl;
 }

@@ -17,7 +17,7 @@ class OrderItems(models.Model):
     unit_price_snapshot = models.IntegerField()
     quantity = models.IntegerField()
     line_total = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+
 
     class Meta:
         db_table = 'order_items'

@@ -14,11 +14,9 @@ class OrdersCubit extends Cubit<OrdersState> {
         ),
       );
 
-  static const String _defaultAccountId = 'ACC-100';
-
   final GetOrdersUseCase _getOrdersUseCase;
 
-  Future<void> loadOrders({String? accountId}) async {
+  Future<void> loadOrders() async {
     emit(
       state.copyWith(
         status: OrdersRequestStatus.loading,
@@ -27,9 +25,7 @@ class OrdersCubit extends Cubit<OrdersState> {
     );
 
     try {
-      final orders = await _getOrdersUseCase(
-        accountId: accountId ?? _defaultAccountId,
-      );
+      final orders = await _getOrdersUseCase();
       final activeOrders = <OrderItemEntity>[];
       final pastOrders = <OrderItemEntity>[];
 

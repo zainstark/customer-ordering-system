@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
+import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/features/orders/domain/entities/order_item_entities.dart';
 import 'package:frontend/features/orders/presentation/widgets/orders_surface_card.dart';
+import 'package:go_router/go_router.dart';
 
 class OrderStatusCard extends StatelessWidget {
   const OrderStatusCard({super.key, required this.order});
@@ -38,12 +40,12 @@ class OrderStatusCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SelectableText(
-                      order.orderId,
+                      'Order #${_shortId(order.orderId)}',
                       style: textTheme.headlineMedium,
                     ),
                     const SizedBox(height: AppDimensions.spacingXs),
                     SelectableText(
-                      'account_id: ${order.accountId} • placed_at: ${_formatDate(order.placedAt)}',
+                      '${_formatDate(order.placedAt)} • ${order.items.length} item(s)',
                       style: textTheme.bodyMedium,
                     ),
                   ],
@@ -78,21 +80,30 @@ class OrderStatusCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppDimensions.spacingLg),
+          // Friendly item summary
+          if (order.items.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppDimensions.spacingMd),
+              child: SelectableText(
+                _itemsSummary(order),
+                style: textTheme.bodyMedium,
+              ),
+            ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SelectableText(
-                'total_amount: \$${order.totalAmount.toStringAsFixed(2)}',
+                'Total: \$${order.totalAmount.toStringAsFixed(2)}',
                 style: textTheme.bodyLarge,
               ),
-              const Spacer(),
-              OutlinedButton(
-                onPressed: () {},
-                child: const SelectableText('Support'),
-              ),
-              const SizedBox(width: AppDimensions.spacingSm),
-              ElevatedButton(
-                onPressed: () {},
-                child: const SelectableText('Track'),
+              FilledButton.tonal(
+                onPressed: () {
+                  context.pushNamed(
+                    RoutesName.orderTracking,
+                    pathParameters: {'id': order.orderId},
+                  );
+                },
+                child: const Text('Track Order'),
               ),
             ],
           ),
@@ -104,5 +115,20 @@ class OrderStatusCard extends StatelessWidget {
   String _formatDate(DateTime value) {
     return '${value.year}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')} '
         '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _shortId(String id) {
+    if (id.length <= 8) return id;
+    return id.substring(0, 8).toUpperCase();
+  }
+
+  String _itemsSummary(OrderItemEntity order) {
+    final items = order.items;
+    if (items.isEmpty) return '';
+    final first = items.first;
+    if (items.length == 1) return '${first.title} x${first.quantity}';
+
+    final rest = items.length - 1;
+    return '${first.title} x${first.quantity} + $rest more';
   }
 }

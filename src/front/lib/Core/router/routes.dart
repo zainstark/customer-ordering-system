@@ -7,6 +7,7 @@ class RoutesPath {
   static const String notifications = '/notifications';
   static const String signup        = '/signup';  
   static const String login         = '/login';   
+  static const String orderTracking = '/orders/track/:id';
 }
 
 class RoutesName {
@@ -18,4 +19,5 @@ class RoutesName {
   static const String notifications = 'notifications';
   static const String signup        = 'signup';   
   static const String login         = 'login';    
+  static const String orderTracking = 'order_tracking';
 }

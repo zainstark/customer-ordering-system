@@ -6,7 +6,7 @@ class GetOrdersUseCase {
 
   final OrdersRepository _ordersRepository;
 
-  Future<List<OrderItemEntity>> call({required String accountId}) {
-    return _ordersRepository.getOrders(accountId: accountId);
+  Future<List<OrderItemEntity>> call() {
+    return _ordersRepository.getOrders();
   }
 }

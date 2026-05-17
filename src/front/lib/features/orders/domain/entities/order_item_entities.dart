@@ -1,3 +1,5 @@
+import 'package:frontend/features/orders/domain/entities/order_line_item_entity.dart';
+
 class OrderItemEntity {
   const OrderItemEntity({
     required this.id,
@@ -7,6 +9,7 @@ class OrderItemEntity {
     required this.placedAt,
     required this.totalAmount,
     required this.progress,
+    required this.items,
   });
 
   final String id;
@@ -16,4 +19,5 @@ class OrderItemEntity {
   final DateTime placedAt;
   final double totalAmount;
   final double progress;
+  final List<OrderLineItemEntity> items;
 }

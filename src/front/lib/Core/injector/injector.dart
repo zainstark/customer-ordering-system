@@ -3,6 +3,7 @@ import 'package:frontend/Core/storage/token_storage.dart';
 import 'package:frontend/features/cart/data/datasources/cart_remote_data_source.dart';
 import 'package:frontend/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:frontend/features/cart/domain/repositories/cart_repository.dart';
+import 'package:frontend/features/cart/domain/usecases/add_cart_item_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/get_cart_items_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/remove_cart_item_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/update_cart_item_quantity_usecase.dart';
@@ -16,7 +17,9 @@ import 'package:frontend/features/orders/data/datasources/orders_remote_data_sou
 import 'package:frontend/features/orders/data/repositories/orders_repository_impl.dart';
 import 'package:frontend/features/orders/domain/repositories/orders_repository.dart';
 import 'package:frontend/features/orders/domain/usecases/get_orders_usecase.dart';
+import 'package:frontend/features/orders/domain/usecases/place_order_usecase.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_cubit.dart';
 import 'package:frontend/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:frontend/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:frontend/features/authentication/domain/repositories/auth_repository.dart';
@@ -40,14 +43,15 @@ final getIt = GetIt.instance;
 void setupDependencies() {
   // Core
   getIt.registerLazySingleton<TokenStorage>(() => TokenStorage());
-  
-  getIt.registerLazySingleton<DioClient>(() => DioClient(getIt<TokenStorage>()));
+
+  getIt.registerLazySingleton<DioClient>(
+    () => DioClient(getIt<TokenStorage>()),
+  );
 
   // Authentication
   getIt.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSource(getIt<DioClient>(), getIt<TokenStorage>()),
   );
-
 
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(getIt<AuthRemoteDataSource>()),
@@ -98,12 +102,20 @@ void setupDependencies() {
     () => OrdersRepositoryImpl(getIt()),
   );
 
+  getIt.registerLazySingleton<PlaceOrderUseCase>(
+    () => PlaceOrderUseCase(getIt()),
+  );
+
   getIt.registerLazySingleton<GetMenuCategoriesUseCase>(
     () => GetMenuCategoriesUseCase(getIt()),
   );
 
   getIt.registerLazySingleton<GetCartItemsUseCase>(
     () => GetCartItemsUseCase(getIt()),
+  );
+
+  getIt.registerLazySingleton<AddCartItemUseCase>(
+    () => AddCartItemUseCase(getIt()),
   );
 
   getIt.registerLazySingleton<UpdateCartItemQuantityUseCase>(
@@ -118,27 +130,19 @@ void setupDependencies() {
     () => GetOrdersUseCase(getIt()),
   );
 
-  getIt.registerFactory<MenuCubit>(
-    () => MenuCubit(getIt()),
-  );
+  getIt.registerFactory<MenuCubit>(() => MenuCubit(getIt()));
 
   getIt.registerFactory<CartCubit>(
-    () => CartCubit(
-      getIt(),
-      getIt(),
-      getIt(),
-    ),
+    () => CartCubit(getIt(), getIt(), getIt(), getIt()),
   );
 
-  getIt.registerFactory<OrdersCubit>(
-    () => OrdersCubit(getIt()),
-  );
+  getIt.registerFactory<OrdersCubit>(() => OrdersCubit(getIt()));
+
+  getIt.registerFactory<OrderCubit>(() => OrderCubit(getIt()));
 
   // Notifications
-  // Using mock data source by default for development
-  // To use real API, replace with: NotificationRemoteDataSourceImpl(getIt<DioClient>())
   getIt.registerLazySingleton<NotificationRemoteDataSource>(
-    () => NotificationRemoteDataSourceMock(),
+    () => NotificationRemoteDataSourceImpl(getIt()),
   );
 
   getIt.registerLazySingleton<NotificationRepository>(

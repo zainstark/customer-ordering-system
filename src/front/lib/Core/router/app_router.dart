@@ -11,6 +11,7 @@ import 'package:frontend/features/cart/presentation/screens/cart_screen.dart';
 import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
 import 'package:frontend/features/menu/presentation/screens/menu_screen.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:frontend/features/orders/presentation/screens/order_tracking_screen.dart';
 import 'package:frontend/features/orders/presentation/screens/orders_screen.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
@@ -22,81 +23,94 @@ class AppRouter {
   AppRouter._();
 
   static final GoRouter router = GoRouter(
-  initialLocation: RoutesPath.login,
-  redirect: _handleRedirect,
-  routes: [
-    // ✅ One top-level ShellRoute provides AuthCubit to ALL routes
-    ShellRoute(
-      builder: (context, state, child) => BlocProvider(
-        create: (_) => getIt<AuthCubit>()..initialize(),
-        child: child,   // child is the whole subtree — auth pages AND app pages
+    initialLocation: RoutesPath.login,
+    redirect: _handleRedirect,
+    routes: [
+      // ✅ One top-level ShellRoute provides AuthCubit to ALL routes
+      ShellRoute(
+        builder: (context, state, child) => BlocProvider(
+          create: (_) => getIt<AuthCubit>()..initialize(),
+          child: child, // child is the whole subtree — auth pages AND app pages
+        ),
+        routes: [
+          GoRoute(
+            path: RoutesPath.signup,
+            name: RoutesName.signup,
+            builder: (_, __) => const SignupScreen(),
+          ),
+          GoRoute(
+            path: RoutesPath.login,
+            name: RoutesName.login,
+            builder: (_, __) => const LoginScreen(),
+          ),
+          // Nested ShellRoute MUST have its own builder
+          ShellRoute(
+            builder: (context, state, child) =>
+                AppShellScaffold(currentPath: state.uri.path, child: child),
+            routes: [
+              GoRoute(
+                path: RoutesPath.menu,
+                name: RoutesName.menu,
+                builder: (context, _) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(create: (_) => getIt<MenuCubit>()..loadMenu()),
+                    BlocProvider(create: (context) => getIt<CartCubit>()),
+                  ],
+                  child: const MenuScreen(),
+                ),
+              ),
+              GoRoute(
+                path: RoutesPath.cart,
+                name: RoutesName.cart,
+                builder: (context, _) => BlocProvider(
+                  create: (_) => getIt<CartCubit>()..loadCart(),
+                  child: const CartScreen(),
+                ),
+              ),
+              GoRoute(
+                path: RoutesPath.orders,
+                name: RoutesName.orders,
+                builder: (context, _) => BlocProvider(
+                  create: (_) => getIt<OrdersCubit>()..loadOrders(),
+                  child: const OrdersScreen(),
+                ),
+              ),
+              GoRoute(
+                path: RoutesPath.orderTracking,
+                name: RoutesName.orderTracking,
+                builder: (context, state) {
+                  final orderId = state.pathParameters['id']!;
+                  return BlocProvider(
+                    create: (_) => getIt<OrdersCubit>()..loadOrders(),
+                    child: OrderTrackingScreen(orderId: orderId),
+                  );
+                },
+              ),
+              GoRoute(
+                path: RoutesPath.notifications,
+                name: RoutesName.notifications,
+                builder: (context, _) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(create: (_) => getIt<NotificationCubit>()),
+                    BlocProvider(
+                      create: (_) => getIt<NotificationBadgeCubit>(),
+                    ),
+                  ],
+                  child: const NotificationsPage(),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-      routes: [
-        GoRoute(
-          path: RoutesPath.signup,
-          name: RoutesName.signup,
-          builder: (_, __) => const SignupScreen(),
-        ),
-        GoRoute(
-          path: RoutesPath.login,
-          name: RoutesName.login,
-          builder: (_, __) => const LoginScreen(),
-        ),
-        // Nested ShellRoute MUST have its own builder
-        ShellRoute(
-          builder: (context, state, child) =>
-              AppShellScaffold(currentPath: state.uri.path, child: child),
-          routes: [
-            GoRoute(
-              path: RoutesPath.menu,
-              name: RoutesName.menu,
-              builder: (context, _) => BlocProvider(
-                create: (_) => getIt<MenuCubit>()..loadMenu(),
-                child: const MenuScreen(),
-              ),
-            ),
-            GoRoute(
-              path: RoutesPath.cart,
-              name: RoutesName.cart,
-              builder: (context, _) => BlocProvider(
-                create: (_) => getIt<CartCubit>()..loadCart(),
-                child: const CartScreen(),
-              ),
-            ),
-            GoRoute(
-              path: RoutesPath.orders,
-              name: RoutesName.orders,
-              builder: (context, _) => BlocProvider(
-                create: (_) => getIt<OrdersCubit>()..loadOrders(),
-                child: const OrdersScreen(),
-              ),
-            ),
-            GoRoute(
-              path: RoutesPath.notifications,
-              name: RoutesName.notifications,
-              builder: (context, _) => MultiBlocProvider(
-                providers: [
-                  BlocProvider(
-                    create: (_) => getIt<NotificationCubit>(),
-                  ),
-                  BlocProvider(
-                    create: (_) => getIt<NotificationBadgeCubit>(),
-                  ),
-                ],
-                child: const NotificationsPage(),
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  ],
-);
+    ],
+  );
 
   static String? _handleRedirect(BuildContext context, GoRouterState state) {
     final authStatus = getIt<AuthCubit>().state.status;
     final isAuthenticated = authStatus == AuthStatus.authenticated;
-    final isOnAuthPage = state.matchedLocation == RoutesPath.login ||
+    final isOnAuthPage =
+        state.matchedLocation == RoutesPath.login ||
         state.matchedLocation == RoutesPath.signup;
 
     if (authStatus == AuthStatus.initial || authStatus == AuthStatus.loading) {

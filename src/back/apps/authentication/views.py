@@ -6,20 +6,18 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import AccessToken
 from .models import Accounts
 from .serializers import RegisterSerializer, LoginSerializer
 
 def get_tokens(account):
-    refresh = RefreshToken()
-    refresh['account_id'] = account.account_id
-    refresh['email'] = account.email
-    refresh['role'] = account.role
-    refresh['display_name'] = account.display_name
+    access = AccessToken()
+    access['account_id'] = account.account_id
+    access['email'] = account.email
+    access['role'] = account.role
+    access['display_name'] = account.display_name
     return {
-        'access': str(refresh.access_token),
-        'refresh': str(refresh),
+        'access': str(access),
     }
 
 class RegisterView(APIView):
@@ -63,19 +61,4 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        try:
-            token = RefreshToken(request.data['refresh'])
-            token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except (KeyError, TokenError):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-class RefreshView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        try:
-            refresh = RefreshToken(request.data['refresh'])
-            return Response({'access': str(refresh.access_token)})
-        except (KeyError, TokenError):
-            raise AuthenticationFailed('Invalid or expired refresh token')
+        return Response(status=status.HTTP_205_RESET_CONTENT)
