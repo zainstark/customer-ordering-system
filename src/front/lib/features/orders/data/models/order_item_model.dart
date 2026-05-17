@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:frontend/features/orders/domain/entities/order_item_entities.dart';
+import 'package:frontend/features/orders/data/models/order_line_item_model.dart';
 
 class OrderItemModel extends OrderItemEntity {
   const OrderItemModel({
@@ -11,6 +12,7 @@ class OrderItemModel extends OrderItemEntity {
     required super.placedAt,
     required super.totalAmount,
     required super.progress,
+    required super.items,
   });
 
   Map<String, dynamic> toMap() {
@@ -22,6 +24,7 @@ class OrderItemModel extends OrderItemEntity {
       'placedAt': placedAt.toIso8601String(),
       'totalAmount': totalAmount,
       'progress': progress,
+      'items': items.map((e) => (e as OrderLineItemModel).toMap()).toList(),
     };
   }
 
@@ -36,6 +39,13 @@ class OrderItemModel extends OrderItemEntity {
     final totalAmountVal = (map['totalAmount'] ?? map['total_amount']) as num;
     final progressVal = (map['progress'] ?? 0) as num;
 
+    // parse items
+    final itemsRaw = (map['items'] ?? map['order_items'] ?? []) as List<dynamic>;
+    final items = itemsRaw
+        .map((i) =>
+            OrderLineItemModel.fromMap(i as Map<String, dynamic>))
+        .toList();
+
     return OrderItemModel(
       id: idVal,
       accountId: accountIdVal,
@@ -44,6 +54,7 @@ class OrderItemModel extends OrderItemEntity {
       placedAt: DateTime.parse(placedAtRaw),
       totalAmount: totalAmountVal.toDouble(),
       progress: progressVal.toDouble(),
+      items: items,
     );
   }
 

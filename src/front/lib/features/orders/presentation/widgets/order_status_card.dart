@@ -38,12 +38,12 @@ class OrderStatusCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SelectableText(
-                      order.orderId,
+                      'Order #${_shortId(order.orderId)}',
                       style: textTheme.headlineMedium,
                     ),
                     const SizedBox(height: AppDimensions.spacingXs),
                     SelectableText(
-                      'account_id: ${order.accountId} • placed_at: ${_formatDate(order.placedAt)}',
+                      '${_formatDate(order.placedAt)} • ${order.items.length} item(s)',
                       style: textTheme.bodyMedium,
                     ),
                   ],
@@ -78,10 +78,19 @@ class OrderStatusCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppDimensions.spacingLg),
+          // Friendly item summary
+          if (order.items.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppDimensions.spacingMd),
+              child: SelectableText(
+                _itemsSummary(order),
+                style: textTheme.bodyMedium,
+              ),
+            ),
           Row(
             children: [
               SelectableText(
-                'total_amount: \$${order.totalAmount.toStringAsFixed(2)}',
+                'Total: \$${order.totalAmount.toStringAsFixed(2)}',
                 style: textTheme.bodyLarge,
               ),
             ],
@@ -94,5 +103,20 @@ class OrderStatusCard extends StatelessWidget {
   String _formatDate(DateTime value) {
     return '${value.year}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')} '
         '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _shortId(String id) {
+    if (id.length <= 8) return id;
+    return id.substring(0, 8).toUpperCase();
+  }
+
+  String _itemsSummary(OrderItemEntity order) {
+    final items = order.items;
+    if (items.isEmpty) return '';
+    final first = items.first;
+    if (items.length == 1) return '${first.title} x${first.quantity}';
+
+    final rest = items.length - 1;
+    return '${first.title} x${first.quantity} + $rest more';
   }
 }
