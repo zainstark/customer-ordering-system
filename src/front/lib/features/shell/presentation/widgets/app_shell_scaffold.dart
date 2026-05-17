@@ -22,16 +22,26 @@ class AppShellScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.sizeOf(context).width >= 1000;
 
-    return Scaffold(
-      body: Column(
-        children: [
-          _ShellTopBar(currentPath: currentPath),
-          Expanded(child: child),
-        ],
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<NotificationCubit>(
+          create: (_) => getIt<NotificationCubit>(),
+        ),
+        BlocProvider<NotificationBadgeCubit>(
+          create: (_) => getIt<NotificationBadgeCubit>(),
+        ),
+      ],
+      child: Scaffold(
+        body: Column(
+          children: [
+            _ShellTopBar(currentPath: currentPath),
+            Expanded(child: child),
+          ],
+        ),
+        bottomNavigationBar: isDesktop
+            ? null
+            : _ShellBottomNavBar(currentPath: currentPath),
       ),
-      bottomNavigationBar: isDesktop
-          ? null
-          : _ShellBottomNavBar(currentPath: currentPath),
     );
   }
 }
@@ -89,17 +99,7 @@ class _ShellTopBar extends StatelessWidget {
             ),
             const SizedBox(width: AppDimensions.spacingLg),
           ],
-          MultiBlocProvider(
-            providers: [
-              BlocProvider<NotificationCubit>(
-                create: (_) => getIt<NotificationCubit>(),
-              ),
-              BlocProvider<NotificationBadgeCubit>(
-                create: (_) => getIt<NotificationBadgeCubit>(),
-              ),
-            ],
-            child: const NotificationBellWithPopup(),
-          ),
+          const NotificationBellWithPopup(),
           const SizedBox(width: AppDimensions.spacingMd),
           CircleAvatar(
             radius: AppDimensions.avatarSizeSm / 2,
