@@ -4,6 +4,8 @@ import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
 import 'package:frontend/features/orders/presentation/cubit/order_cubit.dart';
 
 class CartOrderSummaryCard extends StatelessWidget {
@@ -13,7 +15,6 @@ class CartOrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return AppSurfaceCard(
@@ -78,6 +79,14 @@ class CartOrderSummaryCard extends StatelessWidget {
                 // Minimal address provided since UI does not collect address here
                 const address = 'No address provided';
                 await cubit.placeOrder(address: address);
+
+                if (!context.mounted) return;
+
+                if (cubit.state.status == OrderRequestStatus.success) {
+                  // Immediately sync top-bar popup and badge after order placement.
+                  context.read<NotificationCubit>().loadNotifications(isRefresh: true);
+                  context.read<NotificationBadgeCubit>().loadUnreadCount();
+                }
 
                 // TODO: After successful order placement, navigate to the payment
                 // screen and provide the same OrderCubit instance so the payment
