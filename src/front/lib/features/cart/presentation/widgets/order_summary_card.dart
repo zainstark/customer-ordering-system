@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
-import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dart';
 
-class CartOrderSummaryCard extends StatelessWidget {
-  const CartOrderSummaryCard({super.key, required this.state});
+class OrderSummaryCard extends StatelessWidget {
+  const OrderSummaryCard({super.key, required this.state, required this.button});
 
-  final CartState state;
+  final state;
+  final bool button;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return AppSurfaceCard(
@@ -21,10 +20,10 @@ class CartOrderSummaryCard extends StatelessWidget {
         children: [
           SelectableText('Order summary', style: textTheme.headlineMedium),
           const SizedBox(height: AppDimensions.spacingSm),
-          SelectableText(
-            'account_id: ${state.accountId}',
-            style: textTheme.labelSmall,
-          ),
+          // SelectableText(
+          //   'account_id: ${state.accountId}',
+          //   style: textTheme.labelSmall,
+          // ),
           const SizedBox(height: AppDimensions.spacingXl),
           _SummaryRow(
             label: 'Subtotal',
@@ -46,43 +45,44 @@ class CartOrderSummaryCard extends StatelessWidget {
             value: '\$${state.total.toStringAsFixed(2)}',
             isTotal: true,
           ),
+          // const SizedBox(height: AppDimensions.spacingXl),
+          // Container(
+          //   width: double.infinity,
+          //   padding: const EdgeInsets.all(AppDimensions.paddingMd),
+          //   decoration: BoxDecoration(
+          //     color: colorScheme.surfaceContainerHigh,
+          //     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+          //   ),
+            // child: Row(
+            //   children: [
+            //     const Icon(Icons.credit_card_outlined),
+            //     const SizedBox(width: AppDimensions.spacingMd),
+            //     Expanded(
+            //       child: SelectableText(
+            //         'Visa •••• 4242',
+            //         style: textTheme.bodyLarge,
+            //       ),
+            //     ),
+            //     const Icon(Icons.chevron_right),
+            //   ],
+            // ),
+          // ),
+          // const SizedBox(height: AppDimensions.spacingXl),
           const SizedBox(height: AppDimensions.spacingXl),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppDimensions.paddingMd),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.credit_card_outlined),
-                const SizedBox(width: AppDimensions.spacingMd),
-                Expanded(
-                  child: SelectableText(
-                    'Visa •••• 4242',
-                    style: textTheme.bodyLarge,
-                  ),
-                ),
-                const Icon(Icons.chevron_right),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppDimensions.spacingXl),
+          if (button)
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => context.go(RoutesPath.checkout),
-              child: const Text('Place order'),
+              child: const Text('Proceed to checkout'),
             ),
           ),
-          const SizedBox(height: AppDimensions.spacingMd),
-          Center(
-            child: SelectableText(
-              'Estimated delivery: 25–35 mins',
-              style: textTheme.bodyMedium,
-            ),
-          ),
+          // Center(
+          //   child: SelectableText(
+          //     'Estimated delivery: 25–35 mins',
+          //     style: textTheme.bodyMedium,
+          //   ),
+          // ),
         ],
       ),
     );

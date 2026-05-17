@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/features/cart/presentation/widgets/order_summary_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
@@ -8,7 +9,6 @@ import 'package:frontend/features/checkout/presentation/cubit/checkout_state.dar
 import 'package:frontend/features/checkout/presentation/widgets/checkout_action_button.dart';
 import 'package:frontend/features/checkout/presentation/widgets/checkout_header.dart';
 import 'package:frontend/features/checkout/presentation/widgets/checkout_item_tile.dart';
-import 'package:frontend/features/checkout/presentation/widgets/order_summary_card.dart';
 import 'package:frontend/features/checkout/presentation/widgets/payment_method_card.dart';
 import 'package:frontend/features/checkout/presentation/widgets/secure_payment_banner.dart';
 import 'package:frontend/features/checkout/presentation/widgets/payment_error_card.dart';
@@ -122,7 +122,7 @@ class CheckoutScreen extends StatelessWidget {
           ],
         );
 
-        final summarySection = OrderSummaryCard(state: state);
+        final summarySection = OrderSummaryCard(state: state, button: false);
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(AppDimensions.paddingLg),
