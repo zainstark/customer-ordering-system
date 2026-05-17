@@ -4,7 +4,7 @@ import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 import 'package:frontend/features/cart/presentation/widgets/cart_main_section.dart';
-import 'package:frontend/features/cart/presentation/widgets/order_summary_card.dart';
+import 'package:frontend/features/widgets/order_summary_card.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
