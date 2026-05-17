@@ -10,14 +10,12 @@ class CreateOrderUseCase {
   Future<CheckoutOrderEntity> call({
     required String accountId,
     required String paymentMethod,
-    required double amount,
-    required List<CartItemEntity> items,
+    required String address,
   }) {
     return _repository.createOrder(
       accountId: accountId,
       paymentMethod: paymentMethod,
-      amount: amount,
-      items: items,
+      address: address,
     );
   }
 }

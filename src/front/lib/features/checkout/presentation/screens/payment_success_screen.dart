@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/checkout/presentation/cubit/checkout_cubit.dart';
+import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
@@ -11,6 +12,7 @@ class PaymentSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CheckoutCubit>().state;
+    final cartState = context.watch<CartCubit>().state;
     final theme = Theme.of(context);
 
     return Padding(
@@ -40,7 +42,7 @@ class PaymentSuccessScreen extends StatelessWidget {
           const SizedBox(height: AppDimensions.spacingMd),
           _InfoTile(label: 'Reference', value: state.orderReference ?? '—'),
           const SizedBox(height: AppDimensions.spacingMd),
-          _InfoTile(label: 'Total paid', value: '\$${state.total.toStringAsFixed(2)}'),
+          _InfoTile(label: 'Total paid', value: '\$${cartState.total.toStringAsFixed(2)}'),
           const SizedBox(height: AppDimensions.spacingXxl),
           ElevatedButton(
             onPressed: () {

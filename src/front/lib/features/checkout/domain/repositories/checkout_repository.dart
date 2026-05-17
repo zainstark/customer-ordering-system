@@ -4,19 +4,17 @@ import 'package:frontend/features/checkout/domain/entities/payment_session_entit
 import 'package:frontend/features/checkout/domain/entities/payment_status_entity.dart';
 
 abstract class CheckoutRepository {
-  Future<List<CartItemEntity>> validateCart({required String accountId});
+  Future<bool> validateCart({required String accountId});
 
   Future<CheckoutOrderEntity> createOrder({
     required String accountId,
     required String paymentMethod,
-    required double amount,
-    required List<CartItemEntity> items,
+    required String address,
   });
 
   Future<PaymentSessionEntity> createPaymentSession({
     required String orderId,
     required String paymentMethod,
-    required double amount,
   });
 
   Future<PaymentStatusEntity> getPaymentStatus({required String paymentId});

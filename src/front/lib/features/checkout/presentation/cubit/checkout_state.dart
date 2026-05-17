@@ -47,7 +47,6 @@ extension PaymentMethodTypeExtension on PaymentMethodType {
 class CheckoutState {
   const CheckoutState({
     required this.accountId,
-    this.items = const [],
     this.status = CheckoutRequestStatus.initial,
     this.selectedMethod = PaymentMethodType.applePay,
     this.orderId,
@@ -58,7 +57,6 @@ class CheckoutState {
   });
 
   final String accountId;
-  final List<CartItemEntity> items;
   final CheckoutRequestStatus status;
   final PaymentMethodType selectedMethod;
   final String? orderId;
@@ -67,20 +65,8 @@ class CheckoutState {
   final String? paymentMessage;
   final String? errorMessage;
 
-  double get subtotal =>
-      items.fold(0, (sum, item) => sum + (item.unitPrice * item.quantity));
-
-  double get deliveryFee => items.isEmpty ? 0 : 2.99;
-
-  double get taxes => subtotal * 0.09;
-
-  double get total => subtotal + deliveryFee + taxes;
-
-  bool get hasItems => items.isNotEmpty;
-
   CheckoutState copyWith({
     String? accountId,
-    List<CartItemEntity>? items,
     CheckoutRequestStatus? status,
     PaymentMethodType? selectedMethod,
     String? orderId,
@@ -92,7 +78,6 @@ class CheckoutState {
   }) {
     return CheckoutState(
       accountId: accountId ?? this.accountId,
-      items: items ?? this.items,
       status: status ?? this.status,
       selectedMethod: selectedMethod ?? this.selectedMethod,
       orderId: orderId ?? this.orderId,

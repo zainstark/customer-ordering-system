@@ -6,7 +6,7 @@ class ValidateCartUseCase {
 
   final CheckoutRepository _repository;
 
-  Future<List<CartItemEntity>> call({required String accountId}) {
+  Future<bool> call({required String accountId}) {
     return _repository.validateCart(accountId: accountId);
   }
 }

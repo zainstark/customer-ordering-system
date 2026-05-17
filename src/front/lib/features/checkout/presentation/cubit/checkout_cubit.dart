@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/cart/domain/entities/card_item_entity.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_payment_session_usecase.dart';
 import 'package:frontend/features/checkout/domain/usecases/get_payment_status_usecase.dart';
@@ -34,12 +33,18 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     ));
 
     try {
-      final items = await _validateCartUseCase(accountId: currentAccountId);
-      emit(state.copyWith(
-        items: items,
-        status: CheckoutRequestStatus.readyToPay,
-        clearErrorMessage: true,
-      ));
+      final isValid = await _validateCartUseCase(accountId: currentAccountId);
+      if (isValid) {
+        emit(state.copyWith(
+          status: CheckoutRequestStatus.readyToPay,
+          clearErrorMessage: true,
+        ));
+      } else {
+        emit(state.copyWith(
+          status: CheckoutRequestStatus.failure,
+          errorMessage: 'Cart validation failed. Please check your cart.',
+        ));
+      }
     } catch (error) {
       emit(state.copyWith(
         status: CheckoutRequestStatus.failure,
@@ -52,8 +57,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     emit(state.copyWith(selectedMethod: method, clearErrorMessage: true));
   }
 
-  Future<void> placeOrder() async {
-    if (state.status != CheckoutRequestStatus.readyToPay || !state.hasItems) {
+  Future<void> placeOrder({required String address}) async {
+    if (state.status != CheckoutRequestStatus.readyToPay) {
       return;
     }
 
@@ -66,8 +71,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       final order = await _createOrderUseCase(
         accountId: state.accountId,
         paymentMethod: state.selectedMethod.label,
-        amount: state.total,
-        items: state.items,
+        address: address,
       );
 
       emit(state.copyWith(
@@ -79,7 +83,6 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       final session = await _createPaymentSessionUseCase(
         orderId: order.orderId,
         paymentMethod: state.selectedMethod.label,
-        amount: order.amount,
       );
 
       emit(state.copyWith(

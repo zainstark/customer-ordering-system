@@ -26,6 +26,17 @@ import 'package:frontend/features/orders/domain/usecases/get_orders_usecase.dart
 import 'package:frontend/features/orders/domain/usecases/place_order_usecase.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_state.dart';
+import 'package:frontend/features/checkout/domain/entities/checkout_order_entity.dart';
+import 'package:frontend/features/checkout/domain/entities/payment_session_entity.dart';
+import 'package:frontend/features/checkout/domain/entities/payment_status_entity.dart';
+import 'package:frontend/features/checkout/domain/repositories/checkout_repository.dart';
+import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
+import 'package:frontend/features/checkout/domain/usecases/create_payment_session_usecase.dart';
+import 'package:frontend/features/checkout/domain/usecases/get_payment_status_usecase.dart';
+import 'package:frontend/features/checkout/domain/usecases/retry_payment_usecase.dart';
+import 'package:frontend/features/checkout/domain/usecases/validate_cart_usecase.dart';
+import 'package:frontend/features/checkout/presentation/cubit/checkout_cubit.dart';
+import 'package:frontend/features/checkout/presentation/cubit/checkout_state.dart';
 import 'package:frontend/main.dart';
 
 class _FakeMenuRepository implements MenuRepository {
@@ -169,6 +180,66 @@ class _FakeOrdersRepository implements OrdersRepository {
   }
 }
 
+class _FakeCheckoutRepository implements CheckoutRepository {
+  bool shouldFailValidation = false;
+  bool shouldFailPayment = false;
+
+  @override
+  Future<bool> validateCart({required String accountId}) async {
+    return !shouldFailValidation;
+  }
+
+  @override
+  Future<CheckoutOrderEntity> createOrder({
+    required String accountId,
+    required String paymentMethod,
+    required String address,
+  }) async {
+    return CheckoutOrderEntity(
+      orderId: 'ORD-123',
+      reference: 'REF-123',
+      amount: 50.0,
+    );
+  }
+
+  @override
+  Future<PaymentSessionEntity> createPaymentSession({
+    required String orderId,
+    required String paymentMethod,
+  }) async {
+    return PaymentSessionEntity(
+      paymentId: 'PAY-123',
+      checkoutUrl: 'https://checkout.com/PAY-123',
+      status: 'INITIATED',
+    );
+  }
+
+  @override
+  Future<PaymentStatusEntity> getPaymentStatus({required String paymentId}) async {
+    if (shouldFailPayment) {
+      return PaymentStatusEntity(
+        paymentId: paymentId,
+        status: 'failed',
+        message: 'Payment declined',
+      );
+    }
+    return PaymentStatusEntity(
+      paymentId: paymentId,
+      status: 'success',
+      message: 'Payment successful',
+    );
+  }
+
+  @override
+  Future<PaymentStatusEntity> retryPayment({required String paymentId}) async {
+    return PaymentStatusEntity(
+      paymentId: paymentId,
+      status: 'INITIATED',
+      message: 'Retry successful',
+    );
+  }
+}
+
 void main() {
   setUp(() async {
     await getIt.reset();
@@ -288,5 +359,68 @@ void main() {
     cubit.changeTab(OrdersTab.past);
     expect(cubit.state.selectedTab, OrdersTab.past);
     expect(cubit.state.visibleOrders, cubit.state.pastOrders);
+  });
+
+  test('checkout cubit handles successful orchestration flow', () async {
+    final repo = _FakeCheckoutRepository();
+    final cubit = CheckoutCubit(
+      ValidateCartUseCase(repo),
+      CreateOrderUseCase(repo),
+      CreatePaymentSessionUseCase(repo),
+      GetPaymentStatusUseCase(repo),
+      RetryPaymentUseCase(repo),
+    );
+
+    // 1. Validating Cart
+    await cubit.loadCheckout(accountId: 'test');
+    expect(cubit.state.status, CheckoutRequestStatus.readyToPay);
+
+    // 2. Placing Order -> creates order -> creates session -> awaiting payment
+    await cubit.placeOrder(address: '123 Test St');
+    expect(cubit.state.status, CheckoutRequestStatus.awaitingPayment);
+    expect(cubit.state.orderId, 'ORD-123');
+    expect(cubit.state.paymentId, 'PAY-123');
+
+    // 3. Polling Payment Status
+    await cubit.refreshPaymentStatus();
+    expect(cubit.state.status, CheckoutRequestStatus.success);
+  });
+
+  test('checkout cubit handles cart validation failure', () async {
+    final repo = _FakeCheckoutRepository()..shouldFailValidation = true;
+    final cubit = CheckoutCubit(
+      ValidateCartUseCase(repo),
+      CreateOrderUseCase(repo),
+      CreatePaymentSessionUseCase(repo),
+      GetPaymentStatusUseCase(repo),
+      RetryPaymentUseCase(repo),
+    );
+
+    await cubit.loadCheckout(accountId: 'test');
+    expect(cubit.state.status, CheckoutRequestStatus.failure);
+    expect(cubit.state.errorMessage, 'Cart validation failed. Please check your cart.');
+  });
+
+  test('checkout cubit handles payment failure and retry', () async {
+    final repo = _FakeCheckoutRepository()..shouldFailPayment = true;
+    final cubit = CheckoutCubit(
+      ValidateCartUseCase(repo),
+      CreateOrderUseCase(repo),
+      CreatePaymentSessionUseCase(repo),
+      GetPaymentStatusUseCase(repo),
+      RetryPaymentUseCase(repo),
+    );
+
+    await cubit.loadCheckout(accountId: 'test');
+    await cubit.placeOrder(address: '123 Test St');
+    expect(cubit.state.status, CheckoutRequestStatus.awaitingPayment);
+
+    // Initial check fails
+    await cubit.refreshPaymentStatus();
+    expect(cubit.state.status, CheckoutRequestStatus.failure);
+
+    // Retry initiates successfully
+    await cubit.retryPayment();
+    expect(cubit.state.status, CheckoutRequestStatus.awaitingPayment);
   });
 }
