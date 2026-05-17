@@ -14,7 +14,6 @@ class MenuCategoryModel extends MenuCategoryEntity {
       label: json['label'],
       menuItems: (json['menuItems'] as List)
           .map((item) {
-            print("----------------------------------------------------$item");
             return MenuItemModel.fromJson(item);
           })
           .toList(),

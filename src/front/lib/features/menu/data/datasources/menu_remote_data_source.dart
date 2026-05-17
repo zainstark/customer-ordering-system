@@ -14,19 +14,15 @@ class MenuRemoteDataSourceImpl implements MenuRemoteDataSource {
 
   @override
   Future<List<MenuCategoryModel>> getMenuCategories() async {
-    print("----------------------------------------------------1");
     final response = await _dioClient.get(ApiEndpoints.menuCategories);
-    print("----------------------------------------------------2");
     final data = response.data;
-    print("----------------------------------------------------3");
     final list = _extractList(
       data,
       keys: const ['data', 'categories', 'items'],
     );
-    print("----------------------------------------------------4");
     return list
         .map((item) {
-          print("----------------------------------------------------5");
+    
           return MenuCategoryModel.fromJson(item as Map<String, dynamic>);
         })
         .toList();
