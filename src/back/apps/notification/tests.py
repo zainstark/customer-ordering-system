@@ -12,6 +12,7 @@ Run with: python manage.py test apps.notification
 
 import uuid
 from datetime import datetime
+from django.db import connection
 from django.test import TestCase
 from django.utils import timezone
 from rest_framework.test import APITestCase
@@ -24,6 +25,30 @@ from apps.notification.services import NotificationService
 from apps.notification.serializers import NotificationMessageSerializer
 
 
+def _ensure_accounts_table():
+    table_name = Accounts._meta.db_table
+    existing_tables = connection.introspection.table_names()
+    if table_name in existing_tables:
+        return
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            CREATE TABLE accounts (
+                account_id TEXT PRIMARY KEY NOT NULL,
+                display_name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                role TEXT NOT NULL,
+                password_hash TEXT NOT NULL,
+                phone_number TEXT,
+                active BOOL NOT NULL,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL
+            )
+            """
+        )
+
+
 # ============================================================================
 # MODEL TESTS
 # ============================================================================
@@ -31,6 +56,11 @@ from apps.notification.serializers import NotificationMessageSerializer
 
 class NotificationMessageModelTestCase(TestCase):
     """Test NotificationMessage model creation, fields, and defaults."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        _ensure_accounts_table()
 
     def setUp(self):
         """Create test account for notifications."""
@@ -131,6 +161,11 @@ class NotificationMessageModelTestCase(TestCase):
 
 class NotificationMessageSerializerTestCase(TestCase):
     """Test NotificationMessageSerializer output format."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        _ensure_accounts_table()
 
     def setUp(self):
         """Create test account and notifications."""
@@ -250,6 +285,11 @@ class NotificationMessageSerializerTestCase(TestCase):
 
 class NotificationServiceTestCase(TestCase):
     """Test NotificationService business logic."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        _ensure_accounts_table()
 
     def setUp(self):
         """Create test account."""
@@ -514,6 +554,11 @@ class NotificationServiceTestCase(TestCase):
 
 class NotificationAPITestCase(APITestCase):
     """Test Notification API endpoints."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        _ensure_accounts_table()
 
     def setUp(self):
         """Create test account and JWT token."""
