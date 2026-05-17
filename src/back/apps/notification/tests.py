@@ -15,7 +15,9 @@ from datetime import datetime
 from django.db import connection
 from django.test import TestCase
 from django.utils import timezone
-from rest_framework.test import APITestCase
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.authentication.models import Accounts
 from apps.order.models import Orders
@@ -277,6 +279,25 @@ class NotificationMessageSerializerTestCase(TestCase):
 
         self.assertEqual(data["order_id"], "order_123")
 
+    def test_serializer_handles_null_subject_and_body(self):
+        """Test serializer keeps nullable text fields as null."""
+        notification = NotificationMessage.objects.create(
+            message_id="msg_004",
+            account=self.account,
+            subject=None,
+            body=None,
+            delivery_channel="IN_APP",
+            delivery_status="PENDING",
+            created_at=timezone.now(),
+            sent_at=timezone.now(),
+        )
+
+        serializer = NotificationMessageSerializer(notification)
+        data = serializer.data
+
+        self.assertIsNone(data["subject"])
+        self.assertIsNone(data["body"])
+
 
 # ============================================================================
 # SERVICE TESTS
@@ -345,6 +366,26 @@ class NotificationServiceTestCase(TestCase):
         )
 
         self.assertEqual(notification.order_id, "order_999")
+
+    def test_notify_order_status_changed_returns_none_for_same_status(self):
+        """Test duplicate status updates do not create a new notification."""
+        order = Orders.objects.create(
+            order_id="order_same_status",
+            account=self.account,
+            total_amount=5000,
+            placed_at=timezone.now(),
+            order_status="CONFIRMED",
+            address="123 Main St",
+            updated_at=timezone.now(),
+        )
+
+        notification = NotificationService.notify_order_status_changed(
+            order=order,
+            previous_status="CONFIRMED",
+            new_status="CONFIRMED",
+        )
+
+        self.assertIsNone(notification)
 
     def test_get_notifications_paginated(self):
         """Test NotificationService.get_notifications() returns paginated list."""
@@ -562,6 +603,7 @@ class NotificationAPITestCase(APITestCase):
 
     def setUp(self):
         """Create test account and JWT token."""
+        self.client = APIClient()
         self.account_id = str(uuid.uuid4())
         self.account = Accounts.objects.create(
             account_id=self.account_id,
@@ -574,21 +616,40 @@ class NotificationAPITestCase(APITestCase):
             updated_at=timezone.now(),
         )
 
-        # Token creation depends on project's auth setup; left as placeholder
-        self.token = None
+    def _access_token_for(self, account: Accounts) -> str:
+        refresh = RefreshToken()
+        refresh["account_id"] = account.account_id
+        refresh["email"] = account.email
+        refresh["role"] = account.role
+        refresh["display_name"] = account.display_name
+        return str(refresh.access_token)
+
+    def _authenticate(self, account: Accounts):
+        token = self._access_token_for(account)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
 
     def test_get_notifications_list_endpoint_returns_pagination(self):
         """Test GET /api/notifications/list returns paginated response."""
-        # Create 5 notifications
-        for i in range(5):
+        # Create 12 notifications
+        for i in range(12):
             NotificationService.create_notification(
                 account_id=self.account_id,
                 subject=f"Notification {i}",
                 body=f"Body {i}",
             )
 
-        # TODO: call API endpoint once views are implemented
-        pass
+        self._authenticate(self.account)
+        response = self.client.get('/api/notifications/list', {'page': 1, 'limit': 10})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('notifications', response.data)
+        self.assertIn('pagination', response.data)
+        self.assertEqual(len(response.data['notifications']), 10)
+        self.assertEqual(response.data['pagination']['page'], 1)
+        self.assertEqual(response.data['pagination']['limit'], 10)
+        self.assertEqual(response.data['pagination']['total'], 12)
+        self.assertEqual(response.data['pagination']['totalPages'], 2)
+        self.assertTrue(response.data['pagination']['hasNextPage'])
 
     def test_get_unread_count_endpoint(self):
         """Test GET /api/notifications/unread-count returns count."""
@@ -600,8 +661,11 @@ class NotificationAPITestCase(APITestCase):
                 body="Body",
             )
 
-        # TODO: call API endpoint once views are implemented
-        pass
+        self._authenticate(self.account)
+        response = self.client.get('/api/notifications/unread-count')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['unreadCount'], 3)
 
     def test_mark_as_read_endpoint(self):
         """Test PATCH /api/notifications/{message_id}/read marks notification."""
@@ -611,8 +675,19 @@ class NotificationAPITestCase(APITestCase):
             body="Body",
         )
 
-        # TODO: call API endpoint once views are implemented
-        pass
+        self._authenticate(self.account)
+        response = self.client.patch(
+            f'/api/notifications/{notification.message_id}/read',
+            {},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message_id'], notification.message_id)
+        self.assertEqual(response.data['delivery_status'], 'DELIVERED')
+
+        updated = NotificationMessage.objects.get(message_id=notification.message_id)
+        self.assertEqual(updated.delivery_status, 'DELIVERED')
 
     def test_mark_all_as_read_endpoint(self):
         """Test PATCH /api/notifications/mark-all-read marks all as read."""
@@ -624,13 +699,22 @@ class NotificationAPITestCase(APITestCase):
                 body="Body",
             )
 
-        # TODO: call API endpoint once views are implemented
-        pass
+        self._authenticate(self.account)
+        response = self.client.patch('/api/notifications/mark-all-read', {}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['success'])
+        self.assertEqual(response.data['markedCount'], 5)
+        self.assertEqual(NotificationService.get_unread_count(self.account_id), 0)
 
     def test_unauthorized_request_returns_401(self):
         """Test endpoints return 401 without authentication."""
-        # TODO: call API endpoint once views are implemented
-        pass
+        response = self.client.get('/api/notifications/list')
+
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_pagination_query_parameters(self):
         """Test pagination with different page and limit parameters."""
@@ -642,8 +726,16 @@ class NotificationAPITestCase(APITestCase):
                 body="Body",
             )
 
-        # TODO: call API endpoint once views are implemented
-        pass
+        self._authenticate(self.account)
+        response = self.client.get('/api/notifications/list', {'page': 2, 'limit': 7})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['pagination']['page'], 2)
+        self.assertEqual(response.data['pagination']['limit'], 7)
+        self.assertEqual(response.data['pagination']['total'], 25)
+        self.assertEqual(response.data['pagination']['totalPages'], 4)
+        self.assertTrue(response.data['pagination']['hasNextPage'])
+        self.assertEqual(len(response.data['notifications']), 7)
 
     def test_notification_timestamp_format_in_response(self):
         """Test notification timestamps in API response are ISO 8601 UTC."""
@@ -653,5 +745,10 @@ class NotificationAPITestCase(APITestCase):
             body="Body",
         )
 
-        # TODO: call API endpoint once views are implemented
-        pass
+        self._authenticate(self.account)
+        response = self.client.get('/api/notifications/list', {'page': 1, 'limit': 1})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payload = response.data['notifications'][0]
+        self.assertTrue(payload['created_at'].endswith('Z'))
+        self.assertTrue(payload['sent_at'].endswith('Z'))
