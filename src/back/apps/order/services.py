@@ -154,7 +154,7 @@ class OrderService:
         return (
             Order.objects.filter(account_id=account_id)
             .prefetch_related(
-                Prefetch("items", queryset=OrderItems.objects.order_by("created_at"))
+                Prefetch("items", queryset=OrderItems.objects.order_by("order_item_id"))
             )
             .order_by("-placed_at")
         )

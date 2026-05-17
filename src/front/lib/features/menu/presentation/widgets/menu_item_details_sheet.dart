@@ -4,9 +4,10 @@ import 'package:frontend/features/menu/domain/entities/menu_item_entity.dart';
 import 'package:frontend/features/widgets/app_network_image.dart';
 
 class MenuItemDetailsSheet extends StatelessWidget {
-  const MenuItemDetailsSheet({super.key, required this.item});
+  const MenuItemDetailsSheet({super.key, required this.item, this.onAddToCart});
 
   final MenuItemEntity item;
+  final Future<void> Function(int quantity)? onAddToCart;
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +33,20 @@ class MenuItemDetailsSheet extends StatelessWidget {
                           children: [
                             Expanded(flex: 5, child: _ImagePanel(item: item)),
                             const SizedBox(width: AppDimensions.spacingXl),
-                            Expanded(flex: 4, child: _DetailsPanel(item: item)),
+                            Expanded(
+                              flex: 4,
+                              child: _DetailsPanel(
+                                item: item,
+                                onAddToCart: onAddToCart,
+                              ),
+                            ),
                           ],
                         )
                       : Column(
                           children: [
                             _ImagePanel(item: item),
                             const SizedBox(height: AppDimensions.spacingXl),
-                            _DetailsPanel(item: item),
+                            _DetailsPanel(item: item, onAddToCart: onAddToCart),
                           ],
                         ),
                 ),
@@ -79,9 +86,10 @@ class _ImagePanel extends StatelessWidget {
 }
 
 class _DetailsPanel extends StatefulWidget {
-  const _DetailsPanel({required this.item});
+  const _DetailsPanel({required this.item, required this.onAddToCart});
 
   final MenuItemEntity item;
+  final Future<void> Function(int quantity)? onAddToCart;
 
   @override
   State<_DetailsPanel> createState() => _DetailsPanelState();
@@ -89,6 +97,20 @@ class _DetailsPanel extends StatefulWidget {
 
 class _DetailsPanelState extends State<_DetailsPanel> {
   int quantity = 1;
+  bool _isSubmitting = false;
+
+  Future<void> _handleAddToCart() async {
+    final addToCart = widget.onAddToCart;
+    if (addToCart == null || _isSubmitting) return;
+
+    setState(() => _isSubmitting = true);
+    try {
+      await addToCart(quantity);
+      if (mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +207,9 @@ class _DetailsPanelState extends State<_DetailsPanel> {
               SizedBox(
                 height: 56,
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: widget.item.available && !_isSubmitting
+                      ? _handleAddToCart
+                      : null,
                   icon: const Icon(Icons.shopping_bag_outlined),
                   label: const Text('Add to Cart'),
                 ),

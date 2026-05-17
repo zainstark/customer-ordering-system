@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
+import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
 import 'package:frontend/features/menu/presentation/cubit/menu_state.dart';
 import 'package:frontend/features/menu/presentation/widgets/menu_category_sidebar.dart';
@@ -129,10 +130,17 @@ class MenuScreen extends StatelessWidget {
                         return MenuFoodCard(
                           item: dish,
                           onTap: () {
+                            final cartCubit = context.read<CartCubit>();
                             showDialog<void>(
                               context: context,
                               barrierDismissible: true,
-                              builder: (_) => MenuItemDetailsSheet(item: dish),
+                              builder: (_) => MenuItemDetailsSheet(
+                                item: dish,
+                                onAddToCart: (quantity) => cartCubit.addItem(
+                                  menuItemId: dish.id,
+                                  quantity: quantity,
+                                ),
+                              ),
                             );
                           },
                         );

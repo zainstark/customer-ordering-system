@@ -129,7 +129,8 @@ class AppRouter {
   static String? _handleRedirect(BuildContext context, GoRouterState state) {
     final authStatus = getIt<AuthCubit>().state.status;
     final isAuthenticated = authStatus == AuthStatus.authenticated;
-    final isOnAuthPage = state.matchedLocation == RoutesPath.login ||
+    final isOnAuthPage =
+        state.matchedLocation == RoutesPath.login ||
         state.matchedLocation == RoutesPath.signup;
 
     if (authStatus == AuthStatus.initial || authStatus == AuthStatus.loading) {

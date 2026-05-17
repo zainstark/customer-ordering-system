@@ -8,6 +8,7 @@ import 'package:frontend/Core/theme/app_theme.dart';
 import 'package:frontend/features/cart/data/models/cart_item_model.dart';
 import 'package:frontend/features/cart/domain/entities/card_item_entity.dart';
 import 'package:frontend/features/cart/domain/repositories/cart_repository.dart';
+import 'package:frontend/features/cart/domain/usecases/add_cart_item_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/get_cart_items_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/remove_cart_item_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/update_cart_item_quantity_usecase.dart';
@@ -90,23 +91,23 @@ class _FakeCartRepository implements CartRepository {
     required String menuItemId,
     required int quantity,
   }) async {
-    _items.add(CartItemModel(
-      id: 'c${_items.length + 1}',
-      cartId: 'CRT-1001',
-      menuItemId: menuItemId,
-      title: 'Item $menuItemId',
-      subtitle: 'Description',
-      unitPrice: 10.0,
-      quantity: quantity,
-      imageUrl: 'https://example.com/item.jpg',
-    ));
+    _items.add(
+      CartItemModel(
+        id: 'c${_items.length + 1}',
+        cartId: 'CRT-1001',
+        menuItemId: menuItemId,
+        title: 'Item $menuItemId',
+        subtitle: 'Description',
+        unitPrice: 10.0,
+        quantity: quantity,
+        imageUrl: 'https://example.com/item.jpg',
+      ),
+    );
     return _items;
   }
 
   @override
-  Future<List<CartItemEntity>> removeItem({
-    required String cartItemId,
-  }) async {
+  Future<List<CartItemEntity>> removeItem({required String cartItemId}) async {
     _items = _items.where((item) => item.id != cartItemId).toList();
     return _items;
   }
@@ -221,9 +222,7 @@ void main() {
   });
 
   test('menu cubit changes selected category and filters dishes', () async {
-    final cubit = MenuCubit(
-      GetMenuCategoriesUseCase(_FakeMenuRepository()),
-    );
+    final cubit = MenuCubit(GetMenuCategoriesUseCase(_FakeMenuRepository()));
     await cubit.loadMenu();
     final initialCategory = cubit.state.selectedCategoryId;
     final nextCategory = cubit.state.categories
@@ -244,6 +243,7 @@ void main() {
   test('cart cubit updates quantity and totals', () async {
     final repo = _FakeCartRepository();
     final cubit = CartCubit(
+      AddCartItemUseCase(repo),
       GetCartItemsUseCase(repo),
       UpdateCartItemQuantityUseCase(repo),
       RemoveCartItemUseCase(repo),
@@ -263,9 +263,7 @@ void main() {
   });
 
   test('orders cubit switches between active and past tabs', () async {
-    final cubit = OrdersCubit(
-      GetOrdersUseCase(_FakeOrdersRepository()),
-    );
+    final cubit = OrdersCubit(GetOrdersUseCase(_FakeOrdersRepository()));
     await cubit.loadOrders(accountId: 'ACC-100');
     expect(cubit.state.selectedTab, OrdersTab.active);
 
