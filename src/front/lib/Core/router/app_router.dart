@@ -12,6 +12,11 @@ import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
 import 'package:frontend/features/menu/presentation/screens/menu_screen.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:frontend/features/orders/presentation/screens/orders_screen.dart';
+import 'package:frontend/features/checkout/presentation/cubit/checkout_cubit.dart';
+import 'package:frontend/features/checkout/presentation/screens/checkout_screen.dart';
+import 'package:frontend/features/checkout/presentation/screens/payment_failure_screen.dart';
+import 'package:frontend/features/checkout/presentation/screens/payment_processing_screen.dart';
+import 'package:frontend/features/checkout/presentation/screens/payment_success_screen.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
 import 'package:frontend/features/notifications/presentation/pages/notifications_page.dart';
@@ -73,6 +78,34 @@ class AppRouter {
                   create: (_) => getIt<OrdersCubit>()..loadOrders(),
                   child: const OrdersScreen(),
                 ),
+              ),
+              ShellRoute(
+                builder: (context, state, child) => BlocProvider(
+                  create: (_) => getIt<CheckoutCubit>()..loadCheckout(),
+                  child: child,
+                ),
+                routes: [
+                  GoRoute(
+                    path: RoutesPath.checkout,
+                    name: RoutesName.checkout,
+                    builder: (context, _) => const CheckoutScreen(),
+                  ),
+                  GoRoute(
+                    path: RoutesPath.paymentProcessing,
+                    name: RoutesName.paymentProcessing,
+                    builder: (context, _) => const PaymentProcessingScreen(),
+                  ),
+                  GoRoute(
+                    path: RoutesPath.paymentSuccess,
+                    name: RoutesName.paymentSuccess,
+                    builder: (context, _) => const PaymentSuccessScreen(),
+                  ),
+                  GoRoute(
+                    path: RoutesPath.paymentFailure,
+                    name: RoutesName.paymentFailure,
+                    builder: (context, _) => const PaymentFailureScreen(),
+                  ),
+                ],
               ),
               GoRoute(
                 path: RoutesPath.notifications,

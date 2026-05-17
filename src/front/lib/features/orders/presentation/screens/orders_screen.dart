@@ -16,11 +16,11 @@ class OrdersScreen extends StatelessWidget {
 
     return BlocBuilder<OrdersCubit, OrdersState>(
       builder: (context, state) {
-        if (state.status == OrdersRequestStatus.loading) {
+        if (state.fetchStatus == FetchStatus.loading) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (state.status == OrdersRequestStatus.error) {
+        if (state.fetchStatus == FetchStatus.error) {
           return _StateMessage(
             message:
                 state.errorMessage ??
@@ -29,7 +29,7 @@ class OrdersScreen extends StatelessWidget {
           );
         }
 
-        if (state.status == OrdersRequestStatus.success &&
+        if (state.fetchStatus == FetchStatus.success &&
             state.activeOrders.isEmpty &&
             state.pastOrders.isEmpty) {
           return _StateMessage(

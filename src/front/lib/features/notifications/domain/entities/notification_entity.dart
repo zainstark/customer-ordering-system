@@ -1,10 +1,10 @@
-import 'package:equatable/equatable.dart';
+
 
 enum NotificationDeliveryChannel { email, sms, inApp, whatsapp }
 
 enum NotificationDeliveryStatus { pending, sent, failed, delivered }
 
-class NotificationEntity extends Equatable {
+class NotificationEntity {
   const NotificationEntity({
     required this.messageId,
     required this.subject,
