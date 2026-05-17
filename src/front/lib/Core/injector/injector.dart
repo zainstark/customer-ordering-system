@@ -17,7 +17,9 @@ import 'package:frontend/features/orders/data/datasources/orders_remote_data_sou
 import 'package:frontend/features/orders/data/repositories/orders_repository_impl.dart';
 import 'package:frontend/features/orders/domain/repositories/orders_repository.dart';
 import 'package:frontend/features/orders/domain/usecases/get_orders_usecase.dart';
+import 'package:frontend/features/orders/domain/usecases/place_order_usecase.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_cubit.dart';
 import 'package:frontend/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:frontend/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:frontend/features/authentication/domain/repositories/auth_repository.dart';
@@ -100,6 +102,10 @@ void setupDependencies() {
     () => OrdersRepositoryImpl(getIt()),
   );
 
+  getIt.registerLazySingleton<PlaceOrderUseCase>(
+    () => PlaceOrderUseCase(getIt()),
+  );
+
   getIt.registerLazySingleton<GetMenuCategoriesUseCase>(
     () => GetMenuCategoriesUseCase(getIt()),
   );
@@ -131,6 +137,8 @@ void setupDependencies() {
   );
 
   getIt.registerFactory<OrdersCubit>(() => OrdersCubit(getIt()));
+
+  getIt.registerFactory<OrderCubit>(() => OrderCubit(getIt()));
 
   // Notifications
   getIt.registerLazySingleton<NotificationRemoteDataSource>(

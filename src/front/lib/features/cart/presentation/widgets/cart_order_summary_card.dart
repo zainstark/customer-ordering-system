@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
+import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_cubit.dart';
 
 class CartOrderSummaryCard extends StatelessWidget {
   const CartOrderSummaryCard({super.key, required this.state});
@@ -45,40 +48,51 @@ class CartOrderSummaryCard extends StatelessWidget {
             isTotal: true,
           ),
           const SizedBox(height: AppDimensions.spacingXl),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppDimensions.paddingMd),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.credit_card_outlined),
-                const SizedBox(width: AppDimensions.spacingMd),
-                Expanded(
-                  child: SelectableText(
-                    'Visa •••• 4242',
-                    style: textTheme.bodyLarge,
-                  ),
-                ),
-                const Icon(Icons.chevron_right),
-              ],
-            ),
-          ),
+          // Container(
+          //   width: double.infinity,
+          //   padding: const EdgeInsets.all(AppDimensions.paddingMd),
+          //   decoration: BoxDecoration(
+          //     color: colorScheme.surfaceContainerHigh,
+          //     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+          //   ),
+          //   child: Row(
+          //     children: [
+          //       const Icon(Icons.credit_card_outlined),
+          //       const SizedBox(width: AppDimensions.spacingMd),
+          //       Expanded(
+          //         child: SelectableText(
+          //           'Visa •••• 4242',
+          //           style: textTheme.bodyLarge,
+          //         ),
+          //       ),
+          //       const Icon(Icons.chevron_right),
+          //     ],
+          //   ),
+          // ),
           const SizedBox(height: AppDimensions.spacingXl),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
-              child: const Text('Place order'),
-            ),
-          ),
-          const SizedBox(height: AppDimensions.spacingMd),
-          Center(
-            child: SelectableText(
-              'Estimated delivery: 25–35 mins',
-              style: textTheme.bodyMedium,
+              onPressed: () async {
+                final cubit = getIt<OrderCubit>();
+                // Minimal address provided since UI does not collect address here
+                const address = 'No address provided';
+                await cubit.placeOrder(address: address);
+
+                // TODO: After successful order placement, navigate to the payment
+                // screen and provide the same OrderCubit instance so the payment
+                // implementation can access `state.order?.orderId`.
+                // Example to implement later:
+                // Navigator.of(context).push(
+                //   MaterialPageRoute(
+                //     builder: (_) => BlocProvider.value(
+                //       value: cubit,
+                //       child: const PaymentScreen(), // implement this screen
+                //     ),
+                //   ),
+                // );
+              },
+              child: const Text('Proceed to checkout'),
             ),
           ),
         ],
