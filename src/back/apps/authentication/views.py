@@ -172,8 +172,3 @@ class LoginView(APIView):
     
         return Response(get_tokens(account))
 
-class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        return Response(status=status.HTTP_205_RESET_CONTENT)
