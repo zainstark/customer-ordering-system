@@ -52,29 +52,26 @@ class AppRouter {
             name: RoutesName.login,
             builder: (_, __) => const LoginScreen(),
           ),
-          // Nested ShellRoute MUST have its own builder
           ShellRoute(
-            builder: (context, state, child) =>
-                AppShellScaffold(currentPath: state.uri.path, child: child),
+            builder: (context, state, child) => MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => getIt<CartCubit>()..loadCart()),
+              ],
+              child: AppShellScaffold(currentPath: state.uri.path, child: child),
+            ),
             routes: [
               GoRoute(
                 path: RoutesPath.menu,
                 name: RoutesName.menu,
-                builder: (context, _) => MultiBlocProvider(
-                  providers: [
-                    BlocProvider(create: (_) => getIt<MenuCubit>()..loadMenu()),
-                    BlocProvider(create: (context) => getIt<CartCubit>()),
-                  ],
+                builder: (context, _) => BlocProvider(
+                  create: (_) => getIt<MenuCubit>()..loadMenu(),
                   child: const MenuScreen(),
                 ),
               ),
               GoRoute(
                 path: RoutesPath.cart,
                 name: RoutesName.cart,
-                builder: (context, _) => BlocProvider(
-                  create: (_) => getIt<CartCubit>()..loadCart(),
-                  child: const CartScreen(),
-                ),
+                builder: (context, _) => const CartScreen(),
               ),
               GoRoute(
                 path: RoutesPath.orders,
