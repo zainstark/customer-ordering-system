@@ -176,6 +176,7 @@ class _FakeOrdersRepository implements OrdersRepository {
       totalAmount: 42.0,
       progress: 0.1,
       items: [],
+    );
   }
 }
 

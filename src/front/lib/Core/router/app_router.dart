@@ -7,6 +7,7 @@ import 'package:frontend/features/authentication/presentation/cubit/auth_state.d
 import 'package:frontend/features/authentication/presentation/screens/signup_screen.dart';
 import 'package:frontend/features/authentication/presentation/screens/login_screen.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 import 'package:frontend/features/cart/presentation/screens/cart_screen.dart';
 import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
 import 'package:frontend/features/menu/presentation/screens/menu_screen.dart';
@@ -53,12 +54,18 @@ class AppRouter {
             builder: (_, __) => const LoginScreen(),
           ),
           ShellRoute(
-            builder: (context, state, child) => MultiBlocProvider(
-              providers: [
-                BlocProvider(create: (_) => getIt<CartCubit>()..loadCart()),
-              ],
-              child: AppShellScaffold(currentPath: state.uri.path, child: child),
-            ),
+            builder: (context, state, child) {
+              final cartCubit = getIt<CartCubit>();
+              if (cartCubit.state.status == CartRequestStatus.initial) {
+                cartCubit.loadCart();
+              }
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(value: cartCubit),
+                ],
+                child: AppShellScaffold(currentPath: state.uri.path, child: child),
+              );
+            },
             routes: [
               GoRoute(
                 path: RoutesPath.menu,
