@@ -3,6 +3,8 @@ import 'package:frontend/Core/storage/token_storage.dart';
 import '../../../../Core/network/app_exception.dart';
 import '../../../../Core/network/dio_client.dart';
 
+
+
 class AuthRemoteDataSource {
   final DioClient _dioClient;
   final TokenStorage _storage;
@@ -49,11 +51,6 @@ class AuthRemoteDataSource {
   }
 
   Future<void> logout() async {
-    try {
-      await _dioClient.post('/api/auth/logout/');
-    } catch (_) {
-      // Ignore errors on logout
-    }
     await _storage.clearTokens();
   }
 
