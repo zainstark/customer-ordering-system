@@ -127,25 +127,27 @@ class _FakeCartRepository implements CartRepository {
 
 class _FakeOrdersRepository implements OrdersRepository {
   @override
-  Future<List<OrderItemEntity>> getOrders({required String accountId}) async {
+  Future<List<OrderItemEntity>> getOrders() async {
     return [
       OrderItemModel(
         id: 'o1',
-        accountId: accountId,
+        accountId: 'ACC-100',
         orderId: 'ORD-1',
-        status: 'Preparing',
+        status: 'PREPARING',
         placedAt: DateTime(2026, 5, 1),
         totalAmount: 20.0,
         progress: 0.5,
+        items: [],
       ),
       OrderItemModel(
         id: 'o2',
-        accountId: accountId,
+        accountId: 'ACC-100',
         orderId: 'ORD-2',
-        status: 'Delivered',
+        status: 'DELIVERED',
         placedAt: DateTime(2026, 4, 1),
         totalAmount: 15.0,
         progress: 1,
+        items: [],
       ),
     ];
   }
@@ -264,7 +266,7 @@ void main() {
 
   test('orders cubit switches between active and past tabs', () async {
     final cubit = OrdersCubit(GetOrdersUseCase(_FakeOrdersRepository()));
-    await cubit.loadOrders(accountId: 'ACC-100');
+    await cubit.loadOrders();
     expect(cubit.state.selectedTab, OrdersTab.active);
 
     cubit.changeTab(OrdersTab.past);
