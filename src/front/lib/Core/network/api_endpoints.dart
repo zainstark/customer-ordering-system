@@ -11,7 +11,6 @@ class ApiEndpoints {
   static const String validateCart = '/api/cart/validate/';
   static const String clearCart = '/api/cart/clear/';
 
-
   static const String orders = '/api/order/';
   static const String placeOrder = '/api/order/place/';
 

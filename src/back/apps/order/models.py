@@ -18,6 +18,7 @@ class OrderItems(models.Model):
     quantity = models.IntegerField()
     line_total = models.IntegerField(default=0)
 
+
     class Meta:
         db_table = 'order_items'
 

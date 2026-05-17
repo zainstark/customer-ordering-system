@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
+import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/features/orders/domain/entities/order_item_entities.dart';
 import 'package:frontend/features/orders/presentation/widgets/orders_surface_card.dart';
+import 'package:go_router/go_router.dart';
 
 class OrderStatusCard extends StatelessWidget {
   const OrderStatusCard({super.key, required this.order});
@@ -88,10 +90,20 @@ class OrderStatusCard extends StatelessWidget {
               ),
             ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SelectableText(
                 'Total: \$${order.totalAmount.toStringAsFixed(2)}',
                 style: textTheme.bodyLarge,
+              ),
+              FilledButton.tonal(
+                onPressed: () {
+                  context.pushNamed(
+                    RoutesName.orderTracking,
+                    pathParameters: {'id': order.orderId},
+                  );
+                },
+                child: const Text('Track Order'),
               ),
             ],
           ),
