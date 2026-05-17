@@ -27,104 +27,105 @@ class AppRouter {
   AppRouter._();
 
   static final GoRouter router = GoRouter(
-  initialLocation: RoutesPath.login,
-  redirect: _handleRedirect,
-  routes: [
-    // ✅ One top-level ShellRoute provides AuthCubit to ALL routes
-    ShellRoute(
-      builder: (context, state, child) => BlocProvider(
-        create: (_) => getIt<AuthCubit>()..initialize(),
-        child: child,   // child is the whole subtree — auth pages AND app pages
-      ),
-      routes: [
-        GoRoute(
-          path: RoutesPath.signup,
-          name: RoutesName.signup,
-          builder: (_, __) => const SignupScreen(),
+    initialLocation: RoutesPath.login,
+    redirect: _handleRedirect,
+    routes: [
+      // ✅ One top-level ShellRoute provides AuthCubit to ALL routes
+      ShellRoute(
+        builder: (context, state, child) => BlocProvider(
+          create: (_) => getIt<AuthCubit>()..initialize(),
+          child: child, // child is the whole subtree — auth pages AND app pages
         ),
-        GoRoute(
-          path: RoutesPath.login,
-          name: RoutesName.login,
-          builder: (_, __) => const LoginScreen(),
-        ),
-        // Nested ShellRoute MUST have its own builder
-        ShellRoute(
-          builder: (context, state, child) =>
-              AppShellScaffold(currentPath: state.uri.path, child: child),
-          routes: [
-            GoRoute(
-              path: RoutesPath.menu,
-              name: RoutesName.menu,
-              builder: (context, _) => BlocProvider(
-                create: (_) => getIt<MenuCubit>()..loadMenu(),
-                child: const MenuScreen(),
-              ),
-            ),
-            GoRoute(
-              path: RoutesPath.cart,
-              name: RoutesName.cart,
-              builder: (context, _) => BlocProvider(
-                create: (_) => getIt<CartCubit>()..loadCart(),
-                child: const CartScreen(),
-              ),
-            ),
-            GoRoute(
-              path: RoutesPath.orders,
-              name: RoutesName.orders,
-              builder: (context, _) => BlocProvider(
-                create: (_) => getIt<OrdersCubit>()..loadOrders(),
-                child: const OrdersScreen(),
-              ),
-            ),
-            ShellRoute(
-              builder: (context, state, child) => BlocProvider(
-                create: (_) => getIt<CheckoutCubit>()..loadCheckout(),
-                child: child,
-              ),
-              routes: [
-                GoRoute(
-                  path: RoutesPath.checkout,
-                  name: RoutesName.checkout,
-                  builder: (context, _) => const CheckoutScreen(),
+        routes: [
+          GoRoute(
+            path: RoutesPath.signup,
+            name: RoutesName.signup,
+            builder: (_, __) => const SignupScreen(),
+          ),
+          GoRoute(
+            path: RoutesPath.login,
+            name: RoutesName.login,
+            builder: (_, __) => const LoginScreen(),
+          ),
+          // Nested ShellRoute MUST have its own builder
+          ShellRoute(
+            builder: (context, state, child) =>
+                AppShellScaffold(currentPath: state.uri.path, child: child),
+            routes: [
+              GoRoute(
+                path: RoutesPath.menu,
+                name: RoutesName.menu,
+                builder: (context, _) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(create: (_) => getIt<MenuCubit>()..loadMenu()),
+                    BlocProvider(create: (context) => getIt<CartCubit>()),
+                  ],
+                  child: const MenuScreen(),
                 ),
-                GoRoute(
-                  path: RoutesPath.paymentProcessing,
-                  name: RoutesName.paymentProcessing,
-                  builder: (context, _) => const PaymentProcessingScreen(),
+              ),
+              GoRoute(
+                path: RoutesPath.cart,
+                name: RoutesName.cart,
+                builder: (context, _) => BlocProvider(
+                  create: (_) => getIt<CartCubit>()..loadCart(),
+                  child: const CartScreen(),
                 ),
-                GoRoute(
-                  path: RoutesPath.paymentSuccess,
-                  name: RoutesName.paymentSuccess,
-                  builder: (context, _) => const PaymentSuccessScreen(),
+              ),
+              GoRoute(
+                path: RoutesPath.orders,
+                name: RoutesName.orders,
+                builder: (context, _) => BlocProvider(
+                  create: (_) => getIt<OrdersCubit>()..loadOrders(),
+                  child: const OrdersScreen(),
                 ),
-                GoRoute(
-                  path: RoutesPath.paymentFailure,
-                  name: RoutesName.paymentFailure,
-                  builder: (context, _) => const PaymentFailureScreen(),
+              ),
+              ShellRoute(
+                builder: (context, state, child) => BlocProvider(
+                  create: (_) => getIt<CheckoutCubit>()..loadCheckout(),
+                  child: child,
                 ),
-              ],
-            ),
-            GoRoute(
-              path: RoutesPath.notifications,
-              name: RoutesName.notifications,
-              builder: (context, _) => MultiBlocProvider(
-                providers: [
-                  BlocProvider(
-                    create: (_) => getIt<NotificationCubit>(),
+                routes: [
+                  GoRoute(
+                    path: RoutesPath.checkout,
+                    name: RoutesName.checkout,
+                    builder: (context, _) => const CheckoutScreen(),
                   ),
-                  BlocProvider(
-                    create: (_) => getIt<NotificationBadgeCubit>(),
+                  GoRoute(
+                    path: RoutesPath.paymentProcessing,
+                    name: RoutesName.paymentProcessing,
+                    builder: (context, _) => const PaymentProcessingScreen(),
+                  ),
+                  GoRoute(
+                    path: RoutesPath.paymentSuccess,
+                    name: RoutesName.paymentSuccess,
+                    builder: (context, _) => const PaymentSuccessScreen(),
+                  ),
+                  GoRoute(
+                    path: RoutesPath.paymentFailure,
+                    name: RoutesName.paymentFailure,
+                    builder: (context, _) => const PaymentFailureScreen(),
                   ),
                 ],
-                child: const NotificationsPage(),
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  ],
-);
+              GoRoute(
+                path: RoutesPath.notifications,
+                name: RoutesName.notifications,
+                builder: (context, _) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(create: (_) => getIt<NotificationCubit>()),
+                    BlocProvider(
+                      create: (_) => getIt<NotificationBadgeCubit>(),
+                    ),
+                  ],
+                  child: const NotificationsPage(),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
 
   static String? _handleRedirect(BuildContext context, GoRouterState state) {
     final authStatus = getIt<AuthCubit>().state.status;
