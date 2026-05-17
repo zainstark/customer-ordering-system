@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/Core/theme/app_colors.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/notifications/domain/entities/notification_entity.dart';
 
@@ -25,6 +24,14 @@ class NotificationItemWidget extends StatelessWidget {
 
     // Generic in-app notification
     return (Icons.info, colorScheme.secondary.withValues(alpha: 0.12));
+  }
+
+  String _displaySubject() {
+    return notification.subject.trim().isEmpty ? 'Notification' : notification.subject;
+  }
+
+  String _displayBody() {
+    return notification.body.trim().isEmpty ? 'No additional details available.' : notification.body;
   }
 
   @override
@@ -84,7 +91,7 @@ class NotificationItemWidget extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            notification.subject,
+                            _displaySubject(),
                             style: textTheme.labelLarge?.copyWith(
                               color: colorScheme.onSurface,
                             ),
@@ -104,7 +111,7 @@ class NotificationItemWidget extends StatelessWidget {
                     const SizedBox(height: AppDimensions.spacingXs),
                     // Body (message)
                     Text(
-                      notification.body,
+                      _displayBody(),
                       style: textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
