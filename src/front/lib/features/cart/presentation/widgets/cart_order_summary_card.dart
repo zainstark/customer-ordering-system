@@ -74,37 +74,23 @@ class CartOrderSummaryCard extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
-                // create an OrderCubit instance and place the order
-                final orderCubit = getIt<OrderCubit>();
+                final cubit = getIt<OrderCubit>();
+                // Minimal address provided since UI does not collect address here
                 const address = 'No address provided';
+                await cubit.placeOrder(address: address);
 
-                await orderCubit.placeOrder(address: address);
-
-                // If order placed successfully, refresh cart and navigate to payment
-                if (orderCubit.state.status == OrderRequestStatus.success &&
-                    orderCubit.state.order != null) {
-                  // refresh the current cart (backend clears cart on success)
-                  try {
-                    context.read<CartCubit>().loadCart();
-                  } catch (_) {
-                    // ignore if cart cubit not provided in this context
-                  }
-
-                  // Navigate to payment screen and provide the OrderCubit instance.
-                  // BlocProvider will take ownership and close the cubit when disposed.
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider<OrderCubit>(
-                        create: (_) => orderCubit,
-                        child: const PaymentScreen(),
-                      ),
-                    ),
-                  );
-                } else {
-                  // show error
-                  final message = orderCubit.state.errorMessage ?? 'Failed to place order.';
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-                }
+                // TODO: After successful order placement, navigate to the payment
+                // screen and provide the same OrderCubit instance so the payment
+                // implementation can access `state.order?.orderId`.
+                // Example to implement later:
+                // Navigator.of(context).push(
+                //   MaterialPageRoute(
+                //     builder: (_) => BlocProvider.value(
+                //       value: cubit,
+                //       child: const PaymentScreen(), // implement this screen
+                //     ),
+                //   ),
+                // );
               },
               child: const Text('Proceed to checkout'),
             ),

@@ -48,6 +48,7 @@ class OrderCubit extends Cubit<OrderState> {
         placedAt: order.placedAt,
         totalAmount: order.totalAmount,
         progress: order.progress,
+        items: order.items,
       );
 
       emit(state.copyWith(status: OrderRequestStatus.success, order: pendingOrder));
