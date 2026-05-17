@@ -64,20 +64,25 @@ class CartServiceDummyDataTestCase(TestCase):
         )
         self.cart = Cart.objects.create(account=self.account)
 
-        self.menu_fixture = {
-            'menu_dummy_001': {
-                'menu_item_id': 'menu_dummy_001',
-                'name': 'Dummy Pizza',
-                'description': 'Fixture description',
-                'price_penny': 1234,
-                'available': True,
-                'image_url': 'https://example.test/dummy.png',
-            }
-        }
-        CartService.set_menu_provider(lambda menu_item_id: self.menu_fixture.get(menu_item_id))
+        # Create a real MenuCatalog and MenuItem in test DB so cart logic
+        # uses actual DB-backed menu data instead of a provider seam.
+        self.catalog = MenuCatalog.objects.create(
+            catalog_id=f'cat_{uuid.uuid4()}',
+            name='Dummy Catalog',
+            active=True,
+        )
+        self.menu_item = MenuItem.objects.create(
+            menu_item_id='menu_dummy_001',
+            catalog=self.catalog,
+            name='Dummy Pizza',
+            description='Fixture description',
+            price_penny=1234,
+            available=True,
+            image_url='https://example.test/dummy.png',
+        )
 
     def tearDown(self):
-        CartService.set_menu_provider(None)
+        pass
 
     def test_add_item_uses_dummy_fixture_price_snapshot(self):
         cart_item, error = CartService.add_item_to_cart(
@@ -153,7 +158,6 @@ class CartAPIJWTTestCase(APITestCase):
             name='API Burger',
             description='Beef burger',
             price_penny=1599,
-            category='Burger',
             available=True,
             image_url='https://example.test/burger.png',
         )
