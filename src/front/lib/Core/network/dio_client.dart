@@ -19,6 +19,7 @@ class DioClient {
   final TokenStorage _storage;
 
   VoidCallback? onSessionExpired;
+  bool _isHandlingSessionExpiry = false;
 
   DioClient(this._storage)
     : _dio = Dio(
@@ -41,8 +42,19 @@ class DioClient {
         onRequest: (options, handler) async {
           // Add authorization header if token exists
           final accessToken = await _storage.getAccessToken();
-          if (accessToken != null && accessToken.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $accessToken';
+
+          const publicEndpoints = {
+            '/auth/login/',
+            '/auth/register/',
+          };
+          
+          final isPublicEndpoint = publicEndpoints.contains(options.path);
+          
+          if (!isPublicEndpoint &&
+              accessToken != null &&
+              accessToken.isNotEmpty) {
+            options.headers['Authorization'] =
+                'Bearer $accessToken';
           }
 
           debugPrint('🌐 REQUEST: ${options.method} ${options.path}');
@@ -79,9 +91,18 @@ class DioClient {
   }
 
   Future<void> _handleSessionExpired() async {
-    await _storage.clearTokens();
-    if (onSessionExpired != null) {
-      onSessionExpired!();
+    if (_isHandlingSessionExpiry) return;
+  
+    _isHandlingSessionExpiry = true;
+  
+    try {
+      await _storage.clearTokens();
+  
+      if (onSessionExpired != null) {
+        onSessionExpired!();
+      }
+    } finally {
+      _isHandlingSessionExpiry = false;
     }
   }
 
