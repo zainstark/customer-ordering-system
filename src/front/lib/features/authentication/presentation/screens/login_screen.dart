@@ -30,9 +30,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     context.read<AuthCubit>().login(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
   }
 
   @override
@@ -169,13 +169,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   // ── Section title ───────────────────────────────────
                   Text(
                     'Welcome Back',
-                    style: textTheme.headlineLarge?.copyWith(color: cs.onSurface),
+                    style: textTheme.headlineLarge?.copyWith(
+                      color: cs.onSurface,
+                    ),
                     textAlign: isWide ? TextAlign.start : TextAlign.center,
                   ),
                   const SizedBox(height: AppDimensions.spacingXs),
                   Text(
                     'Please enter your details to sign in',
-                    style: textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
                     textAlign: isWide ? TextAlign.start : TextAlign.center,
                   ),
                   const SizedBox(height: AppDimensions.spacingLg),
@@ -192,11 +196,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            style: textTheme.bodyLarge?.copyWith(color: cs.onSurface),
-                            decoration: _fieldDecoration(cs, hint: 'chef@zestybite.com'),
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: cs.onSurface,
+                            ),
+                            decoration: _fieldDecoration(
+                              cs,
+                              hint: 'chef@zestybite.com',
+                            ),
                             validator: (v) {
-                              if (v == null || v.trim().isEmpty) return 'Please enter your email';
-                              if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v)) {
+                              if (v == null || v.trim().isEmpty)
+                                return 'Please enter your email';
+                              if (!RegExp(
+                                r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                              ).hasMatch(v)) {
                                 return 'Please enter a valid email';
                               }
                               return null;
@@ -211,21 +223,27 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            style: textTheme.bodyLarge?.copyWith(color: cs.onSurface),
-                            decoration: _fieldDecoration(cs, hint: '••••••••').copyWith(
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
-                                  color: cs.onSurfaceVariant,
-                                ),
-                                onPressed: () =>
-                                    setState(() => _obscurePassword = !_obscurePassword),
-                              ),
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: cs.onSurface,
                             ),
+                            decoration: _fieldDecoration(cs, hint: '••••••••')
+                                .copyWith(
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_outlined
+                                          : Icons.visibility_off_outlined,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                    onPressed: () => setState(
+                                      () =>
+                                          _obscurePassword = !_obscurePassword,
+                                    ),
+                                  ),
+                                ),
                             validator: (v) {
-                              if (v == null || v.trim().isEmpty) return 'Please enter your password';
+                              if (v == null || v.trim().isEmpty)
+                                return 'Please enter your password';
                               return null;
                             },
                           ),
@@ -287,29 +305,35 @@ class _LoginScreenState extends State<LoginScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(state.errorMessage!)),
                               );
-                            }
-                            else if (state.status == AuthStatus.authenticated) {
+                            } else if (state.status ==
+                                AuthStatus.authenticated) {
                               context.go(RoutesPath.menu);
                             }
                           },
                           builder: (context, state) {
-                            final isLoading = state.status == AuthStatus.loading;
+                            final isLoading =
+                                state.status == AuthStatus.loading;
                             return ElevatedButton(
                               onPressed: isLoading ? null : _submit,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: cs.primaryContainer,
                                 foregroundColor: cs.onPrimaryContainer,
-                                disabledBackgroundColor:
-                                    cs.primaryContainer.withValues(alpha: .6),
+                                disabledBackgroundColor: cs.primaryContainer
+                                    .withValues(alpha: .6),
                                 elevation: 4,
-                                shadowColor: cs.primaryContainer.withValues(alpha: .4),
+                                shadowColor: cs.primaryContainer.withValues(
+                                  alpha: .4,
+                                ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(AppDimensions.radiusXl),
+                                  borderRadius: BorderRadius.circular(
+                                    AppDimensions.radiusXl,
+                                  ),
                                 ),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 child: isLoading
                                     ? SizedBox(
                                         height: 20,
@@ -334,13 +358,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         // ── Footer ───────────────────────────────────
                         Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
                             children: [
                               Text(
                                 "Don't have an account? ",
-                                style: textTheme.bodyMedium
-                                    ?.copyWith(color: cs.onSurfaceVariant),
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
                               ),
                               GestureDetector(
                                 onTap: () => context.go(RoutesPath.signup),
@@ -454,4 +479,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

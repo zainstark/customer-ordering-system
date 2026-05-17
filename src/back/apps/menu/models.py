@@ -17,6 +17,7 @@ class MenuCatalog(models.Model):
 class Category(models.Model):
     category_id = models.CharField(max_length=255, primary_key=True)
     name = models.CharField(max_length=255, unique=True, db_column='category_name')
+    description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -8,7 +8,12 @@ class OrdersRepositoryImpl implements OrdersRepository {
   final OrdersRemoteDataSource _ordersRemoteDataSource;
 
   @override
-  Future<List<OrderItemEntity>> getOrders({required String accountId}) {
-    return _ordersRemoteDataSource.getOrders(accountId);
+  Future<List<OrderItemEntity>> getOrders() {
+    return _ordersRemoteDataSource.getOrders();
+  }
+
+  @override
+  Future<OrderItemEntity> placeOrder({required String address}) {
+    return _ordersRemoteDataSource.placeOrder(address: address);
   }
 }
