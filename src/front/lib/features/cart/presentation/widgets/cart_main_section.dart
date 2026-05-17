@@ -29,6 +29,7 @@ class CartMainSection extends StatelessWidget {
                   context.read<CartCubit>().incrementItem(item.id),
               onDecrement: () =>
                   context.read<CartCubit>().decrementItem(item.id),
+              onRemove: () => context.read<CartCubit>().removeItem(item.id),
             ),
           );
         }),

@@ -3,6 +3,7 @@ import 'package:frontend/Core/storage/token_storage.dart';
 import 'package:frontend/features/cart/data/datasources/cart_remote_data_source.dart';
 import 'package:frontend/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:frontend/features/cart/domain/repositories/cart_repository.dart';
+import 'package:frontend/features/cart/domain/usecases/add_cart_item_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/get_cart_items_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/remove_cart_item_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/update_cart_item_quantity_usecase.dart';
@@ -40,14 +41,15 @@ final getIt = GetIt.instance;
 void setupDependencies() {
   // Core
   getIt.registerLazySingleton<TokenStorage>(() => TokenStorage());
-  
-  getIt.registerLazySingleton<DioClient>(() => DioClient(getIt<TokenStorage>()));
+
+  getIt.registerLazySingleton<DioClient>(
+    () => DioClient(getIt<TokenStorage>()),
+  );
 
   // Authentication
   getIt.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSource(getIt<DioClient>(), getIt<TokenStorage>()),
   );
-
 
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(getIt<AuthRemoteDataSource>()),
@@ -106,6 +108,10 @@ void setupDependencies() {
     () => GetCartItemsUseCase(getIt()),
   );
 
+  getIt.registerLazySingleton<AddCartItemUseCase>(
+    () => AddCartItemUseCase(getIt()),
+  );
+
   getIt.registerLazySingleton<UpdateCartItemQuantityUseCase>(
     () => UpdateCartItemQuantityUseCase(getIt()),
   );
@@ -118,21 +124,13 @@ void setupDependencies() {
     () => GetOrdersUseCase(getIt()),
   );
 
-  getIt.registerFactory<MenuCubit>(
-    () => MenuCubit(getIt()),
-  );
+  getIt.registerFactory<MenuCubit>(() => MenuCubit(getIt()));
 
   getIt.registerFactory<CartCubit>(
-    () => CartCubit(
-      getIt(),
-      getIt(),
-      getIt(),
-    ),
+    () => CartCubit(getIt(), getIt(), getIt(), getIt()),
   );
 
-  getIt.registerFactory<OrdersCubit>(
-    () => OrdersCubit(getIt()),
-  );
+  getIt.registerFactory<OrdersCubit>(() => OrdersCubit(getIt()));
 
   // Notifications
   // Using mock data source by default for development

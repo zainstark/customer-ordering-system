@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/cart/domain/entities/card_item_entity.dart';
+import 'package:frontend/features/cart/domain/usecases/add_cart_item_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/get_cart_items_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/remove_cart_item_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/update_cart_item_quantity_usecase.dart';
@@ -8,16 +9,19 @@ import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 
 class CartCubit extends Cubit<CartState> {
   CartCubit(
+    AddCartItemUseCase addCartItemUseCase,
     GetCartItemsUseCase getCartItemsUseCase,
     UpdateCartItemQuantityUseCase updateCartItemQuantityUseCase,
     RemoveCartItemUseCase removeCartItemUseCase,
-  ) : _getCartItemsUseCase = getCartItemsUseCase,
+  ) : _addCartItemUseCase = addCartItemUseCase,
+      _getCartItemsUseCase = getCartItemsUseCase,
       _updateCartItemQuantityUseCase = updateCartItemQuantityUseCase,
       _removeCartItemUseCase = removeCartItemUseCase,
       super(const CartState(accountId: _defaultAccountId, models: []));
 
   static const String _defaultAccountId = 'test_account_001';
 
+  final AddCartItemUseCase _addCartItemUseCase;
   final GetCartItemsUseCase _getCartItemsUseCase;
   final UpdateCartItemQuantityUseCase _updateCartItemQuantityUseCase;
   final RemoveCartItemUseCase _removeCartItemUseCase;
@@ -34,9 +38,35 @@ class CartCubit extends Cubit<CartState> {
 
     try {
       debugPrint("))))))))))))))))))))");
-      final items =
-          await _getCartItemsUseCase(accountId: currentAccountId);
+      final items = await _getCartItemsUseCase(accountId: currentAccountId);
       debugPrint("))))))))))))))))))))");
+      emit(
+        state.copyWith(
+          models: items,
+          status: CartRequestStatus.success,
+          clearErrorMessage: true,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: CartRequestStatus.error,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> addItem({
+    required String menuItemId,
+    required int quantity,
+  }) async {
+    try {
+      final items = await _addCartItemUseCase(
+        accountId: state.accountId,
+        menuItemId: menuItemId,
+        quantity: quantity,
+      );
       emit(
         state.copyWith(
           models: items,
