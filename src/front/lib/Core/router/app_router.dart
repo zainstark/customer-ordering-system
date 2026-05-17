@@ -103,6 +103,7 @@ class AppRouter {
                   builder: (context, _) => const PaymentFailureScreen(),
                 ),
               ],
+            ),
             GoRoute(
               path: RoutesPath.notifications,
               name: RoutesName.notifications,

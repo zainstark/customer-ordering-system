@@ -23,6 +23,7 @@ class RoutesName {
   static const String paymentProcessing = 'paymentProcessing';
   static const String paymentSuccess    = 'paymentSuccess';
   static const String paymentFailure    = 'paymentFailure';
+  static const String notifications     = 'notifications';
   static const String signup            = 'signup';
   static const String login             = 'login';
 }
