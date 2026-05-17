@@ -10,11 +10,13 @@ class CartItemCard extends StatelessWidget {
     required this.model,
     required this.onIncrement,
     required this.onDecrement,
+    required this.onRemove,
   });
 
   final CartItemEntity model;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
+  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +61,7 @@ class CartItemCard extends StatelessWidget {
           Column(
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: onRemove,
                 icon: const Icon(Icons.delete_outline),
               ),
               Container(
