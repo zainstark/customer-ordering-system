@@ -4,7 +4,7 @@ import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 import 'package:frontend/features/cart/presentation/widgets/cart_main_section.dart';
-import 'package:frontend/features/widgets/order_summary_card.dart';
+import 'package:frontend/features/widgets/cart_summary_card.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -45,7 +45,7 @@ class CartScreen extends StatelessWidget {
                     const SizedBox(width: AppDimensions.spacingLg),
                     Expanded(
                       flex: 1,
-                      child: OrderSummaryCard(state: state, button: true),
+                      child: CartSummaryCard(state: state, button: true),
                     ),
                   ],
                 )
@@ -54,7 +54,7 @@ class CartScreen extends StatelessWidget {
                   children: [
                     const CartMainSection(),
                     const SizedBox(height: AppDimensions.spacingLg),
-                    OrderSummaryCard(state: state, button: true),
+                    CartSummaryCard(state: state, button: true),
                   ],
                 ),
         );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/widgets/order_summary_card.dart';
+import 'package:frontend/features/widgets/cart_summary_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
@@ -122,7 +122,7 @@ class CheckoutScreen extends StatelessWidget {
           ],
         );
 
-        final summarySection = OrderSummaryCard(state: state, button: false);
+        final summarySection = CartSummaryCard(state: state, button: false);
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(AppDimensions.paddingLg),

@@ -10,8 +10,8 @@ import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dar
 import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
 
-class OrderSummaryCard extends StatelessWidget {
-  const OrderSummaryCard({super.key, required this.state, required this.button});
+class CartSummaryCard extends StatelessWidget {
+  const CartSummaryCard({super.key, required this.state, required this.button});
 
   final  state;
   final bool button;
