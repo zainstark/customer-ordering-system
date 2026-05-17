@@ -1,6 +1,21 @@
+"""
+URL routing for the order app.
+
+Include this in the root urls.py with:
+    path('api/order/', include('apps.order.urls'))
+
+Resulting endpoints:
+    GET  /api/order/        -> list_orders
+    POST /api/order/place/  -> place_order
+"""
+
 from django.urls import path
-from .views import PlaceOrderView
-app_name = 'order'
+
+from apps.order import views
+
+app_name = "order"
+
 urlpatterns = [
-    path('checkout/', PlaceOrderView.as_view(), name='place-order'),
+    path("", views.list_orders, name="list_orders"),
+    path("place/", views.place_order, name="place_order"),
 ]

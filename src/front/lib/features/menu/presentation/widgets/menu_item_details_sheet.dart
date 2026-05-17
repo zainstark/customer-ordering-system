@@ -70,7 +70,7 @@ class _ImagePanel extends StatelessWidget {
     return AspectRatio(
       aspectRatio: 1,
       child: AppNetworkImage(
-        imageUrl: item.imageUrl,
+        imageUrl: item.imageUrl ?? 'https://via.placeholder.com/300',
         fit: BoxFit.cover,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
       ),
@@ -141,7 +141,7 @@ class _DetailsPanelState extends State<_DetailsPanel> {
           ),
           const SizedBox(height: AppDimensions.spacingXl),
           SelectableText(
-            widget.item.description,
+            widget.item.description ?? "No description available",
             style: textTheme.bodyLarge?.copyWith(
               color: colorScheme.onSurfaceVariant,
               height: 1.6,

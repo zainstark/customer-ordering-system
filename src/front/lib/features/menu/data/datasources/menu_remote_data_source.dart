@@ -21,7 +21,10 @@ class MenuRemoteDataSourceImpl implements MenuRemoteDataSource {
       keys: const ['data', 'categories', 'items'],
     );
     return list
-        .map((item) => MenuCategoryModel.fromJson(item as Map<String, dynamic>))
+        .map((item) {
+    
+          return MenuCategoryModel.fromJson(item as Map<String, dynamic>);
+        })
         .toList();
   }
 

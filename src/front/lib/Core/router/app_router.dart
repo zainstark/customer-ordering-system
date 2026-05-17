@@ -17,6 +17,9 @@ import 'package:frontend/features/checkout/presentation/screens/checkout_screen.
 import 'package:frontend/features/checkout/presentation/screens/payment_failure_screen.dart';
 import 'package:frontend/features/checkout/presentation/screens/payment_processing_screen.dart';
 import 'package:frontend/features/checkout/presentation/screens/payment_success_screen.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
+import 'package:frontend/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:frontend/features/shell/presentation/widgets/app_shell_scaffold.dart';
 import 'package:go_router/go_router.dart';
 
@@ -100,6 +103,20 @@ class AppRouter {
                   builder: (context, _) => const PaymentFailureScreen(),
                 ),
               ],
+            GoRoute(
+              path: RoutesPath.notifications,
+              name: RoutesName.notifications,
+              builder: (context, _) => MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (_) => getIt<NotificationCubit>(),
+                  ),
+                  BlocProvider(
+                    create: (_) => getIt<NotificationBadgeCubit>(),
+                  ),
+                ],
+                child: const NotificationsPage(),
+              ),
             ),
           ],
         ),

@@ -32,6 +32,16 @@ import 'package:frontend/features/authentication/domain/repositories/auth_reposi
 import 'package:frontend/features/authentication/domain/usecases/login_usecase.dart';
 import 'package:frontend/features/authentication/domain/usecases/register_usecase.dart';
 import 'package:frontend/features/authentication/presentation/cubit/auth_cubit.dart';
+import 'package:frontend/features/notifications/data/datasources/notification_remote_data_source.dart';
+import 'package:frontend/features/notifications/data/datasources/notification_remote_data_source_impl.dart';
+import 'package:frontend/features/notifications/data/repositories/notification_repository_impl.dart';
+import 'package:frontend/features/notifications/domain/repositories/notification_repository.dart';
+import 'package:frontend/features/notifications/domain/usecases/get_notifications_usecase.dart';
+import 'package:frontend/features/notifications/domain/usecases/get_unread_count_usecase.dart';
+import 'package:frontend/features/notifications/domain/usecases/mark_notification_as_read_usecase.dart';
+import 'package:frontend/features/notifications/domain/usecases/mark_all_as_read_usecase.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
@@ -60,13 +70,17 @@ void setupDependencies() {
     () => LoginUsecase(getIt<AuthRepository>()),
   );
 
-  getIt.registerFactory<AuthCubit>(
+  getIt.registerLazySingleton<AuthCubit>(
     () => AuthCubit(
       getIt<RegisterUsecase>(),
       getIt<LoginUsecase>(),
       getIt<AuthRepository>(),
     ),
   );
+
+  getIt<DioClient>().onSessionExpired = () {
+    getIt<AuthCubit>().logout();
+  };
 
   // Menu
   getIt.registerLazySingleton<MenuRemoteDataSource>(
@@ -165,5 +179,44 @@ void setupDependencies() {
 
   getIt.registerFactory<OrdersCubit>(
     () => OrdersCubit(getIt()),
+  );
+
+  // Notifications
+  // Using mock data source by default for development
+  // To use real API, replace with: NotificationRemoteDataSourceImpl(getIt<DioClient>())
+  getIt.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceMock(),
+  );
+
+  getIt.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(getIt<NotificationRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<GetNotificationsUseCase>(
+    () => GetNotificationsUseCase(getIt<NotificationRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetUnreadCountUseCase>(
+    () => GetUnreadCountUseCase(getIt<NotificationRepository>()),
+  );
+
+  getIt.registerLazySingleton<MarkNotificationAsReadUseCase>(
+    () => MarkNotificationAsReadUseCase(getIt<NotificationRepository>()),
+  );
+
+  getIt.registerLazySingleton<MarkAllAsReadUseCase>(
+    () => MarkAllAsReadUseCase(getIt<NotificationRepository>()),
+  );
+
+  getIt.registerFactory<NotificationCubit>(
+    () => NotificationCubit(
+      getIt<GetNotificationsUseCase>(),
+      getIt<MarkNotificationAsReadUseCase>(),
+      getIt<MarkAllAsReadUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<NotificationBadgeCubit>(
+    () => NotificationBadgeCubit(getIt<GetUnreadCountUseCase>()),
   );
 }

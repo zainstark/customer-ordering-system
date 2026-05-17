@@ -10,49 +10,10 @@ from apps.menu.models import MenuItem
 from .models import Cart, CartItem
 
 
-# Dummy menu items data (until menu app is built and database is populated)
-DUMMY_MENU_ITEMS = {
-    'menu_001': {
-        'name': 'Margherita Pizza',
-        'description': 'Classic pizza with tomato, mozzarella, and basil',
-        'price': 1500,  # in pennies ($15.00)
-        'available': True,
-        'category': 'Pizza',
-        'imageUrl': 'https://images.example.com/menu/margherita-pizza.jpg',
-    },
-    'menu_002': {
-        'name': 'Pepperoni Pizza',
-        'description': 'Pizza with pepperoni and extra cheese',
-        'price': 1700,  # in pennies ($17.00)
-        'available': True,
-        'category': 'Pizza',
-        'imageUrl': 'https://images.example.com/menu/pepperoni-pizza.jpg',
-    },
-    'menu_003': {
-        'name': 'Caesar Salad',
-        'description': 'Fresh romaine lettuce with parmesan and croutons',
-        'price': 800,  # in pennies ($8.00)
-        'available': True,
-        'category': 'Salad',
-        'imageUrl': 'https://images.example.com/menu/caesar-salad.jpg',
-    },
-    'menu_004': {
-        'name': 'Garlic Bread',
-        'description': 'Crispy garlic bread with herbs',
-        'price': 400,  # in pennies ($4.00)
-        'available': True,
-        'category': 'Sides',
-        'imageUrl': 'https://images.example.com/menu/garlic-bread.jpg',
-    },
-    'menu_005': {
-        'name': 'Coca Cola',
-        'description': 'Cold soft drink',
-        'price': 250,  # in pennies ($2.50)
-        'available': True,
-        'category': 'Beverages',
-        'imageUrl': 'https://images.example.com/menu/coca-cola.jpg',
-    },
-}
+# NOTE: Removed in-file dummy menu fixtures. Real menu items should be
+# populated in the `menu` app database. Tests may still inject a provider
+# via `CartService.set_menu_provider` when deterministic fixtures are
+# required.
 
 
 class CartService:
@@ -94,11 +55,7 @@ class CartService:
         if CartService._menu_provider is not None:
             return CartService._menu_provider(menu_item_id)
 
-        menu_item = CartService._get_menu_item_from_db(menu_item_id)
-        if menu_item is not None:
-            return menu_item
-
-        return DUMMY_MENU_ITEMS.get(menu_item_id)
+        return CartService._get_menu_item_from_db(menu_item_id)
 
     @staticmethod
     def add_item_to_cart(

@@ -5,6 +5,7 @@ class RoutesPath {
   static const String cart              = '/cart';
   static const String orders            = '/orders';
   static const String checkout          = '/checkout';
+  static const String notifications = '/notifications';
   static const String paymentProcessing = '/checkout/payment-processing';
   static const String paymentSuccess    = '/checkout/success';
   static const String paymentFailure    = '/checkout/failure';
