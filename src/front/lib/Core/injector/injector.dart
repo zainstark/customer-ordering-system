@@ -133,10 +133,8 @@ void setupDependencies() {
   getIt.registerFactory<OrdersCubit>(() => OrdersCubit(getIt()));
 
   // Notifications
-  // Using mock data source by default for development
-  // To use real API, replace with: NotificationRemoteDataSourceImpl(getIt<DioClient>())
   getIt.registerLazySingleton<NotificationRemoteDataSource>(
-    () => NotificationRemoteDataSourceMock(),
+    () => NotificationRemoteDataSourceImpl(getIt()),
   );
 
   getIt.registerLazySingleton<NotificationRepository>(
