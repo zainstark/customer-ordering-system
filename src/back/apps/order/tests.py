@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 
 from apps.authentication.models import Accounts
 from apps.cart.models import Cart, CartItem
@@ -417,12 +417,12 @@ class OrderAPITestCase(APITestCase):
         self.cart_b = Cart.objects.create(account=self.account_b)
 
     def _access_token_for(self, account: Accounts) -> str:
-        refresh = RefreshToken()
-        refresh["account_id"] = account.account_id
-        refresh["email"] = account.email
-        refresh["role"] = account.role
-        refresh["display_name"] = account.display_name
-        return str(refresh.access_token)
+        access = AccessToken()
+        access["account_id"] = account.account_id
+        access["email"] = account.email
+        access["role"] = account.role
+        access["display_name"] = account.display_name
+        return str(access)
 
     def _authenticate(self, account: Accounts):
         token = self._access_token_for(account)

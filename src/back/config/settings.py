@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "apps.menu",
     "apps.authentication",
     "apps.payments",
+    "apps.notification",
 ]
 
 MIDDLEWARE = [
@@ -120,8 +121,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME':  timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME':  timedelta(minutes=60),
 }
 
 # CORS Configuration

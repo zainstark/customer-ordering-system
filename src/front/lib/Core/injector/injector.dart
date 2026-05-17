@@ -8,6 +8,9 @@ import 'package:frontend/features/cart/domain/usecases/get_cart_items_usecase.da
 import 'package:frontend/features/cart/domain/usecases/remove_cart_item_usecase.dart';
 import 'package:frontend/features/cart/domain/usecases/update_cart_item_quantity_usecase.dart';
 import 'package:frontend/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:frontend/features/checkout/data/datasources/checkout_remote_data_source.dart';
+import 'package:frontend/features/checkout/data/repositories/checkout_repository_impl.dart';
+import 'package:frontend/features/checkout/domain/repositories/checkout_repository.dart';
 import 'package:frontend/features/menu/data/datasources/menu_remote_data_source.dart';
 import 'package:frontend/features/menu/data/repositories/menu_repository_impl.dart';
 import 'package:frontend/features/menu/domain/repositories/menu_repository.dart';
@@ -17,10 +20,8 @@ import 'package:frontend/features/orders/data/datasources/orders_remote_data_sou
 import 'package:frontend/features/orders/data/repositories/orders_repository_impl.dart';
 import 'package:frontend/features/orders/domain/repositories/orders_repository.dart';
 import 'package:frontend/features/orders/domain/usecases/get_orders_usecase.dart';
+import 'package:frontend/features/orders/domain/usecases/place_order_usecase.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
-import 'package:frontend/features/checkout/data/datasources/checkout_remote_data_source.dart';
-import 'package:frontend/features/checkout/data/repositories/checkout_repository_impl.dart';
-import 'package:frontend/features/checkout/domain/repositories/checkout_repository.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_payment_session_usecase.dart';
 import 'package:frontend/features/checkout/domain/usecases/get_payment_status_usecase.dart';
@@ -109,6 +110,10 @@ void setupDependencies() {
     () => OrdersRepositoryImpl(getIt()),
   );
 
+  getIt.registerLazySingleton<PlaceOrderUseCase>(
+    () => PlaceOrderUseCase(getIt()),
+  );
+
   getIt.registerLazySingleton<GetMenuCategoriesUseCase>(
     () => GetMenuCategoriesUseCase(getIt()),
   );
@@ -180,10 +185,8 @@ void setupDependencies() {
   );
 
   // Notifications
-  // Using mock data source by default for development
-  // To use real API, replace with: NotificationRemoteDataSourceImpl(getIt<DioClient>())
   getIt.registerLazySingleton<NotificationRemoteDataSource>(
-    () => NotificationRemoteDataSourceMock(),
+    () => NotificationRemoteDataSourceImpl(getIt()),
   );
 
   getIt.registerLazySingleton<NotificationRepository>(

@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_cubit.dart';
 
 class OrderSummaryCard extends StatelessWidget {
   const OrderSummaryCard({super.key, required this.state, required this.button});

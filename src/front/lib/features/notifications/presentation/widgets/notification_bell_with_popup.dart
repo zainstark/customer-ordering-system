@@ -4,6 +4,7 @@ import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_badge_state.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_state.dart';
 import 'package:frontend/features/notifications/presentation/widgets/notification_badge.dart';
 import 'package:frontend/features/notifications/presentation/widgets/notification_popup.dart';
 
@@ -38,19 +39,19 @@ class _NotificationBellWithPopupState extends State<NotificationBellWithPopup> {
     }
   }
 
-  void _closePopup() {
-    _removeOverlay();
-  }
-
   void _showOverlay() {
     final renderBox = _bellKey.currentContext?.findRenderObject() as RenderBox?;
     final overlay = Overlay.of(context);
-    if (renderBox == null || overlay == null) return;
+    if (renderBox == null) return;
 
     // Preserve existing cubit providers for the overlay so Inherited widgets
     // (BlocProviders) remain available to the popup's subtree.
     final notificationCubit = context.read<NotificationCubit>();
     final badgeCubit = context.read<NotificationBadgeCubit>();
+
+    // Always refresh before opening so popup and badge reflect latest backend state.
+    notificationCubit.loadNotifications(isRefresh: true);
+    badgeCubit.loadUnreadCount();
 
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
@@ -144,16 +145,20 @@ class _NotificationBellWithPopupState extends State<NotificationBellWithPopup> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // Bell button
-        GestureDetector(
-          key: _bellKey,
-          onTap: _togglePopup,
-          child: Material(
+    return BlocListener<NotificationCubit, NotificationState>(
+      listenWhen: (previous, current) =>
+          previous.unreadCount != current.unreadCount,
+      listener: (context, state) {
+        context.read<NotificationBadgeCubit>().loadUnreadCount();
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Bell button
+          Material(
             color: Colors.transparent,
             child: InkWell(
+              key: _bellKey,
               onTap: _togglePopup,
               borderRadius: BorderRadius.circular(50),
               child: Padding(
@@ -176,9 +181,9 @@ class _NotificationBellWithPopupState extends State<NotificationBellWithPopup> {
               ),
             ),
           ),
-        ),
-        // (OverlayEntry handles popup and scrim)
-      ],
+          // (OverlayEntry handles popup and scrim)
+        ],
+      ),
     );
   }
 }

@@ -16,8 +16,8 @@ class NotificationModel extends NotificationEntity {
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
       messageId: json['message_id'] as String? ?? json['messageId'] as String,
-      subject: json['subject'] as String,
-      body: json['body'] as String,
+      subject: json['subject'] as String? ?? '',
+      body: json['body'] as String? ?? '',
       deliveryChannel:
           _parseDeliveryChannel(json['delivery_channel'] as String?),
       deliveryStatus: _parseDeliveryStatus(json['delivery_status'] as String?),

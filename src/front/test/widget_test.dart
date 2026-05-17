@@ -25,6 +25,10 @@ import 'package:frontend/features/orders/domain/repositories/orders_repository.d
 import 'package:frontend/features/orders/domain/usecases/get_orders_usecase.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:frontend/main.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/features/orders/domain/usecases/place_order_usecase.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_cubit.dart';
+import 'package:frontend/features/cart/presentation/widgets/cart_order_summary_card.dart';
 
 class _FakeMenuRepository implements MenuRepository {
   @override
@@ -127,28 +131,45 @@ class _FakeCartRepository implements CartRepository {
 
 class _FakeOrdersRepository implements OrdersRepository {
   @override
-  Future<List<OrderItemEntity>> getOrders({required String accountId}) async {
+  Future<List<OrderItemEntity>> getOrders() async {
     return [
       OrderItemModel(
         id: 'o1',
-        accountId: accountId,
+        accountId: 'ACC-100',
         orderId: 'ORD-1',
-        status: 'Preparing',
+        status: 'PREPARING',
         placedAt: DateTime(2026, 5, 1),
         totalAmount: 20.0,
         progress: 0.5,
+        items: [],
       ),
       OrderItemModel(
         id: 'o2',
-        accountId: accountId,
+        accountId: 'ACC-100',
         orderId: 'ORD-2',
-        status: 'Delivered',
+        status: 'DELIVERED',
         placedAt: DateTime(2026, 4, 1),
         totalAmount: 15.0,
         progress: 1,
+        items: [],
       ),
     ];
   }
+
+  @override
+  Future<OrderItemEntity> placeOrder({required String address}) async {
+    return OrderItemModel(
+      id: 'o3',
+      accountId: 'ACC-100',
+      orderId: 'ORD-3',
+      status: 'PENDING',
+      placedAt: DateTime(2026, 5, 17),
+      totalAmount: 42.0,
+      progress: 0.1,
+      items: [],
+    );
+  }
+
 }
 
 void main() {
@@ -264,11 +285,59 @@ void main() {
 
   test('orders cubit switches between active and past tabs', () async {
     final cubit = OrdersCubit(GetOrdersUseCase(_FakeOrdersRepository()));
-    await cubit.loadOrders(accountId: 'ACC-100');
+    await cubit.loadOrders();
     expect(cubit.state.selectedTab, OrdersTab.active);
 
     cubit.changeTab(OrdersTab.past);
     expect(cubit.state.selectedTab, OrdersTab.past);
     expect(cubit.state.visibleOrders, cubit.state.pastOrders);
+  });
+
+  testWidgets('proceed to checkout creates order and navigates to payment', (tester) async {
+  await tester.binding.setSurfaceSize(const Size(800, 1200));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+
+  // create fakes
+  final orderRepo = _FakeOrdersRepository();
+  final placeOrderUseCase = PlaceOrderUseCase(orderRepo);
+  final orderCubit = OrderCubit(placeOrderUseCase);
+
+  final cartRepo = _FakeCartRepository();
+  final cartCubit = CartCubit(
+    AddCartItemUseCase(cartRepo),
+    GetCartItemsUseCase(cartRepo),
+    UpdateCartItemQuantityUseCase(cartRepo),
+    RemoveCartItemUseCase(cartRepo),
+  );
+  await cartCubit.loadCart();
+
+  // register order cubit in service locator used by widget
+  await getIt.reset();
+  getIt.registerSingleton<OrderCubit>(orderCubit);
+
+  await tester.pumpWidget(MaterialApp(
+    home: MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: cartCubit),
+        BlocProvider.value(value: orderCubit),
+      ],
+      child: Builder(
+        builder: (context) => Scaffold(
+          body: CartOrderSummaryCard(state: cartCubit.state),
+        ),
+      ),
+    ),
+  ));
+
+  await tester.pumpAndSettle();
+
+  // Ensure the button exists and tap
+  expect(find.text('Proceed to checkout'), findsOneWidget);
+  await tester.tap(find.text('Proceed to checkout'));
+  await tester.pumpAndSettle();
+
+  // Payment screen should be pushed and show amount from fake order
+  expect(find.textContaining('Amount:'), findsOneWidget);
+  expect(find.text('Amount: \$42.00'), findsOneWidget);
   });
 }
