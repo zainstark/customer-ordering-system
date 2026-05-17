@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/Core/injector/injector.dart';
+import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:frontend/features/orders/presentation/cubit/orders_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
-import 'package:frontend/features/orders/presentation/cubit/order_cubit.dart';
 
 class OrderSummaryCard extends StatelessWidget {
   const OrderSummaryCard({super.key, required this.state, required this.button});
 
-  final state;
+  final  state;
   final bool button;
 
   @override
@@ -76,7 +79,24 @@ class OrderSummaryCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => context.go(RoutesPath.checkout),
+              onPressed: () async  {
+                 final cubit = getIt<OrdersCubit>();
+                // Minimal address provided since UI does not collect address here
+                const address = 'No address provided';
+                print(" Placing order with address: $address");
+                await cubit.placeOrder(address: address);
+                print(" Placing order with address: $address");
+
+                if (!context.mounted) return;
+
+                if (cubit.state.fetchStatus == FetchStatus.success) {
+                  // Immediately sync top-bar popup and badge after order placement.
+                  context.read<NotificationCubit>().loadNotifications(isRefresh: true);
+                  context.read<NotificationBadgeCubit>().loadUnreadCount();
+                }
+
+                context.go(RoutesPath.checkout);
+              },
               child: const Text('Proceed to checkout'),
             ),
           ),

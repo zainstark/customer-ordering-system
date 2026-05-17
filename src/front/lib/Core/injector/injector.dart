@@ -144,9 +144,9 @@ void setupDependencies() {
     () => CartCubit(getIt(), getIt(), getIt(), getIt()),
   );
 
-  getIt.registerFactory<OrdersCubit>(() => OrdersCubit(getIt()));
+  getIt.registerFactory<OrdersCubit>(() => OrdersCubit(getIt(), getIt()));
 
-   getIt.registerLazySingleton<CheckoutRemoteDataSource>(
+  getIt.registerLazySingleton<CheckoutRemoteDataSource>(
     () => CheckoutRemoteDataSourceImpl(getIt()),
   );
 
@@ -175,13 +175,7 @@ void setupDependencies() {
   );
 
   getIt.registerFactory<CheckoutCubit>(
-    () => CheckoutCubit(
-      getIt(),
-      getIt(),
-      getIt(),
-      getIt(),
-      getIt(),
-    ),
+    () => CheckoutCubit(getIt(), getIt(), getIt(), getIt(), getIt()),
   );
 
   // Notifications
