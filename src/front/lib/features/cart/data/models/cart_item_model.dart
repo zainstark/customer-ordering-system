@@ -40,7 +40,7 @@ class CartItemModel extends CartItemEntity {
       title: map['title'] as String,
       subtitle: map['subtitle'] as String,
       unitPrice: (map['unitPrice'] as num).toDouble(),
-      quantity: map['quantity'] as int,
+      quantity: (map['quantity'] as num).toInt(),
       imageUrl: map['imageUrl'] as String,
     );
   }
