@@ -11,6 +11,7 @@ import 'package:frontend/features/cart/presentation/screens/cart_screen.dart';
 import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
 import 'package:frontend/features/menu/presentation/screens/menu_screen.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:frontend/features/orders/presentation/screens/order_tracking_screen.dart';
 import 'package:frontend/features/orders/presentation/screens/orders_screen.dart';
 import 'package:frontend/features/checkout/presentation/cubit/checkout_cubit.dart';
 import 'package:frontend/features/checkout/presentation/screens/checkout_screen.dart';
@@ -111,6 +112,17 @@ class AppRouter {
                     builder: (context, _) => const PaymentFailureScreen(),
                   ),
                 ],
+              ),
+              GoRoute(
+                path: RoutesPath.orderTracking,
+                name: RoutesName.orderTracking,
+                builder: (context, state) {
+                  final orderId = state.pathParameters['id']!;
+                  return BlocProvider(
+                    create: (_) => getIt<OrdersCubit>()..loadOrders(),
+                    child: OrderTrackingScreen(orderId: orderId),
+                  );
+                },
               ),
               GoRoute(
                 path: RoutesPath.notifications,

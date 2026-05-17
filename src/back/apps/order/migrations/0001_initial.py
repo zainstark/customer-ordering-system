@@ -41,6 +41,7 @@ class Migration(migrations.Migration):
                 ('unit_price_snapshot', models.IntegerField()),
                 ('quantity', models.IntegerField()),
                 ('line_total', models.IntegerField(default=0)),
+
                 ('menu_item', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='menu.menuitem')),
                 ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='order.orders')),
             ],
