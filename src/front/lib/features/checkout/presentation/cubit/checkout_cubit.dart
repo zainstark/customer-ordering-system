@@ -1,4 +1,4 @@
-import 'package:flutter_stripe_web/flutter_stripe_web.dart';
+import 'package:flutter_stripe_web/flutter_stripe_web.dart' hide PaymentMethodType;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
