@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_stripe_web/flutter_stripe_web.dart';
 import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/Core/router/app_router.dart';
 import 'package:frontend/Core/theme/app_theme.dart';
 import 'package:frontend/Core/utils/observer.dart';
+import 'package:frontend/Core/services/stripe_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  WebStripe().initialize(publishableKey: 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY');
+  await StripeService.init();
   setupDependencies();
   Bloc.observer = MyBlocObserver();
   runApp(const MyApp());
