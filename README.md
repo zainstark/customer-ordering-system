@@ -7,6 +7,7 @@ A full-stack food ordering platform with a Django REST API backend and a Flutter
 ## Table of Contents
 
 - [Features](#features)
+- [Screenshots](#screenshots)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -32,6 +33,31 @@ A full-stack food ordering platform with a Django REST API backend and a Flutter
 |**Payment Processing**|Stripe-backed payment sessions; CASH and CARD support; webhook handling; retry logic|
 |**Order Tracking**|Real-time status timeline with progress percentage and estimated time|
 |**Notifications**|In-app notifications for order events; paginated list; mark as read / mark all as read|
+
+---
+
+## Screenshots
+
+The following screenshots are stored in the `Docs/` folder:
+
+<table>
+    <tr>
+        <td><img src="Docs/1.png" alt="Screenshot 1" width="100%"></td>
+        <td><img src="Docs/2.png" alt="Screenshot 2" width="100%"></td>
+    </tr>
+    <tr>
+        <td><img src="Docs/3.png" alt="Screenshot 3" width="100%"></td>
+        <td><img src="Docs/4.png" alt="Screenshot 4" width="100%"></td>
+    </tr>
+    <tr>
+        <td><img src="Docs/5.png" alt="Screenshot 5" width="100%"></td>
+        <td><img src="Docs/6.png" alt="Screenshot 6" width="100%"></td>
+    </tr>
+    <tr>
+        <td><img src="Docs/7.png" alt="Screenshot 7" width="100%"></td>
+        <td><img src="Docs/8.png" alt="Screenshot 8" width="100%"></td>
+    </tr>
+</table>
 
 ---
 
