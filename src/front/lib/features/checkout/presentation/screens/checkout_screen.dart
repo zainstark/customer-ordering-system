@@ -14,6 +14,8 @@ import 'package:frontend/features/checkout/presentation/widgets/checkout_item_ti
 import 'package:frontend/features/checkout/presentation/widgets/payment_method_card.dart';
 import 'package:frontend/features/checkout/presentation/widgets/secure_payment_banner.dart';
 import 'package:frontend/features/checkout/presentation/widgets/payment_error_card.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
 
 class CheckoutScreen extends StatelessWidget {
   const CheckoutScreen({super.key});
@@ -30,6 +32,15 @@ class CheckoutScreen extends StatelessWidget {
             }
             if (state.status == CheckoutRequestStatus.failure) {
               context.go(RoutesPath.paymentFailure);
+            }
+            // When CASH payment succeeds, ensure notification UI updates immediately
+            if (state.status == CheckoutRequestStatus.success) {
+              context.read<NotificationCubit>().loadNotifications();
+              context.read<NotificationBadgeCubit>().refresh();
+              // Navigate to orders page after a brief delay to allow state updates
+              Future.delayed(const Duration(milliseconds: 500), () {
+                context.go(RoutesPath.orders);
+              });
             }
           },
           builder: (context, state) {

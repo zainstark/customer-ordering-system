@@ -147,7 +147,9 @@ class _NotificationBellWithPopupState extends State<NotificationBellWithPopup> {
 
     return BlocListener<NotificationCubit, NotificationState>(
       listenWhen: (previous, current) =>
-          previous.unreadCount != current.unreadCount,
+          previous.unreadCount != current.unreadCount ||
+          previous.notifications.length != current.notifications.length ||
+          previous.status != current.status,
       listener: (context, state) {
         context.read<NotificationBadgeCubit>().loadUnreadCount();
       },

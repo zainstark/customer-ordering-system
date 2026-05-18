@@ -183,7 +183,15 @@ void setupDependencies() {
   );
 
   getIt.registerFactory<CheckoutCubit>(
-    () => CheckoutCubit(getIt(), getIt(), getIt(), getIt(), getIt()),
+    () => CheckoutCubit(
+      getIt(),
+      getIt(),
+      getIt(),
+      getIt(),
+      getIt(),
+      getIt<NotificationCubit>(),
+      getIt<NotificationBadgeCubit>(),
+    ),
   );
 
   // Notifications

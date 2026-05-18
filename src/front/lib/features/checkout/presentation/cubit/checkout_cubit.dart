@@ -1,5 +1,7 @@
 import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_payment_session_usecase.dart';
 import 'package:frontend/features/checkout/domain/usecases/get_payment_status_usecase.dart';
@@ -14,6 +16,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     this._createPaymentSessionUseCase,
     this._getPaymentStatusUseCase,
     this._retryPaymentUseCase,
+    this._notificationCubit,
+    this._notificationBadgeCubit,
   ) : super(const CheckoutState(accountId: _defaultAccountId));
 
   static const String _defaultAccountId = 'test_account_001';
@@ -23,6 +27,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   final CreatePaymentSessionUseCase _createPaymentSessionUseCase;
   final GetPaymentStatusUseCase _getPaymentStatusUseCase;
   final RetryPaymentUseCase _retryPaymentUseCase;
+  final NotificationCubit _notificationCubit;
+  final NotificationBadgeCubit _notificationBadgeCubit;
 
   Future<void> loadCheckout({String? accountId}) async {
     final currentAccountId = accountId ?? state.accountId;
@@ -116,11 +122,17 @@ class CheckoutCubit extends Cubit<CheckoutState> {
           ));
         }
       } else {
+        // For CASH payments, backend auto-completes the payment and changes order status to CONFIRMED
         emit(state.copyWith(
-          status: CheckoutRequestStatus.awaitingPayment,
+          status: CheckoutRequestStatus.success,
           paymentId: session.paymentId,
-          paymentMessage: 'Payment session created. Waiting for confirmation.',
+          paymentMessage: 'Payment confirmed. Your order is now CONFIRMED.',
         ));
+        // Trigger notification refresh to notify user of order status change
+        await Future.wait([
+          _notificationCubit.loadNotifications(),
+          _notificationBadgeCubit.refresh(),
+        ]);
       }
     } catch (error) {
       emit(state.copyWith(
