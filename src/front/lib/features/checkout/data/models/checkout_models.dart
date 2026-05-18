@@ -60,17 +60,20 @@ class CreatePaymentSessionResponseModel {
     required this.paymentId,
     required this.checkoutUrl,
     required this.status,
+    this.clientSecret,
   });
 
   final String paymentId;
   final String checkoutUrl;
   final String status;
+  final String? clientSecret;
 
   factory CreatePaymentSessionResponseModel.fromMap(Map<String, dynamic> map) {
     return CreatePaymentSessionResponseModel(
       paymentId: map['payment_id'] as String,
       checkoutUrl: map['checkout_url'] as String,
       status: map['status'] as String,
+      clientSecret: map['client_secret'] as String?,
     );
   }
 }

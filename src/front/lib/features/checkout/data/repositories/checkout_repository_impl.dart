@@ -48,6 +48,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       paymentId: response.paymentId,
       checkoutUrl: response.checkoutUrl,
       status: response.status,
+      clientSecret: response.clientSecret,
     );
   }
 
