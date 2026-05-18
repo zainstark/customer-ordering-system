@@ -1,4 +1,3 @@
-import 'package:frontend/features/cart/domain/entities/card_item_entity.dart';
 import 'package:frontend/features/checkout/domain/entities/checkout_order_entity.dart';
 import 'package:frontend/features/checkout/domain/entities/payment_session_entity.dart';
 import 'package:frontend/features/checkout/domain/entities/payment_status_entity.dart';

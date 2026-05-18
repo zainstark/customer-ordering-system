@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/Core/router/routes.dart';
-import 'package:frontend/Core/theme/app_colors.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
 import 'package:frontend/features/notifications/presentation/cubit/notification_state.dart';
