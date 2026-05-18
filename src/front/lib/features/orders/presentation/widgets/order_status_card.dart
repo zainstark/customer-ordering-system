@@ -101,6 +101,7 @@ class OrderStatusCard extends StatelessWidget {
                   context.pushNamed(
                     RoutesName.orderTracking,
                     pathParameters: {'id': order.orderId},
+                    extra: order,
                   );
                 },
                 child: const Text('Track Order'),
