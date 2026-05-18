@@ -1,4 +1,4 @@
-# ZestyBite — Backend
+# Whatever — Backend
 
 A Django REST Framework backend for the **ZestyBite Customer Ordering System**, supporting a full food-ordering workflow: authentication, menu browsing, cart management, order placement, payment processing, order tracking, and in-app notifications.
 
