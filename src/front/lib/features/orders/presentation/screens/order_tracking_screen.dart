@@ -2,50 +2,80 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/orders/domain/entities/order_item_entities.dart';
-import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
-import 'package:frontend/features/orders/presentation/cubit/orders_state.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_tracking_cubit.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_tracking_state.dart';
 import 'package:frontend/features/orders/presentation/widgets/tracking_timeline.dart';
 
-class OrderTrackingScreen extends StatelessWidget {
-  const OrderTrackingScreen({super.key, required this.orderId});
+class OrderTrackingScreen extends StatefulWidget {
+  const OrderTrackingScreen({
+    super.key,
+    required this.orderId,
+    required this.orderSummary,
+  });
 
   final String orderId;
+  final OrderItemEntity orderSummary;
+
+  @override
+  State<OrderTrackingScreen> createState() => _OrderTrackingScreenState();
+}
+
+class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<OrderTrackingCubit>().loadTracking(widget.orderId);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OrdersCubit, OrdersState>(
-      builder: (context, state) {
-        if (state.status == OrdersRequestStatus.loading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final order = widget.orderSummary;
 
-        OrderItemEntity? order;
-        try {
-          order = [...state.activeOrders, ...state.pastOrders]
-              .firstWhere((o) => o.orderId == orderId);
-        } catch (e) {
-          order = null;
-        }
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        backgroundColor: colorScheme.surface.withValues(alpha: 0.8),
+        title: const Text('Track Your Order'),
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+      ),
+      body: BlocBuilder<OrderTrackingCubit, OrderTrackingState>(
+        builder: (context, state) {
+          if (state.status == OrderTrackingStatus.loading ||
+              state.status == OrderTrackingStatus.initial) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (order == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Track Order')),
-            body: const Center(child: Text('Order not found')),
-          );
-        }
+          if (state.status == OrderTrackingStatus.error) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: colorScheme.error),
+                  const SizedBox(height: AppDimensions.spacingMd),
+                  Text('Failed to load tracking details.', style: textTheme.titleMedium),
+                  if (state.errorMessage != null) ...[
+                    const SizedBox(height: AppDimensions.spacingSm),
+                    Text(state.errorMessage!, style: textTheme.bodyMedium?.copyWith(color: colorScheme.error)),
+                  ],
+                  const SizedBox(height: AppDimensions.spacingLg),
+                  FilledButton.tonal(
+                    onPressed: () => context.read<OrderTrackingCubit>().loadTracking(widget.orderId),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
 
-        final colorScheme = Theme.of(context).colorScheme;
-        final textTheme = Theme.of(context).textTheme;
+          final tracking = state.tracking;
+          if (tracking == null) {
+            return const Center(child: Text('Tracking data not found.'));
+          }
 
-        return Scaffold(
-          backgroundColor: colorScheme.surface,
-          appBar: AppBar(
-            backgroundColor: colorScheme.surface.withValues(alpha: 0.8),
-            title: const Text('Track Your Order'),
-            scrolledUnderElevation: 0,
-            centerTitle: true,
-          ),
-          body: SingleChildScrollView(
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(AppDimensions.paddingLg),
             child: Center(
               child: ConstrainedBox(
@@ -53,34 +83,79 @@ class OrderTrackingScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Header
                     Text(
-                      'Order #${_shortId(order.orderId)}',
+                      'Order #${_shortId(widget.orderId)}',
                       style: textTheme.headlineMedium?.copyWith(
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: AppDimensions.spacingXs),
-                    Text(
-                      'Estimated arrival: 25-30 mins',
-                      style: textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                    if (tracking.currentStatus != 'delivered')
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          '~${tracking.estimatedTimeMinutes} min remaining',
+                          style: textTheme.labelLarge?.copyWith(
+                            color: colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    else
+                      Text(
+                        'Delivered',
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
                     const SizedBox(height: AppDimensions.spacingXl),
 
-                    // Tracking Timeline
+                    // Tracking Timeline (Stepper)
                     Container(
                       padding: const EdgeInsets.all(AppDimensions.paddingXl),
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceContainerLow,
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radiusXl),
-                        border: Border.all(
-                          color: colorScheme.outlineVariant,
-                        ),
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+                        border: Border.all(color: colorScheme.outlineVariant),
                       ),
-                      child: TrackingTimeline(currentStatus: order.status),
+                      child: TrackingTimeline(
+                        currentStatus: tracking.currentStatus,
+                      ),
+                    ),
+                    const SizedBox(height: AppDimensions.spacingXl),
+                    
+                    // History List
+                    Text('Status History', style: textTheme.titleLarge),
+                    const SizedBox(height: AppDimensions.spacingMd),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+                        border: Border.all(color: colorScheme.outlineVariant),
+                      ),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: tracking.history.length,
+                        separatorBuilder: (_, __) => Divider(color: colorScheme.outlineVariant, height: 1),
+                        itemBuilder: (context, index) {
+                          // History is usually descending, so index 0 is most recent
+                          final entry = tracking.history[index];
+                          final stageLabel = entry.status[0].toUpperCase() + entry.status.substring(1);
+                          return ListTile(
+                            leading: Icon(Icons.history, color: colorScheme.primary),
+                            title: Text(stageLabel, style: textTheme.titleMedium),
+                            subtitle: Text(_formatTime(entry.timestamp), style: textTheme.bodyMedium),
+                          );
+                        },
+                      ),
                     ),
                     const SizedBox(height: AppDimensions.spacingXl),
 
@@ -94,7 +169,7 @@ class OrderTrackingScreen extends StatelessWidget {
                             children: [
                               Expanded(
                                 flex: 2,
-                                child: _OrderSummaryCard(order: order!),
+                                child: _OrderSummaryCard(order: order),
                               ),
                               const SizedBox(width: AppDimensions.spacingLg),
                               const Expanded(
@@ -106,94 +181,32 @@ class OrderTrackingScreen extends StatelessWidget {
                         }
                         return Column(
                           children: [
-                            _OrderSummaryCard(order: order!),
+                            _OrderSummaryCard(order: order),
                             const SizedBox(height: AppDimensions.spacingLg),
                             const _SideActions(),
                           ],
                         );
                       },
                     ),
-                    const SizedBox(height: AppDimensions.spacingXl),
-
-                    // Feedback Section
-                    Container(
-                      padding: const EdgeInsets.all(AppDimensions.paddingLg),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerLow,
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radiusXl),
-                        border: Border.all(color: colorScheme.outlineVariant),
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isMobile = constraints.maxWidth < 600;
-                          return Flex(
-                            direction:
-                                isMobile ? Axis.vertical : Axis.horizontal,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor:
-                                        colorScheme.tertiaryContainer,
-                                    radius: 24,
-                                    child: Icon(
-                                      Icons.stars,
-                                      color: colorScheme.onTertiaryContainer,
-                                    ),
-                                  ),
-                                  const SizedBox(width: AppDimensions.spacingLg),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Rate your last experience?',
-                                        style: textTheme.titleMedium?.copyWith(
-                                          color: colorScheme.onSurface,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Earn 50 ZestyPoints for every review.',
-                                        style: textTheme.bodyMedium?.copyWith(
-                                          color: colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              if (isMobile)
-                                const SizedBox(height: AppDimensions.spacingMd),
-                              OutlinedButton(
-                                onPressed: () {},
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: colorScheme.primary,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: const Text('Leave Review'),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
                   ],
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
   String _shortId(String id) {
     if (id.length <= 8) return id;
     return id.substring(0, 8).toUpperCase();
+  }
+
+  String _formatTime(DateTime time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final min = time.minute.toString().padLeft(2, '0');
+    return '$hour:$min';
   }
 }
 
@@ -306,7 +319,7 @@ class _OrderSummaryCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '\$${(order.totalAmount - 3.99).toStringAsFixed(2)}', // Mock calculation
+                      '\$${(order.totalAmount - 3.99).clamp(0, double.infinity).toStringAsFixed(2)}', // Mock calculation
                       style: textTheme.bodyLarge?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -419,46 +432,6 @@ class _SideActions extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppDimensions.spacingLg),
-
-        // Support Card
-        Container(
-          padding: const EdgeInsets.all(AppDimensions.paddingLg),
-          decoration: BoxDecoration(
-            color: colorScheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Need Help?',
-                style: textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: AppDimensions.spacingSm),
-              Text(
-                'Our support team is available 24/7 for any questions regarding your order.',
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: AppDimensions.spacingLg),
-              OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: colorScheme.surfaceContainerHighest,
-                  foregroundColor: colorScheme.onSurface,
-                  side: BorderSide(color: colorScheme.outlineVariant),
-                ),
-                child: const Text('Chat with Support'),
               ),
             ],
           ),

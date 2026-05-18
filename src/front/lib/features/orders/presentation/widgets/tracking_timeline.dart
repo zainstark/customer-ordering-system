@@ -21,12 +21,12 @@ class TrackingTimeline extends StatelessWidget {
 
   OrderTrackingStage _getStage() {
     final statusMap = {
-      'Pending': OrderTrackingStage.pending,
-      'Confirmed': OrderTrackingStage.confirmed,
-      'Preparing': OrderTrackingStage.preparing,
-      'Ready': OrderTrackingStage.ready,
-      'Out for Delivery': OrderTrackingStage.delivery,
-      'Delivered': OrderTrackingStage.delivered,
+      'pending': OrderTrackingStage.pending,
+      'confirmed': OrderTrackingStage.confirmed,
+      'preparing': OrderTrackingStage.preparing,
+      'ready': OrderTrackingStage.ready,
+      'delivery': OrderTrackingStage.delivery,
+      'delivered': OrderTrackingStage.delivered,
     };
     return statusMap[currentStatus] ?? OrderTrackingStage.pending;
   }
