@@ -1,4 +1,4 @@
-# ZestyBite — Customer Ordering System
+# Whatever — Customer Ordering System
 
 A full-stack food ordering platform with a Django REST API backend and a Flutter frontend.
 
@@ -303,3 +303,9 @@ python update_status.py 4a9122b7-c2da-4a2e-8261-8bf4d8d2c56d PREPARING
 ```
 
 This updates the order row and appends a new entry to `order_status_history`, which is reflected immediately in the tracking endpoint.
+
+---
+
+## Demo Video:
+
+[https://drive.google.com/file/d/12moR1I3bPYYg0w_def6fO0NkdAu-fZeC/view]
