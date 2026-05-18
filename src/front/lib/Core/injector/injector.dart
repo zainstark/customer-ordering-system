@@ -19,8 +19,10 @@ import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
 import 'package:frontend/features/orders/data/datasources/orders_remote_data_source.dart';
 import 'package:frontend/features/orders/data/repositories/orders_repository_impl.dart';
 import 'package:frontend/features/orders/domain/repositories/orders_repository.dart';
+import 'package:frontend/features/orders/domain/usecases/get_order_tracking_usecase.dart';
 import 'package:frontend/features/orders/domain/usecases/get_orders_usecase.dart';
 import 'package:frontend/features/orders/domain/usecases/place_order_usecase.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_tracking_cubit.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_payment_session_usecase.dart';
@@ -138,6 +140,10 @@ void setupDependencies() {
     () => GetOrdersUseCase(getIt()),
   );
 
+  getIt.registerLazySingleton<GetOrderTrackingUseCase>(
+    () => GetOrderTrackingUseCase(getIt()),
+  );
+
   getIt.registerFactory<MenuCubit>(() => MenuCubit(getIt()));
 
   getIt.registerLazySingleton<CartCubit>(
@@ -145,6 +151,8 @@ void setupDependencies() {
   );
 
   getIt.registerFactory<OrdersCubit>(() => OrdersCubit(getIt(), getIt()));
+
+  getIt.registerFactory<OrderTrackingCubit>(() => OrderTrackingCubit(getIt()));
 
   getIt.registerLazySingleton<CheckoutRemoteDataSource>(
     () => CheckoutRemoteDataSourceImpl(getIt()),
