@@ -13,8 +13,7 @@ Field naming follows the Flutter models exactly:
 
 from rest_framework import serializers
 
-from apps.order.models import Orders as Order, OrderItems
-
+from apps.order.models import Orders as Order, OrderItems, OrderStatusHistory
 
 # ---------------------------------------------------------------------------
 # Progress mapping
@@ -151,7 +150,6 @@ class OrderTrackingHistorySerializer(serializers.ModelSerializer):
     timestamp = serializers.DateTimeField(source="changed_at", read_only=True)
 
     class Meta:
-        from apps.order.models import OrderStatusHistory
         model = OrderStatusHistory
         fields = ["status", "timestamp"]
 
