@@ -51,7 +51,7 @@ class PaymentService:
         payment_method: str,
     ) -> Tuple[Optional[Payment], Optional[str]]:
         normalized_method = PaymentService._normalize_method(payment_method)
-        if normalized_method != "CARD":
+        if normalized_method not in ("CASH", "CARD"):
             return None, "Unsupported payment method."
 
         try:
