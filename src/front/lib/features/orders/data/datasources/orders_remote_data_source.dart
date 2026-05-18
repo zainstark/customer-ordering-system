@@ -3,9 +3,13 @@ import 'package:frontend/Core/network/app_exception.dart';
 import 'package:frontend/Core/network/dio_client.dart';
 import 'package:frontend/features/orders/data/models/order_item_model.dart';
 
+import 'package:frontend/features/orders/domain/entities/order_tracking_entity.dart';
+import 'package:frontend/features/orders/data/models/order_tracking_model.dart';
+
 abstract class OrdersRemoteDataSource {
   Future<List<OrderItemModel>> getOrders();
   Future<OrderItemModel> placeOrder({required String address});
+  Future<OrderTrackingEntity> getOrderTracking(String orderId);
 }
 
 class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
@@ -38,6 +42,22 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     }
 
     throw AppException(message: 'Failed to place order: ${response.statusMessage}');
+  }
+
+  @override
+  Future<OrderTrackingEntity> getOrderTracking(String orderId) async {
+    final endpoint = ApiEndpoints.orderTracking.replaceFirst('{orderId}', orderId);
+    final response = await _dioClient.get(endpoint);
+
+    if (response.statusCode == 200) {
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        return OrderTrackingModel.fromMap(data);
+      }
+      throw const AppException(message: 'Invalid order tracking response format.');
+    }
+
+    throw AppException(message: 'Failed to track order: ${response.statusMessage}');
   }
 
   List<dynamic> _extractList(dynamic data) {

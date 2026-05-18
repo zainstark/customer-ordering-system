@@ -11,8 +11,10 @@ import 'package:frontend/features/cart/presentation/cubit/cart_state.dart';
 import 'package:frontend/features/cart/presentation/screens/cart_screen.dart';
 import 'package:frontend/features/menu/presentation/cubit/menu_cubit.dart';
 import 'package:frontend/features/menu/presentation/screens/menu_screen.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_tracking_cubit.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:frontend/features/orders/presentation/screens/order_tracking_screen.dart';
+import 'package:frontend/features/orders/domain/entities/order_item_entities.dart';
 import 'package:frontend/features/orders/presentation/screens/orders_screen.dart';
 import 'package:frontend/features/checkout/presentation/cubit/checkout_cubit.dart';
 import 'package:frontend/features/checkout/presentation/screens/checkout_screen.dart';
@@ -122,9 +124,10 @@ class AppRouter {
                 name: RoutesName.orderTracking,
                 builder: (context, state) {
                   final orderId = state.pathParameters['id']!;
+                  final orderSummary = state.extra as OrderItemEntity;
                   return BlocProvider(
-                    create: (_) => getIt<OrdersCubit>()..loadOrders(),
-                    child: OrderTrackingScreen(orderId: orderId),
+                    create: (_) => getIt<OrderTrackingCubit>(),
+                    child: OrderTrackingScreen(orderId: orderId, orderSummary: orderSummary),
                   );
                 },
               ),

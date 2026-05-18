@@ -27,7 +27,7 @@ from django.utils import timezone
 
 from apps.cart.models import Cart, CartItem
 from apps.cart.services import CartService
-from apps.order.models import Orders as Order, OrderItems
+from apps.order.models import Orders as Order, OrderItems, OrderStatusHistory
 from apps.notification.services import NotificationService
 
 
@@ -138,6 +138,14 @@ class OrderService:
                 # handles its own DB writes safely inside this outer atomic block.
                 CartService.clear_cart(cart.cart_id)
 
+                # Step 10 - Seed initial order status history
+                OrderStatusHistory.objects.create(
+                    order=order,
+                    order_status=order.order_status,
+                    changed_at=timezone.now(),
+                    note="Order placed"
+                )
+
                 # Send in-app notification to the account that placed the order
                 NotificationService.notify_order_placed(order)
 
@@ -162,6 +170,21 @@ class OrderService:
             )
             .order_by("-placed_at")
         )
+
+    @staticmethod
+    def get_order_tracking(order_id: str, account_id: str) -> Tuple[Optional[Order], Optional[QuerySet], Optional[str]]:
+        """
+        Return the order and its status history for tracking.
+        Returns (order, history, None) on success, (None, None, error) if not found or unauthorized.
+        """
+        try:
+            order = Order.objects.prefetch_related("items").get(
+                order_id=order_id, account_id=account_id
+            )
+            history = OrderStatusHistory.objects.filter(order=order).order_by("changed_at")
+            return order, history, None
+        except Order.DoesNotExist:
+            return None, None, "Order not found."
 
     # ------------------------------------------------------------------
     # Private helpers

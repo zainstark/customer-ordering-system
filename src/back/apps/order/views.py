@@ -18,8 +18,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.order.serializers import OrderSerializer, PlaceOrderSerializer
+from apps.order.models import Orders as Order
+from apps.order.serializers import OrderSerializer, PlaceOrderSerializer, OrderTrackingSerializer
 from apps.order.services import OrderService
+from django.shortcuts import get_object_or_404
 
 
 def _account_id(request) -> str:
@@ -84,3 +86,28 @@ def place_order(request):
 
     serializer = OrderSerializer(order)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def order_tracking(request, order_id):
+    """
+    GET /api/order/{orderId}/tracking
+
+    Return the tracking details (full order with items, history) for a specific order.
+    
+    Response 200:
+        OrderTrackingSerializer
+
+    Response 404:
+        If order does not exist or belongs to another account.
+    """
+    order, history, error = OrderService.get_order_tracking(
+        order_id=order_id, account_id=_account_id(request)
+    )
+
+    if error or not order:
+        return Response({"message": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = OrderTrackingSerializer(order, context={"history": history})
+    return Response(serializer.data, status=status.HTTP_200_OK)
