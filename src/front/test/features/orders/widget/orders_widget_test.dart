@@ -4,6 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/features/orders/domain/entities/order_item_entities.dart';
 import 'package:frontend/features/orders/domain/entities/order_line_item_entity.dart';
+import 'package:frontend/features/orders/domain/entities/order_tracking_entity.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_tracking_cubit.dart';
+import 'package:frontend/features/orders/presentation/cubit/order_tracking_state.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:frontend/features/orders/presentation/cubit/orders_state.dart';
 import 'package:frontend/features/orders/presentation/screens/order_tracking_screen.dart';
@@ -11,8 +14,11 @@ import 'package:frontend/features/orders/presentation/screens/orders_screen.dart
 import 'package:mocktail/mocktail.dart';
 
 class _MockOrdersCubit extends MockCubit<OrdersState> implements OrdersCubit {}
+class _MockOrderTrackingCubit extends MockCubit<OrderTrackingState>
+    implements OrderTrackingCubit {}
 
 class _FakeOrdersState extends Fake implements OrdersState {}
+class _FakeOrderTrackingState extends Fake implements OrderTrackingState {}
 
 OrderItemEntity _order({
   required String id,
@@ -53,12 +59,16 @@ Widget _buildOrdersApp(OrdersCubit cubit) {
   );
 }
 
-Widget _buildTrackingApp(OrdersCubit cubit, {required String orderId}) {
+Widget _buildTrackingApp(
+  OrderTrackingCubit cubit, {
+  required String orderId,
+  required OrderItemEntity orderSummary,
+}) {
   return MaterialApp(
     home: Scaffold(
-      body: BlocProvider<OrdersCubit>.value(
+      body: BlocProvider<OrderTrackingCubit>.value(
         value: cubit,
-        child: OrderTrackingScreen(orderId: orderId),
+        child: OrderTrackingScreen(orderId: orderId, orderSummary: orderSummary),
       ),
     ),
   );
@@ -67,6 +77,7 @@ Widget _buildTrackingApp(OrdersCubit cubit, {required String orderId}) {
 void main() {
   setUpAll(() {
     registerFallbackValue(_FakeOrdersState());
+    registerFallbackValue(_FakeOrderTrackingState());
     registerFallbackValue(OrdersTab.active);
   });
 
@@ -174,28 +185,85 @@ void main() {
   });
 
   group('OrderTrackingScreen', () {
-    late _MockOrdersCubit cubit;
+    late _MockOrderTrackingCubit cubit;
 
     setUp(() {
-      cubit = _MockOrdersCubit();
-      whenListen(cubit, const Stream<OrdersState>.empty());
+      cubit = _MockOrderTrackingCubit();
+      whenListen(cubit, const Stream<OrderTrackingState>.empty());
+      when(() => cubit.loadTracking(any())).thenAnswer((_) async {});
     });
 
-    testWidgets('shows "order not found" when order id is missing', (
-      tester,
-    ) async {
-      when(() => cubit.state).thenReturn(
-        const OrdersState(
-          fetchStatus: FetchStatus.success,
-          activeOrders: [],
-          pastOrders: [],
+    testWidgets('shows loading indicator while tracking loads', (tester) async {
+      when(
+        () => cubit.state,
+      ).thenReturn(const OrderTrackingState(status: OrderTrackingStatus.loading));
+
+      await tester.pumpWidget(
+        _buildTrackingApp(
+          cubit,
+          orderId: 'order-123',
+          orderSummary: _order(id: '1', orderId: 'order-123', status: 'Pending'),
         ),
       );
 
-      await tester.pumpWidget(_buildTrackingApp(cubit, orderId: 'unknown-id'));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      verify(() => cubit.loadTracking('order-123')).called(1);
+    });
 
-      expect(find.text('Track Order'), findsOneWidget);
-      expect(find.text('Order not found'), findsOneWidget);
+    testWidgets('shows "Tracking data not found." when tracking is null', (
+      tester,
+    ) async {
+      when(() => cubit.state).thenReturn(
+        const OrderTrackingState(
+          status: OrderTrackingStatus.success,
+          tracking: null,
+        ),
+      );
+
+      await tester.pumpWidget(
+        _buildTrackingApp(
+          cubit,
+          orderId: 'unknown-id',
+          orderSummary: _order(id: '1', orderId: 'unknown-id', status: 'Pending'),
+        ),
+      );
+
+      expect(find.text('Track Your Order'), findsOneWidget);
+      expect(find.text('Tracking data not found.'), findsOneWidget);
+      verify(() => cubit.loadTracking('unknown-id')).called(1);
+    });
+
+    testWidgets('renders tracking details on success state', (tester) async {
+      when(() => cubit.state).thenReturn(
+        OrderTrackingState(
+          status: OrderTrackingStatus.success,
+          tracking: OrderTrackingEntity(
+            orderId: 'order-321',
+            currentStatus: 'preparing',
+            progress: 45,
+            estimatedTimeMinutes: 18,
+            history: [
+              TrackingHistoryEntry(
+                status: 'preparing',
+                timestamp: DateTime(2025, 1, 2, 8, 45),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(
+        _buildTrackingApp(
+          cubit,
+          orderId: 'order-321',
+          orderSummary: _order(id: '1', orderId: 'order-321', status: 'Pending'),
+        ),
+      );
+
+      expect(find.text('Track Your Order'), findsOneWidget);
+      expect(find.text('Status History'), findsOneWidget);
+      expect(find.textContaining('min remaining'), findsOneWidget);
+      verify(() => cubit.loadTracking('order-321')).called(1);
     });
   });
 }
