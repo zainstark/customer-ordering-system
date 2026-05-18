@@ -27,7 +27,6 @@ import 'package:frontend/features/notifications/presentation/pages/notifications
 import 'package:frontend/features/shell/presentation/widgets/app_shell_scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 
 class AppRouter {
   AppRouter._();
@@ -49,12 +48,12 @@ class AppRouter {
           GoRoute(
             path: RoutesPath.signup,
             name: RoutesName.signup,
-            builder: (_, __) => const SignupScreen(),
+            builder: (_, _) => const SignupScreen(),
           ),
           GoRoute(
             path: RoutesPath.login,
             name: RoutesName.login,
-            builder: (_, __) => const LoginScreen(),
+            builder: (_, _) => const LoginScreen(),
           ),
           ShellRoute(
             builder: (context, state, child) {
