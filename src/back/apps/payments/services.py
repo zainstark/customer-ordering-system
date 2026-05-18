@@ -64,8 +64,8 @@ class PaymentService:
                 if order is None:
                     return None, "Order not found for this account."
 
-                if order.order_status in {"PAID", "DELIVERED", "REFUNDED"}:
-                    return None, "Order is already paid."
+                if order.order_status not in {"PENDING", "FAILED"}:
+                    return None, f"Order is already {order.order_status.lower()}."
 
                 amount_total = order.items.aggregate(
                     total=Sum(F("unit_price_snapshot") * F("quantity"))
@@ -80,6 +80,26 @@ class PaymentService:
                     if existing_payment.payment_status == "COMPLETED":
                         return None, "Order is already paid."
                     return existing_payment, None
+
+                if normalized_method == "CASH":
+                    payment = Payment.objects.create(
+                        order=order,
+                        payment_method="CASH",
+                        payment_status="COMPLETED",
+                        amount=amount_total,
+                        currency="usd",
+                        payment_intent_id=None,
+                        client_secret=None,
+                        checkout_url="",
+                        gateway_reference="",
+                        idempotency_key=f"payment_intent:{order.order_id}:{amount_total}:CASH",
+                        attempt_count=0,
+                        processed_at=timezone.now(),
+                    )
+                    order.order_status = "CONFIRMED"
+                    order.confirmed_at = timezone.now()
+                    order.save(update_fields=["order_status", "confirmed_at"])
+                    return payment, None
 
                 idempotency_key = f"payment_intent:{order.order_id}:{amount_total}:{normalized_method}"
                 adapter = PaymentService._get_gateway_adapter()
@@ -150,6 +170,7 @@ class PaymentService:
     def retry_payment(
         account_id: str,
         payment_id: str,
+        new_payment_method: Optional[str] = None,
     ) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
         try:
             with transaction.atomic():
@@ -161,27 +182,52 @@ class PaymentService:
                 if payment.payment_status == "COMPLETED":
                     return None, "Completed payments cannot be retried."
 
-                payment.attempt_count += 1
-                idempotency_key = f"payment_retry:{payment.order_id}:{payment.attempt_count}:{payment.amount}"
-                adapter = PaymentService._get_gateway_adapter()
-                intent = adapter.create_payment_intent(
-                    amount_pennies=payment.amount,
-                    currency=payment.currency or "usd",
-                    payment_method=payment.payment_method,
-                    order_id=payment.order_id,
-                    idempotency_key=idempotency_key,
-                    metadata={"order_id": payment.order_id, "account_id": account_id},
-                )
+                if new_payment_method:
+                    normalized_method = PaymentService._normalize_method(new_payment_method)
+                    if normalized_method not in ("CASH", "CARD"):
+                        return None, "Unsupported payment method."
+                    payment.payment_method = normalized_method
+                else:
+                    normalized_method = payment.payment_method
 
-                payment.payment_status = PaymentService._status_from_gateway(
-                    intent.get("status", "")
-                )
-                payment.payment_intent_id = intent.get("id") or payment.payment_intent_id
-                payment.client_secret = intent.get("client_secret") or payment.client_secret
-                payment.checkout_url = intent.get("url") or intent.get("client_secret") or payment.checkout_url
-                payment.gateway_reference = intent.get("id") or payment.gateway_reference
-                payment.idempotency_key = idempotency_key
-                payment.save()
+                if payment.order.order_status == "FAILED":
+                    payment.order.order_status = "PENDING"
+                    payment.order.save(update_fields=["order_status"])
+
+                payment.attempt_count += 1
+                
+                if normalized_method == "CASH":
+                    payment.payment_status = "COMPLETED"
+                    payment.payment_intent_id = None
+                    payment.client_secret = None
+                    payment.checkout_url = ""
+                    payment.processed_at = timezone.now()
+                    payment.save()
+                    
+                    payment.order.order_status = "CONFIRMED"
+                    payment.order.confirmed_at = timezone.now()
+                    payment.order.save(update_fields=["order_status", "confirmed_at"])
+                else:
+                    idempotency_key = f"payment_retry:{payment.order_id}:{payment.attempt_count}:{payment.amount}"
+                    adapter = PaymentService._get_gateway_adapter()
+                    intent = adapter.create_payment_intent(
+                        amount_pennies=payment.amount,
+                        currency=payment.currency or "usd",
+                        payment_method=normalized_method,
+                        order_id=payment.order_id,
+                        idempotency_key=idempotency_key,
+                        metadata={"order_id": payment.order_id, "account_id": account_id},
+                    )
+
+                    payment.payment_status = PaymentService._status_from_gateway(
+                        intent.get("status", "")
+                    )
+                    payment.payment_intent_id = intent.get("id") or payment.payment_intent_id
+                    payment.client_secret = intent.get("client_secret") or payment.client_secret
+                    payment.checkout_url = intent.get("url") or intent.get("client_secret") or payment.checkout_url
+                    payment.gateway_reference = intent.get("id") or payment.gateway_reference
+                    payment.idempotency_key = idempotency_key
+                    payment.save()
         except Payment.DoesNotExist:
             return None, "Payment not found for this account."
         except (ValueError, TimeoutError, IntegrityError) as exc:

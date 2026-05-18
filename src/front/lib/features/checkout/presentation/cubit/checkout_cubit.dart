@@ -1,3 +1,4 @@
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
@@ -70,7 +71,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     try {
       final order = await _createOrderUseCase(
         accountId: state.accountId,
-        paymentMethod: state.selectedMethod.label,
+        paymentMethod: state.selectedMethod.apiValue,
         address: address,
       );
 
@@ -82,14 +83,46 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
       final session = await _createPaymentSessionUseCase(
         orderId: order.orderId,
-        paymentMethod: state.selectedMethod.label,
+        paymentMethod: state.selectedMethod.apiValue,
       );
 
-      emit(state.copyWith(
-        status: CheckoutRequestStatus.awaitingPayment,
-        paymentId: session.paymentId,
-        paymentMessage: 'Payment session created. Waiting for confirmation.',
-      ));
+      if (state.selectedMethod.apiValue == 'CARD' && session.clientSecret != null) {
+        try {
+          await Stripe.instance.initPaymentSheet(
+            paymentSheetParameters: SetupPaymentSheetParameters(
+              paymentIntentClientSecret: session.clientSecret,
+              merchantDisplayName: 'Customer Ordering System',
+            ),
+          );
+          
+          await Stripe.instance.presentPaymentSheet();
+          
+          emit(state.copyWith(
+            status: CheckoutRequestStatus.processing,
+            paymentId: session.paymentId,
+            paymentMessage: 'Payment submitted. Waiting for confirmation.',
+          ));
+          await refreshPaymentStatus();
+        } on StripeException catch (e) {
+          emit(state.copyWith(
+            status: CheckoutRequestStatus.failure,
+            errorMessage: e.error.localizedMessage ?? 'Payment cancelled or failed.',
+            paymentId: session.paymentId,
+          ));
+        } catch (e) {
+          emit(state.copyWith(
+            status: CheckoutRequestStatus.failure,
+            errorMessage: e.toString(),
+            paymentId: session.paymentId,
+          ));
+        }
+      } else {
+        emit(state.copyWith(
+          status: CheckoutRequestStatus.awaitingPayment,
+          paymentId: session.paymentId,
+          paymentMessage: 'Payment session created. Waiting for confirmation.',
+        ));
+      }
     } catch (error) {
       emit(state.copyWith(
         status: CheckoutRequestStatus.failure,
@@ -109,16 +142,16 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     try {
       final status = await _getPaymentStatusUseCase(paymentId: state.paymentId!);
 
-      if (status.status == 'success') {
+      if (status.status == 'COMPLETED') {
         emit(state.copyWith(
           status: CheckoutRequestStatus.success,
-          paymentMessage: status.message,
+          paymentMessage: status.message ?? 'Payment successful.',
         ));
-      } else if (status.status == 'failed') {
+      } else if (status.status == 'FAILED' || status.status == 'CANCELLED') {
         emit(state.copyWith(
           status: CheckoutRequestStatus.failure,
-          paymentMessage: status.message,
-          errorMessage: status.message,
+          paymentMessage: status.message ?? 'Payment failed.',
+          errorMessage: status.message ?? 'Payment failed.',
         ));
       } else {
         emit(state.copyWith(

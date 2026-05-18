@@ -17,6 +17,17 @@ enum CheckoutRequestStatus {
 enum PaymentMethodType { applePay, payPal, cash, card }
 
 extension PaymentMethodTypeExtension on PaymentMethodType {
+  String get apiValue {
+    switch (this) {
+      case PaymentMethodType.applePay:
+      case PaymentMethodType.payPal:
+      case PaymentMethodType.card:
+        return 'CARD';
+      case PaymentMethodType.cash:
+        return 'CASH';
+    }
+  }
+
   String get label {
     switch (this) {
       case PaymentMethodType.applePay:
@@ -24,9 +35,9 @@ extension PaymentMethodTypeExtension on PaymentMethodType {
       case PaymentMethodType.payPal:
         return 'PayPal';
       case PaymentMethodType.cash:
-        return 'Cash';
+        return 'Cash on Delivery';
       case PaymentMethodType.card:
-        return 'Visa •••• 4242';
+        return 'Credit / Debit Card';
     }
   }
 
