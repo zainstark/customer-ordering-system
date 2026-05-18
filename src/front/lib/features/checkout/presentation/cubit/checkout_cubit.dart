@@ -1,4 +1,4 @@
-import 'package:flutter_stripe/flutter_stripe.dart' hide PaymentMethodType;
+import 'package:flutter_stripe_web/flutter_stripe_web.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
@@ -87,35 +87,15 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       );
 
       if (state.selectedMethod.apiValue == 'CARD' && session.clientSecret != null) {
-        try {
-          await Stripe.instance.initPaymentSheet(
-            paymentSheetParameters: SetupPaymentSheetParameters(
-              paymentIntentClientSecret: session.clientSecret,
-              merchantDisplayName: 'Customer Ordering System',
-            ),
-          );
-          
-          await Stripe.instance.presentPaymentSheet();
-          
-          emit(state.copyWith(
-            status: CheckoutRequestStatus.processing,
-            paymentId: session.paymentId,
-            paymentMessage: 'Payment submitted. Waiting for confirmation.',
-          ));
-          await refreshPaymentStatus();
-        } on StripeException catch (e) {
-          emit(state.copyWith(
-            status: CheckoutRequestStatus.failure,
-            errorMessage: e.error.localizedMessage ?? 'Payment cancelled or failed.',
-            paymentId: session.paymentId,
-          ));
-        } catch (e) {
-          emit(state.copyWith(
-            status: CheckoutRequestStatus.failure,
-            errorMessage: e.toString(),
-            paymentId: session.paymentId,
-          ));
-        }
+        emit(state.copyWith(
+          status: CheckoutRequestStatus.awaitingPayment,
+          paymentId: session.paymentId,
+          paymentMessage: 'Payment session created. Complete payment via Stripe Web.',
+        ));
+        
+        // Note: With flutter_stripe_web standalone, you must render a PaymentElement 
+        // using HtmlElementView or redirect the user to a Stripe Checkout URL. 
+        // Polling will begin when the user is redirected back or via manual refresh.
       } else {
         emit(state.copyWith(
           status: CheckoutRequestStatus.awaitingPayment,
