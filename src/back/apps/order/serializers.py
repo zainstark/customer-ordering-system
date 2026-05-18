@@ -119,6 +119,99 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 # ---------------------------------------------------------------------------
+# Tracking Serializers
+# ---------------------------------------------------------------------------
+
+_TRACKING_PROGRESS_MAP = {
+    "PENDING":          0,
+    "CONFIRMED":        20,
+    "PREPARING":        50,
+    "READY":            70,
+    "OUT_FOR_DELIVERY": 90,
+    "DELIVERED":        100,
+    "CANCELLED":        0,
+    "REFUNDED":         0,
+    "FAILED":           0,
+}
+
+_ETA_MAP = {
+    "PENDING": 45,
+    "CONFIRMED": 35,
+    "PREPARING": 20,
+    "READY": 15,
+    "OUT_FOR_DELIVERY": 5,
+    "DELIVERED": 0,
+    "CANCELLED": 0,
+    "REFUNDED": 0,
+    "FAILED": 0,
+}
+
+class OrderTrackingHistorySerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
+    timestamp = serializers.DateTimeField(source="changed_at", read_only=True)
+
+    class Meta:
+        from apps.order.models import OrderStatusHistory
+        model = OrderStatusHistory
+        fields = ["status", "timestamp"]
+
+    def get_status(self, obj) -> str:
+        s = obj.order_status.lower()
+        if s == "out_for_delivery":
+            return "delivery"
+        return s
+
+class OrderTrackingSerializer(serializers.ModelSerializer):
+    orderId = serializers.CharField(source="order_id", read_only=True)
+    accountId = serializers.CharField(source="account_id", read_only=True)
+    status = serializers.CharField(source="order_status", read_only=True)
+    placedAt = serializers.DateTimeField(source="placed_at", read_only=True)
+    totalAmount = serializers.SerializerMethodField()
+    progress = serializers.SerializerMethodField()
+    items = OrderItemLineSerializer(many=True, read_only=True)
+    currentStatus = serializers.SerializerMethodField()
+    estimatedTimeMinutes = serializers.SerializerMethodField()
+    history = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = [
+            "orderId",
+            "accountId",
+            "status",
+            "placedAt",
+            "totalAmount",
+            "progress",
+            "items",
+            "currentStatus",
+            "estimatedTimeMinutes",
+            "history",
+        ]
+
+    def get_totalAmount(self, obj: Order) -> float:
+        return obj.total_amount / 100.0
+
+    def get_progress(self, obj: Order) -> int:
+        return _TRACKING_PROGRESS_MAP.get(obj.order_status, 0)
+
+    def get_currentStatus(self, obj: Order) -> str:
+        s = obj.order_status.lower()
+        if s == "out_for_delivery":
+            return "delivery"
+        return s
+
+    def get_estimatedTimeMinutes(self, obj: Order) -> int:
+        return _ETA_MAP.get(obj.order_status, 0)
+
+    def get_history(self, obj: Order):
+        # The view should prefetch or pass history. If history is passed as a context variable:
+        history = self.context.get("history")
+        if history is not None:
+            return OrderTrackingHistorySerializer(history, many=True).data
+        return []
+
+
+# ---------------------------------------------------------------------------
 # PlaceOrderSerializer
 # ---------------------------------------------------------------------------
 

@@ -18,4 +18,5 @@ app_name = "order"
 urlpatterns = [
     path("", views.list_orders, name="list_orders"),
     path("place/", views.place_order, name="place_order"),
+    path("<str:order_id>/tracking/", views.order_tracking, name="order_tracking"),
 ]
