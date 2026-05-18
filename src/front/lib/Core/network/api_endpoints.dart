@@ -13,9 +13,8 @@ class ApiEndpoints {
 
   static const String orders = '/api/order/';
   static const String placeOrder = '/api/order/place/';
-
-  static const String accountOrders = '/accounts/{accountId}/orders';
-
+  static const String orderTracking = '/api/order/{orderId}/tracking/';
+  
   static const String createOrder = '/api/orders/';
   static const String createPaymentSession = '/api/payments/create-session/';
   static const String paymentStatusById = '/api/payments/{paymentId}/status/';

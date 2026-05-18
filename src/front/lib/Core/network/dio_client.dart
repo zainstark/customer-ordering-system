@@ -7,12 +7,12 @@ import 'package:frontend/Core/network/app_exception.dart';
 import 'package:frontend/Core/network/errors.dart';
 import 'package:frontend/Core/storage/token_storage.dart';
 
-class _QueuedRequest {
-  _QueuedRequest(this.requestOptions, this.completer);
+// class _QueuedRequest {
+//   _QueuedRequest(this.requestOptions, this.completer);
 
-  final RequestOptions requestOptions;
-  final Completer<Response> completer;
-}
+//   final RequestOptions requestOptions;
+//   final Completer<Response> completer;
+// }
 
 class DioClient {
   final Dio _dio;

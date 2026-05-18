@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/Core/injector/injector.dart';
-import 'package:frontend/features/orders/presentation/cubit/orders_cubit.dart';
-import 'package:frontend/features/orders/presentation/cubit/orders_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/Core/router/routes.dart';
 import 'package:frontend/Core/utils/app_dimensions.dart';
 import 'package:frontend/features/cart/presentation/widgets/app_surface_card.dart';
-import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
-import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
 
 class CartSummaryCard extends StatelessWidget {
   const CartSummaryCard({super.key, required this.state, required this.button});
 
-  final  state;
+  final dynamic state;
   final bool button;
 
   @override

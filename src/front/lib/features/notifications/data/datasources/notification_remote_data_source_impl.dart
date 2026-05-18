@@ -1,8 +1,6 @@
-import 'package:frontend/Core/network/api_endpoints.dart';
 import 'package:frontend/Core/network/dio_client.dart';
 import 'package:frontend/features/notifications/data/datasources/notification_remote_data_source.dart';
 import 'package:frontend/features/notifications/data/models/notification_model.dart';
-import 'package:frontend/features/notifications/domain/entities/notification_entity.dart';
 
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   NotificationRemoteDataSourceImpl(this._dioClient);

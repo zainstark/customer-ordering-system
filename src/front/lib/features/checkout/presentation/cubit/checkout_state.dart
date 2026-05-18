@@ -1,4 +1,3 @@
-import 'package:frontend/features/cart/domain/entities/card_item_entity.dart';
 
 enum CheckoutRequestStatus {
   initial,
