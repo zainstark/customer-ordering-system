@@ -146,7 +146,7 @@ void setupDependencies() {
 
   getIt.registerFactory<MenuCubit>(() => MenuCubit(getIt()));
 
-  getIt.registerFactory<CartCubit>(
+  getIt.registerLazySingleton<CartCubit>(
     () => CartCubit(getIt(), getIt(), getIt(), getIt()),
   );
 

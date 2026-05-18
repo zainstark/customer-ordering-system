@@ -2,21 +2,18 @@ class CreateOrderRequestModel {
   CreateOrderRequestModel({
     required this.accountId,
     required this.paymentMethod,
-    required this.amount,
-    required this.items,
+    required this.address,
   });
 
   final String accountId;
   final String paymentMethod;
-  final double amount;
-  final List<Map<String, dynamic>> items;
+  final String address;
 
   Map<String, dynamic> toMap() {
     return {
       'account_id': accountId,
       'payment_method': paymentMethod,
-      'amount': amount,
-      'items': items,
+      'address': address,
     };
   }
 }
@@ -45,18 +42,15 @@ class CreatePaymentSessionRequestModel {
   CreatePaymentSessionRequestModel({
     required this.orderId,
     required this.paymentMethod,
-    required this.amount,
   });
 
   final String orderId;
   final String paymentMethod;
-  final double amount;
 
   Map<String, dynamic> toMap() {
     return {
       'order_id': orderId,
       'payment_method': paymentMethod,
-      'amount': amount,
     };
   }
 }

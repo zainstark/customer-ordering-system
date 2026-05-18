@@ -79,22 +79,7 @@ class CartSummaryCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async  {
-                 final cubit = getIt<OrdersCubit>();
-                // Minimal address provided since UI does not collect address here
-                const address = 'No address provided';
-                print(" Placing order with address: $address");
-                await cubit.placeOrder(address: address);
-                print(" Placing order with address: $address");
-
-                if (!context.mounted) return;
-
-                if (cubit.state.fetchStatus == FetchStatus.success) {
-                  // Immediately sync top-bar popup and badge after order placement.
-                  context.read<NotificationCubit>().loadNotifications(isRefresh: true);
-                  context.read<NotificationBadgeCubit>().loadUnreadCount();
-                }
-
+              onPressed: () {
                 context.go(RoutesPath.checkout);
               },
               child: const Text('Proceed to checkout'),

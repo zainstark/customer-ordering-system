@@ -9,12 +9,10 @@ class CreatePaymentSessionUseCase {
   Future<PaymentSessionEntity> call({
     required String orderId,
     required String paymentMethod,
-    required double amount,
   }) {
     return _repository.createPaymentSession(
       orderId: orderId,
       paymentMethod: paymentMethod,
-      amount: amount,
     );
   }
 }
