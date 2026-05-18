@@ -317,29 +317,33 @@ class _SignupScreenState extends State<SignupScreen> {
 
                         // ── Footer ───────────────────────────────────
                         Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
                             children: [
                               Text(
                                 'Already have an account? ',
-                                style: textTheme.bodyMedium
-                                    ?.copyWith(color: cs.onSurfaceVariant),
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
                               ),
                               GestureDetector(
-                                onTap: () => context.go(RoutesPath.login),
+                                onTap: () => context.go(
+                                  RoutesPath.login,
+                                ),
                                 child: Text(
                                   'Sign in',
                                   style: textTheme.bodyMedium?.copyWith(
                                     color: cs.primary,
                                     fontWeight: FontWeight.w600,
-                                    decoration: TextDecoration.underline,
+                                    decoration:
+                                        TextDecoration.underline,
                                     decorationColor: cs.primary,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
