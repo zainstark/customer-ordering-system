@@ -15,7 +15,7 @@ class OrderTrackingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<OrdersCubit, OrdersState>(
       builder: (context, state) {
-        if (state.status == OrdersRequestStatus.loading) {
+        if (state.fetchStatus == FetchStatus.loading) {
           return const Center(child: CircularProgressIndicator());
         }
 
