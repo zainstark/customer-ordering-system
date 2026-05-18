@@ -1,4 +1,7 @@
+import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:frontend/features/notifications/presentation/cubit/notification_badge_cubit.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_order_usecase.dart';
 import 'package:frontend/features/checkout/domain/usecases/create_payment_session_usecase.dart';
 import 'package:frontend/features/checkout/domain/usecases/get_payment_status_usecase.dart';
@@ -13,6 +16,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     this._createPaymentSessionUseCase,
     this._getPaymentStatusUseCase,
     this._retryPaymentUseCase,
+    this._notificationCubit,
+    this._notificationBadgeCubit,
   ) : super(const CheckoutState(accountId: _defaultAccountId));
 
   static const String _defaultAccountId = 'test_account_001';
@@ -22,6 +27,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   final CreatePaymentSessionUseCase _createPaymentSessionUseCase;
   final GetPaymentStatusUseCase _getPaymentStatusUseCase;
   final RetryPaymentUseCase _retryPaymentUseCase;
+  final NotificationCubit _notificationCubit;
+  final NotificationBadgeCubit _notificationBadgeCubit;
 
   Future<void> loadCheckout({String? accountId}) async {
     final currentAccountId = accountId ?? state.accountId;
@@ -69,7 +76,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     try {
       final order = await _createOrderUseCase(
         accountId: state.accountId,
-        paymentMethod: state.selectedMethod.label,
+        paymentMethod: state.selectedMethod.apiValue,
         address: address,
       );
 
@@ -81,14 +88,52 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
       final session = await _createPaymentSessionUseCase(
         orderId: order.orderId,
-        paymentMethod: state.selectedMethod.label,
+        paymentMethod: state.selectedMethod.apiValue,
       );
 
-      emit(state.copyWith(
-        status: CheckoutRequestStatus.awaitingPayment,
-        paymentId: session.paymentId,
-        paymentMessage: 'Payment session created. Waiting for confirmation.',
-      ));
+      if (state.selectedMethod.apiValue == 'CARD' && session.clientSecret != null) {
+        try {
+          await stripe.Stripe.instance.initPaymentSheet(
+            paymentSheetParameters: stripe.SetupPaymentSheetParameters(
+              paymentIntentClientSecret: session.clientSecret,
+              merchantDisplayName: 'Customer Ordering System',
+            ),
+          );
+          
+          await stripe.Stripe.instance.presentPaymentSheet();
+          
+          emit(state.copyWith(
+            status: CheckoutRequestStatus.processing,
+            paymentId: session.paymentId,
+            paymentMessage: 'Payment submitted. Waiting for confirmation.',
+          ));
+          await refreshPaymentStatus();
+        } on stripe.StripeException catch (e) {
+          emit(state.copyWith(
+            status: CheckoutRequestStatus.failure,
+            errorMessage: e.error.localizedMessage ?? 'Payment cancelled or failed.',
+            paymentId: session.paymentId,
+          ));
+        } catch (e) {
+          emit(state.copyWith(
+            status: CheckoutRequestStatus.failure,
+            errorMessage: e.toString(),
+            paymentId: session.paymentId,
+          ));
+        }
+      } else {
+        // For CASH payments, backend auto-completes the payment and changes order status to CONFIRMED
+        emit(state.copyWith(
+          status: CheckoutRequestStatus.success,
+          paymentId: session.paymentId,
+          paymentMessage: 'Payment confirmed. Your order is now CONFIRMED.',
+        ));
+        // Trigger notification refresh to notify user of order status change
+        await Future.wait([
+          _notificationCubit.loadNotifications(),
+          _notificationBadgeCubit.refresh(),
+        ]);
+      }
     } catch (error) {
       emit(state.copyWith(
         status: CheckoutRequestStatus.failure,
@@ -108,16 +153,16 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     try {
       final status = await _getPaymentStatusUseCase(paymentId: state.paymentId!);
 
-      if (status.status == 'success') {
+      if (status.status == 'COMPLETED') {
         emit(state.copyWith(
           status: CheckoutRequestStatus.success,
-          paymentMessage: status.message,
+          paymentMessage: status.message ?? 'Payment successful.',
         ));
-      } else if (status.status == 'failed') {
+      } else if (status.status == 'FAILED' || status.status == 'CANCELLED') {
         emit(state.copyWith(
           status: CheckoutRequestStatus.failure,
-          paymentMessage: status.message,
-          errorMessage: status.message,
+          paymentMessage: status.message ?? 'Payment failed.',
+          errorMessage: status.message ?? 'Payment failed.',
         ));
       } else {
         emit(state.copyWith(

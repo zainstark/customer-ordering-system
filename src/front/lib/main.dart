@@ -5,9 +5,11 @@ import 'package:frontend/Core/injector/injector.dart';
 import 'package:frontend/Core/router/app_router.dart';
 import 'package:frontend/Core/theme/app_theme.dart';
 import 'package:frontend/Core/utils/observer.dart';
+import 'package:frontend/Core/services/stripe_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await StripeService.init();
   setupDependencies();
   Bloc.observer = MyBlocObserver();
   runApp(const MyApp());

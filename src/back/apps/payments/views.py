@@ -75,7 +75,13 @@ def retry_payment(request, payment_id):
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
-    result, error = PaymentService.retry_payment(account_id, payment_id)
+    new_payment_method = request.data.get('payment_method')
+
+    result, error = PaymentService.retry_payment(
+        account_id=account_id,
+        payment_id=payment_id,
+        new_payment_method=new_payment_method,
+    )
     if error:
         return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
     return Response(result, status=status.HTTP_200_OK)
