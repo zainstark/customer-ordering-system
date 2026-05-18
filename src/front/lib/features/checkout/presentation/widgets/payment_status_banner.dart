@@ -23,7 +23,7 @@ class PaymentStatusBanner extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: AppDimensions.spacingMd),
       padding: const EdgeInsets.all(AppDimensions.paddingMd),
       decoration: BoxDecoration(
-        color: color.withOpacity(.12),
+        color: color.withValues(alpha: .12),
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
       ),
       child: Row(

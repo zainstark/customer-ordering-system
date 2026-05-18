@@ -32,7 +32,7 @@ class PaymentMethodCard extends StatelessWidget {
           border: Border.all(
             color: selected
                 ? colorScheme.primary
-                : colorScheme.outlineVariant.withOpacity(.5),
+                : colorScheme.outlineVariant.withValues(alpha: .5),
           ),
         ),
         child: Row(
